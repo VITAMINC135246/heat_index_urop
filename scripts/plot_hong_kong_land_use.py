@@ -9,7 +9,7 @@ import rasterio
 #file paths
 zip_path = Path("data/2024_Raster_Grids_on_Land_Utilization_GEOTIFF.zip")
 extract_dir = Path("data/LUHK2024_extracted")
-output_path = Path("outputs/figures/hong_kong_land_use_preliminary_aggregated.png")
+output_path = Path("outputs/figures/hong_kong_land_use_csdi_10_categories.png")
 
 # unzip the file
 extract_dir.mkdir(parents=True, exist_ok=True)
@@ -41,56 +41,66 @@ Shape: (4800, 6375)
 Unique LUHK codes: [0, 1, 2, 3, 11, 21, 22, 23, 31, 32, 41, 42, 43, 44, 51, 52, 53, 54, 61, 62, 71, 72, 73, 74, 81, 83, 91, 92]
 """
 
-# Define the catogory, and combine all LUHK codes into 11 catogories;
+# Define the category, and combine all LUHK codes into the 10 CSDI top-level categories.
+# Raster code 0 is sea / non-land background, so it is not counted as a CSDI land-use category.
 
 category_groups = {
-    0: "Sea / non-land",
-    1: "Residential",
-    2: "Commercial",
-    3: "Industrial / warehouse",
-    4: "GIC / open space",
-    5: "Transport",
-    6: "Other urban / built-up",
-    7: "Agriculture / fishpond",
-    8: "Vegetation / wetland",
-    9: "Barren / rocky shore",
-    10: "Inland water",
+    0: "Residential",
+    1: "Commercial",
+    2: "Industrial",
+    3: "GIC / open space",
+    4: "Transport",
+    5: "Other urban / built-up land",
+    6: "Agriculture",
+    7: "Woodland / shrubland / grassland / wetland",
+    8: "Barren land",
+    9: "Water bodies",
 }
 
 code_to_group = {
-    0: 0,
-    1: 1, 2: 1, 3: 1,
-    11: 2,
-    21: 3, 22: 3, 23: 3,
-    31: 4, 32: 4,
-    41: 5, 42: 5, 43: 5, 44: 5,
-    51: 6, 52: 6, 53: 6, 54: 6,
-    61: 7, 62: 7,
-    71: 8, 72: 8, 73: 8, 74: 8,
-    81: 9, 83: 9,
-    91: 10, 92: 10,
+    1: 0, 2: 0, 3: 0,
+    11: 1,
+    21: 2, 22: 2, 23: 2,
+    31: 3, 32: 3,
+    41: 4, 42: 4, 43: 4, 44: 4,
+    51: 5, 52: 5, 53: 5, 54: 5,
+    61: 6, 62: 6,
+    71: 7, 72: 7, 73: 7, 74: 7,
+    81: 8, 83: 8,
+    91: 9, 92: 9,
 }
 
 grouped = np.full(data.shape, -1, dtype=np.int16)
 for original_code, group_id in code_to_group.items():
     grouped[data == original_code] = group_id
-    
+
+unmapped_codes = sorted(np.unique(data[grouped == -1]).tolist())
+unexpected_codes = [code for code in unmapped_codes if code != 0]
+if unexpected_codes:
+    raise ValueError(f"Found LUHK codes without a CSDI category mapping: {unexpected_codes}")
+
+print("CSDI category mapping:")
+for group_id, label in category_groups.items():
+    grouped_codes = [code for code, mapped_group in code_to_group.items() if mapped_group == group_id]
+    print(f"  {group_id}: {label} <- LUHK codes {grouped_codes}")
+
+plot_data = np.ma.masked_equal(grouped, -1)
 
 # color preparing
 group_ids = sorted(category_groups.keys())
 
-default_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
 base_cmap = plt.colormaps["tab20"].resampled(len(group_ids))
 colors = [base_cmap(i) for i in range(len(group_ids))]
 
 cmap = ListedColormap([colors[i] for i in group_ids])
+cmap.set_bad("#f2f2f2")
 norm = BoundaryNorm([i - 0.5 for i in group_ids] + [group_ids[-1] + 0.5], cmap.N)
 
 # plot, basiclly
 fig, ax = plt.subplots(figsize=(12, 9))
 
 ax.imshow(
-    grouped,
+    plot_data,
     extent=[bounds.left, bounds.right, bounds.bottom, bounds.top],
     origin="upper",
     cmap=cmap,
@@ -98,7 +108,7 @@ ax.imshow(
     interpolation="nearest",
 )
 
-ax.set_title("Preliminary Land-use Spatial Plot of Hong Kong (LUHK 2024)")
+ax.set_title("CSDI Land-use Spatial Plot of Hong Kong (LUHK 2024)")
 ax.set_xlabel("Easting (Hong Kong 1980 Grid, EPSG:2326)")
 ax.set_ylabel("Northing (Hong Kong 1980 Grid, EPSG:2326)")
 
@@ -110,7 +120,7 @@ legend_handles = [
 
 ax.legend(
     handles=legend_handles,
-    title="Aggregated land-use category",
+    title="CSDI land-use category",
     loc="center left",
     bbox_to_anchor=(1.02, 0.5),
     borderaxespad=0,
@@ -120,5 +130,6 @@ ax.set_aspect("equal")
 
 fig.tight_layout()
 
+output_path.parent.mkdir(parents=True, exist_ok=True)
 fig.savefig(output_path, dpi=300, bbox_inches="tight")
-plt.show()
+plt.close(fig)
