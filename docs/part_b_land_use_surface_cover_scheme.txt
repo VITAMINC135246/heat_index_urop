@@ -1,0 +1,262 @@
+Part B Land-Use and Surface-Cover Classification Scheme
+=======================================================
+
+Project: Heat Index UROP
+Purpose: Reference for visible-image annotation, LUHK overlay, V-to-T mask
+         transfer, and later temperature analysis
+Created: 2026-06-16
+
+
+1. Why two classification layers are required
+---------------------------------------------
+
+This project requires two related but independent classification layers.
+
+Layer 1: Broad land use
+Question: What is this area primarily used for in an urban-planning or
+land-use context?
+
+Examples include residential, commercial, industrial, and transport.
+Broad land use describes the function of an area.
+
+Layer 2: Surface cover
+Question: What physical surface is actually visible at this image pixel?
+
+Examples include building roof, asphalt, tree canopy, grass, and water.
+Surface cover describes the visible physical material or feature.
+
+Broad land use and surface cover are related, but they are not the same
+concept. One broad land-use area can contain several surface-cover classes.
+
+Example:
+
+Broad land use: Residential
+
+Possible surface covers:
+- Building roof
+- Asphalt
+- Concrete pavement
+- Tree canopy
+- Low vegetation
+
+
+2. LUHK limitation and official-use rationale
+---------------------------------------------
+
+Official LUHK documentation describes LUHK as a broad-brush representation of land use. Its raster resolution is 10 metres, and the dataset is not designed for detailed analysis or precise calculation.
+
+A 10 m × 10 m LUHK raster cell represents approximately 100 m². One cell may
+contain buildings, vegetation, roads, paved ground, and other physical
+surfaces at the same time. Therefore, one LUHK class must not be treated as
+the pixel-level surface-cover label for a drone image.
+
+LUHK should be used as broad land-use context. Surface cover must be annotated
+independently from the high-resolution visible drone imagery.
+
+
+3. Layer 1: LUHK broad land-use categories
+------------------------------------------
+
+The ten current LUHK source categories must be retained without early merging:
+
+1. Residential
+2. Commercial
+3. Industrial
+4. GIC / open space
+5. Transport
+6. Other urban / built-up land
+7. Agriculture
+8. Woodland / shrubland / grassland / wetland
+9. Barren land
+10. Water bodies
+
+These categories provide broad land-use context. Grouped categories may be
+created later for statistical analysis, but they must not overwrite or delete
+the original LUHK categories.
+
+Recommended fields:
+
+luhk_class_raw
+    The original LUHK category.
+
+luhk_class_grouped
+    An optional later grouping used for a specific analysis.
+
+
+4. Layer 2: Drone surface-cover categories
+------------------------------------------
+
+The pilot-stage surface-cover classes are:
+
+0. Unknown / excluded
+   Areas that cannot be classified reliably; severely blurred or occluded
+   areas; image edges or invalid regions after registration; and vehicles,
+   pedestrians, temporary objects, or other objects not currently included in
+   the stable surface classification.
+
+1. Building roof
+   Building roofs visible from the overhead drone view. Roofs are not further
+   divided by material during the pilot stage.
+
+2. Asphalt
+   Asphalt roads, asphalt parking areas, and similar dark paved surfaces.
+
+3. Concrete / paved surface
+   Concrete, brick, plazas, footpaths, and other hard paved surfaces that are
+   not asphalt.
+
+4. Tree canopy
+   Tree crowns or clearly elevated woody vegetation actually visible in the
+   drone image.
+
+5. Low vegetation
+   Grass, low shrubs, and other low-growing vegetation.
+
+6. Bare soil / rock
+   Exposed soil, exposed rock, unpaved ground, and natural surfaces without
+   clear vegetation cover.
+
+7. Water
+   Sea, pools, rivers, and other visible water surfaces.
+
+The pilot stage deliberately uses a limited number of classes to improve
+annotation consistency, reduce subjective differences between annotators, and
+avoid splitting limited samples into many small categories. Classes may be
+refined later when there is sufficient evidence. A coarse scheme is easier to
+reproduce and can be consistently regrouped.
+
+
+5. Shadow is a separate layer
+-----------------------------
+
+Shadow is not a surface-cover class.
+
+Shadow describes illumination condition, not physical surface material.
+
+For example:
+
+surface_cover = Asphalt
+shadow = 1
+
+or:
+
+surface_cover = Asphalt
+shadow = 0
+
+A separate binary shadow mask is recommended:
+
+0 = not shadowed
+1 = shadowed
+
+Shadow must not be mixed as a mutually exclusive class with building roof,
+asphalt, tree canopy, or the other surface-cover classes.
+
+
+6. Handling mixed LUHK cells
+----------------------------
+
+The relationship between LUHK raster cells and drone pixels is many-to-many.
+For example, one LUHK cell may have:
+
+luhk_class_raw = Residential
+
+while its surface composition is:
+
+Building roof: 45%
+Tree canopy: 25%
+Asphalt: 20%
+Concrete / paved surface: 10%
+
+Analysis must not force one LUHK cell to correspond to only one surface-cover
+class. For each LUHK cell or analysis window, later processing should consider
+calculating:
+
+roof_fraction
+asphalt_fraction
+concrete_fraction
+tree_fraction
+low_vegetation_fraction
+bare_ground_fraction
+water_fraction
+shadow_fraction
+
+dominant_surface_cover may also be saved for display or simplified analysis,
+but the dominant class must not replace the complete class fractions.
+
+
+7. Handling V-to-T resolution conversion
+-----------------------------------------
+
+The surface-cover mask is first annotated on the high-resolution visible
+image. It is then mapped by geometric registration to the thermal image's
+640 × 512 grid.
+
+One thermal pixel may cover several visible-image pixels, so the converted
+thermal representation may contain mixed surface cover. The pilot stage should
+retain at least:
+
+1. A majority-class thermal mask.
+2. Surface-cover fraction information where practical.
+
+For example, if one thermal pixel corresponds to:
+
+70% Tree canopy
+30% Asphalt
+
+the majority mask may classify it as Tree canopy. Where technically practical,
+the class proportions should also be preserved to avoid losing the mixed
+surface information.
+
+
+8. Annotation principles
+------------------------
+
+1. Annotate the surface actually visible to the drone; do not infer the ground
+   beneath an occluding object.
+2. Where tree canopy blocks a road, label the visible area as Tree canopy, not
+   as road.
+3. Use Unknown / excluded when a reliable decision cannot be made.
+4. Do not guess simply to fill every part of the mask.
+5. Never modify or overwrite original imagery.
+6. Save annotations in a project-generated data directory, never in data/raw/.
+7. Use the same category IDs consistently across all pilot images.
+8. When the classification scheme changes, record its version and the reason
+   for the change.
+
+
+9. Intended final analytical structure
+--------------------------------------
+
+Each thermal pixel or analysis region may eventually have:
+
+temperature
+delta_temperature
+surface_cover
+shadow_status
+broad_land_use
+
+Example:
+
+Temperature: 42.1 °C
+Surface cover: Asphalt
+Shadow: No
+Broad land use: Transport
+
+This structure supports analysis of:
+
+- Temperature differences among surface-cover classes.
+- Differences for the same surface cover across broad land-use contexts.
+- The effect of shadow on the same surface-cover class.
+- Relationships between within-cell surface composition and average
+  temperature or ΔT.
+
+
+10. Classification version
+--------------------------
+
+Classification scheme version: 1.0
+Status: Pilot-stage definition
+
+This scheme may be revised after inspecting the first pilot image and
+evaluating annotation ambiguity. Any revision should preserve the previous
+version or record a clear change log.

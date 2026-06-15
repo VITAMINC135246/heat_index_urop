@@ -60,6 +60,18 @@ Pilot selection is explicit. Set `PILOT_PAIR_ID` near the top of
 rerun the script. When it is `None`, no record is marked as the pilot; sample
 number `0016` alone does not automatically select a pilot.
 
+## Part B classification scheme
+
+Part B keeps broad land use and visible surface cover as separate layers.
+Broad land use retains the original LUHK categories, while surface cover is
+independently annotated from visible drone imagery. Shadow is stored as a
+separate mask rather than a surface-cover class.
+
+LUHK is a broad-brush, 10 m resolution context dataset and must not be treated
+as pixel-level surface-cover ground truth for drone imagery. The complete
+classification definitions and annotation principles are documented in
+`docs/part_b_land_use_surface_cover_scheme.txt`.
+
 ## Data-management rule
 
 Treat `data/raw/` as read-only source data. Do not move, rename, overwrite, or
