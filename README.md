@@ -72,6 +72,12 @@ as pixel-level surface-cover ground truth for drone imagery. The complete
 classification definitions and annotation principles are documented in
 `docs/part_b_land_use_surface_cover_scheme.txt`.
 
+## Progress update
+
+The current Part B pilot progress, project workflow, registration plan, and
+next-week priorities are summarized in
+`docs/progress_update_part_b_pilot_plan.md`.
+
 ## Data-management rule
 
 Treat `data/raw/` as read-only source data. Do not move, rename, overwrite, or
