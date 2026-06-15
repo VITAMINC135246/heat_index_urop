@@ -26,9 +26,12 @@ without assuming a fixed directory depth.
 ## V/T pair inventory
 
 `scripts/01_create_vt_pairs.py` scans JPG/JPEG files whose names end in `_V` or
-`_T`, groups them by parent directory and base name, and marks paired, missing,
-or duplicate images. It writes the stable inventory to
-`data/metadata/vt_pairs.csv`.
+`_T` and builds pairs in two stages. It first pairs files in the same parent
+directory whose complete base names match. Remaining files may pair by their
+final sample number, such as `0071`, only within the same parent/session.
+Timestamp differences are allowed and recorded. The script never pairs across
+sessions, and multiple candidates are marked ambiguous instead of being chosen
+arbitrarily. It writes the stable inventory to `data/metadata/vt_pairs.csv`.
 
 Run it from the project root:
 
@@ -43,11 +46,19 @@ The output columns are:
 - `location`: inferred GardenHill, HKUST, or Unknown location
 - `capture_date`: session date when available, otherwise dataset date
 - `session_folder`: nearest parent folder beginning with `DJI_`
-- `base_name`: common filename after removing the `_V` or `_T` suffix
+- `base_name`: exact common base name, or a sample-number label for fallback pairs
+- `sample_number`: final numeric sample identifier, with leading zeros preserved
 - `v_path`, `t_path`: project-relative POSIX paths
 - `status`: paired, missing, or duplicate state
-- `pilot`: whether the base name ends in `_0016`
+- `match_method`: exact base-name, session sample-number, unmatched, or ambiguous
+- `timestamp_difference_seconds`: absolute V/T timestamp difference when parseable
+- `pilot`: whether the record matches the explicitly configured unique pilot
 - `notes`: duplicate paths or scan metadata that needs attention
+
+Pilot selection is explicit. Set `PILOT_PAIR_ID` near the top of
+`scripts/01_create_vt_pairs.py` to one generated project-relative `pair_id`, then
+rerun the script. When it is `None`, no record is marked as the pilot; sample
+number `0016` alone does not automatically select a pilot.
 
 ## Data-management rule
 

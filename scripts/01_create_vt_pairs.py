@@ -15,6 +15,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_DATA_ROOT = PROJECT_ROOT / "data" / "raw" / "HKUST"
 OUTPUT_CSV = PROJECT_ROOT / "data" / "metadata" / "vt_pairs.csv"
 
+# Set this to one generated pair_id after selecting a single pilot record.
+PILOT_PAIR_ID: str | None = None
+TIMESTAMP_WARNING_SECONDS = 2
+
 COLUMNS = [
     "pair_id",
     "dataset_folder",
@@ -22,16 +26,20 @@ COLUMNS = [
     "capture_date",
     "session_folder",
     "base_name",
+    "sample_number",
     "v_path",
     "t_path",
     "status",
+    "match_method",
+    "timestamp_difference_seconds",
     "pilot",
     "notes",
 ]
 VT_SUFFIX_RE = re.compile(r"^(?P<base>.+)_(?P<kind>[VT])$", re.IGNORECASE)
+SAMPLE_NUMBER_RE = re.compile(r"_(\d+)$")
+IMAGE_NAME_RE = re.compile(r"^DJI_(\d{14})_(\d+)$", re.IGNORECASE)
 SESSION_DATE_RE = re.compile(r"^DJI_(\d{8})", re.IGNORECASE)
 DATASET_DATE_RE = re.compile(r"^(\d{8})")
-PILOT_RE = re.compile(r"_0016$")
 
 
 def format_date(value: str) -> str:
@@ -76,19 +84,117 @@ def relative_posix(path: Path) -> str:
     return path.relative_to(PROJECT_ROOT).as_posix()
 
 
-def pair_id(parent_relative_to_raw: Path, base_name: str) -> str:
-    return f"{parent_relative_to_raw.as_posix()}::{base_name}"
+def extract_sample_number(base_name: str) -> str:
+    match = SAMPLE_NUMBER_RE.search(base_name)
+    return match.group(1) if match else ""
 
 
-def duplicate_note(kind: str, paths: list[Path]) -> str:
+def extract_timestamp(base_name: str) -> datetime | None:
+    match = IMAGE_NAME_RE.match(base_name)
+    if not match:
+        return None
+    try:
+        return datetime.strptime(match.group(1), "%Y%m%d%H%M%S")
+    except ValueError:
+        return None
+
+
+def status_for_candidates(v_paths: list[Path], t_paths: list[Path]) -> str:
+    if len(v_paths) > 1 and len(t_paths) > 1:
+        return "duplicate_V_and_T"
+    if len(v_paths) > 1:
+        return "duplicate_V"
+    if len(t_paths) > 1:
+        return "duplicate_T"
+    if not v_paths:
+        return "missing_V"
+    if not t_paths:
+        return "missing_T"
+    return "paired"
+
+
+def candidate_note(kind: str, paths: list[Path]) -> str:
     if len(paths) < 2:
         return ""
     joined = ", ".join(relative_posix(path) for path in paths)
-    return f"duplicate {kind}: {joined}"
+    return f"multiple {kind} candidates: {joined}"
+
+
+def make_record(
+    parent_relative_to_raw: Path,
+    base_name: str,
+    sample_number: str,
+    v_paths: list[Path],
+    t_paths: list[Path],
+    match_method: str,
+) -> dict[str, str]:
+    v_paths = sorted(v_paths, key=lambda path: path.as_posix())
+    t_paths = sorted(t_paths, key=lambda path: path.as_posix())
+    status = status_for_candidates(v_paths, t_paths)
+    dataset_folder = parent_relative_to_raw.parts[0]
+    parent = RAW_DATA_ROOT / parent_relative_to_raw
+    session_folder = find_session(parent)
+    notes = [
+        note
+        for note in (
+            candidate_note("V", v_paths),
+            candidate_note("T", t_paths),
+            "" if session_folder else "unable to identify DJI_ session folder",
+        )
+        if note
+    ]
+
+    timestamp_difference = ""
+    if status == "paired":
+        v_base = VT_SUFFIX_RE.match(v_paths[0].stem).group("base")
+        t_base = VT_SUFFIX_RE.match(t_paths[0].stem).group("base")
+        v_timestamp = extract_timestamp(v_base)
+        t_timestamp = extract_timestamp(t_base)
+        if v_timestamp and t_timestamp:
+            difference = int(abs((v_timestamp - t_timestamp).total_seconds()))
+            timestamp_difference = str(difference)
+            if difference > TIMESTAMP_WARNING_SECONDS:
+                notes.append(
+                    f"timestamp difference {difference} seconds exceeds "
+                    f"{TIMESTAMP_WARNING_SECONDS}-second review threshold"
+                )
+        elif match_method == "session_sample_number":
+            notes.append("unable to calculate timestamp difference for fallback match")
+
+        if match_method == "session_sample_number" and v_base != t_base:
+            notes.append(f"fallback base names: V={v_base}; T={t_base}")
+
+    if status.startswith("duplicate_"):
+        match_method = "ambiguous"
+
+    if match_method == "exact_base_name":
+        identifier = base_name
+    elif sample_number:
+        identifier = f"sample_{sample_number}"
+    else:
+        identifier = base_name
+    record_pair_id = f"{parent_relative_to_raw.as_posix()}::{identifier}"
+
+    return {
+        "pair_id": record_pair_id,
+        "dataset_folder": dataset_folder,
+        "location": infer_location(dataset_folder),
+        "capture_date": infer_capture_date(session_folder, dataset_folder),
+        "session_folder": session_folder,
+        "base_name": base_name,
+        "sample_number": sample_number,
+        "v_path": relative_posix(v_paths[0]) if len(v_paths) == 1 else "",
+        "t_path": relative_posix(t_paths[0]) if len(t_paths) == 1 else "",
+        "status": status,
+        "match_method": match_method,
+        "timestamp_difference_seconds": timestamp_difference,
+        "pilot": "yes" if record_pair_id == PILOT_PAIR_ID else "no",
+        "notes": "; ".join(notes),
+    }
 
 
 def build_records() -> tuple[list[dict[str, str]], int, int]:
-    groups: dict[tuple[str, str], dict[str, list[Path]]] = defaultdict(
+    exact_groups: dict[tuple[str, str], dict[str, list[Path]]] = defaultdict(
         lambda: {"V": [], "T": []}
     )
     jpg_count = 0
@@ -104,60 +210,86 @@ def build_records() -> tuple[list[dict[str, str]], int, int]:
             continue
         base_name = match.group("base")
         kind = match.group("kind").upper()
-        parent_relative_to_raw = path.parent.relative_to(RAW_DATA_ROOT)
-        groups[(parent_relative_to_raw.as_posix(), base_name)][kind].append(path)
+        parent_relative_to_raw = path.parent.relative_to(RAW_DATA_ROOT).as_posix()
+        exact_groups[(parent_relative_to_raw, base_name)][kind].append(path)
 
     records: list[dict[str, str]] = []
-    for (parent_string, base_name), sides in groups.items():
-        parent_relative_to_raw = Path(parent_string)
-        v_paths = sorted(sides["V"], key=lambda path: path.as_posix())
-        t_paths = sorted(sides["T"], key=lambda path: path.as_posix())
-        dataset_folder = parent_relative_to_raw.parts[0]
-        parent = RAW_DATA_ROOT / parent_relative_to_raw
-        session_folder = find_session(parent)
+    leftovers: list[tuple[Path, str, str]] = []
 
-        if len(v_paths) > 1 and len(t_paths) > 1:
-            status = "duplicate_V_and_T"
-        elif len(v_paths) > 1:
-            status = "duplicate_V"
-        elif len(t_paths) > 1:
-            status = "duplicate_T"
-        elif not v_paths:
-            status = "missing_V"
-        elif not t_paths:
-            status = "missing_T"
-        else:
-            status = "paired"
-
-        notes = [
-            note
-            for note in (
-                duplicate_note("V", v_paths),
-                duplicate_note("T", t_paths),
-                "" if session_folder else "unable to identify DJI_ session folder",
+    # Stage 1: consume only unambiguous exact base-name pairs.
+    for (parent_string, base_name), sides in exact_groups.items():
+        v_paths = sides["V"]
+        t_paths = sides["T"]
+        if len(v_paths) == 1 and len(t_paths) == 1:
+            records.append(
+                make_record(
+                    Path(parent_string),
+                    base_name,
+                    extract_sample_number(base_name),
+                    v_paths,
+                    t_paths,
+                    "exact_base_name",
+                )
             )
-            if note
-        ]
+        else:
+            leftovers.extend((path, base_name, "V") for path in v_paths)
+            leftovers.extend((path, base_name, "T") for path in t_paths)
+
+    # Stage 2: pair remaining files only within one parent/session and sample number.
+    fallback_groups: dict[tuple[str, str], dict[str, list[tuple[Path, str]]]] = (
+        defaultdict(lambda: {"V": [], "T": []})
+    )
+    no_sample_groups: dict[tuple[str, str], dict[str, list[Path]]] = defaultdict(
+        lambda: {"V": [], "T": []}
+    )
+    for path, base_name, kind in leftovers:
+        parent_string = path.parent.relative_to(RAW_DATA_ROOT).as_posix()
+        sample_number = extract_sample_number(base_name)
+        if sample_number:
+            fallback_groups[(parent_string, sample_number)][kind].append((path, base_name))
+        else:
+            no_sample_groups[(parent_string, base_name)][kind].append(path)
+
+    for (parent_string, sample_number), sides in fallback_groups.items():
+        v_items = sides["V"]
+        t_items = sides["T"]
+        v_paths = [item[0] for item in v_items]
+        t_paths = [item[0] for item in t_items]
+        all_bases = sorted({item[1] for item in v_items + t_items})
+        display_base = all_bases[0] if len(all_bases) == 1 else f"sample_{sample_number}"
+        method = (
+            "session_sample_number"
+            if len(v_paths) == 1 and len(t_paths) == 1
+            else "unmatched"
+        )
         records.append(
-            {
-                "pair_id": pair_id(parent_relative_to_raw, base_name),
-                "dataset_folder": dataset_folder,
-                "location": infer_location(dataset_folder),
-                "capture_date": infer_capture_date(session_folder, dataset_folder),
-                "session_folder": session_folder,
-                "base_name": base_name,
-                "v_path": relative_posix(v_paths[0]) if v_paths else "",
-                "t_path": relative_posix(t_paths[0]) if t_paths else "",
-                "status": status,
-                "pilot": "yes" if PILOT_RE.search(base_name) else "no",
-                "notes": "; ".join(notes),
-            }
+            make_record(
+                Path(parent_string),
+                display_base,
+                sample_number,
+                v_paths,
+                t_paths,
+                method,
+            )
+        )
+
+    for (parent_string, base_name), sides in no_sample_groups.items():
+        records.append(
+            make_record(
+                Path(parent_string),
+                base_name,
+                "",
+                sides["V"],
+                sides["T"],
+                "unmatched",
+            )
         )
 
     records.sort(
         key=lambda row: (
             row["dataset_folder"].lower(),
             row["session_folder"].lower(),
+            row["sample_number"],
             row["base_name"].lower(),
             row["pair_id"].lower(),
         )
@@ -167,8 +299,10 @@ def build_records() -> tuple[list[dict[str, str]], int, int]:
 
 def print_summary(records: list[dict[str, str]], jpg_count: int, ignored: int) -> None:
     counts = defaultdict(int)
+    methods = defaultdict(int)
     for record in records:
         counts[record["status"]] += 1
+        methods[record["match_method"]] += 1
 
     print(f"Raw data root: {RAW_DATA_ROOT}")
     print(f"Output CSV: {OUTPUT_CSV}")
@@ -178,8 +312,9 @@ def print_summary(records: list[dict[str, str]], jpg_count: int, ignored: int) -
     print(f"Paired: {counts['paired']}")
     print(f"Missing V: {counts['missing_V']}")
     print(f"Missing T: {counts['missing_T']}")
-    print(f"Duplicate V: {counts['duplicate_V'] + counts['duplicate_V_and_T']}")
-    print(f"Duplicate T: {counts['duplicate_T'] + counts['duplicate_V_and_T']}")
+    print(f"Ambiguous/duplicate: {methods['ambiguous']}")
+    print(f"Exact base-name matches: {methods['exact_base_name']}")
+    print(f"Session sample-number matches: {methods['session_sample_number']}")
     print(f"Pilot records: {sum(row['pilot'] == 'yes' for row in records)}")
 
 
