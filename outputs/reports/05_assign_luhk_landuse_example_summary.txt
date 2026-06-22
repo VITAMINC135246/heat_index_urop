@@ -1,0 +1,29 @@
+LUHK land-use assignment example summary
+
+example image processed: DJI_20260107143259_0005_V
+LUHK raster used: data/LUHK2024_extracted/LUMHK_RasterGrid_2024/BLU.tif
+number of grid cells in example image: 1728
+number of full cells: 1645
+number of partial edge cells: 83
+
+number of unique dominant land-use classes assigned: 6
+list of unique dominant land-use names:
+- Agriculture
+- GIC / open space
+- Other urban / built-up land
+- Residential
+- Transport
+- Woodland / shrubland / grassland / wetland
+
+min / median / max dominant_ratio: min=0.6317, median=1.0000, max=1.0000
+
+number of high_confidence cells: 1607
+number of medium_confidence cells: 121
+number of mixed_cell cells: 0
+number of no_luhk_overlap cells: 0
+number of no_mapped_luhk_class cells: 0
+
+path to CSV: data/processed/grids/example_grid_landuse_DJI_20260107143259_0005_V.csv
+path to GeoJSON: outputs/geodata/example_grid_landuse_DJI_20260107143259_0005_V.geojson
+path to map figure: outputs/figures/example_grid_landuse_DJI_20260107143259_0005_V_map.png
+path to overlay figure: outputs/figures/example_grid_landuse_DJI_20260107143259_0005_V_overlay_on_V.png

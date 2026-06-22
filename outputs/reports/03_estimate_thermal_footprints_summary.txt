@@ -1,0 +1,26 @@
+Thermal image footprint estimation summary
+
+total metadata rows read: 1819
+thermal image rows found: 909
+Garden Hill rows excluded: 86
+thermal rows after Garden Hill exclusion: 823
+rows with required metadata: 822
+rows skipped due to missing GPS: 0
+rows skipped due to missing relative_altitude: 1
+rows skipped due to missing image size: 0
+number of footprints created: 822
+
+number using metadata_fov: 0
+number using estimated_from_sensor_and_focal_length: 0
+number using assumed_fallback FOV: 822
+
+min / median / max relative_altitude_m: min=0, median=498.876, max=500.623
+min / median / max ground_width_m: min=0, median=587.721, max=589.779
+min / median / max ground_height_m: min=0, median=444.228, max=445.783
+min / median / max footprint_area_m2: min=0, median=261082, max=262914
+min / median / max gsd_x_m_per_px: min=0, median=0.918315, max=0.92153
+min / median / max gsd_y_m_per_px: min=0, median=0.867633, max=0.870671
+
+output CSV path: data/processed/footprints/thermal_image_footprints.csv
+output GeoJSON path: outputs/geodata/thermal_image_footprints.geojson
+output preview figure path: outputs/figures/thermal_footprint_preview.png

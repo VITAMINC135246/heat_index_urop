@@ -1,0 +1,32 @@
+Pilot 10m x 10m grid construction summary
+
+source folder used: F:\Projects\heat_index_urop\data\raw\hkust\20260107_Thermal_HKUST\DCIM\DJI_202601071424_001
+max images requested: 10
+number of _V.JPG images found in source folder: 144
+number of selected visible images: 10
+number of selected visible images with paired thermal images: 10
+number of selected images with available thermal footprints: 8
+number of images skipped due to missing pair: 0
+number of images skipped due to missing footprint: 2
+total grid cells created: 13824
+number of full 10m x 10m cells: 13160
+number of partial edge cells: 664
+min / median / max cells per image: min=1728, median=1728, max=1728
+
+output CSV path: data/processed/grids/pilot_10m_grid_cells.csv
+output GeoJSON path: outputs/geodata/pilot_10m_grid_cells.geojson
+output overlay figure folder: outputs/figures/pilot_grid_overlays
+
+selected visible images:
+1. data/raw/hkust/20260107_Thermal_HKUST/DCIM/DJI_202601071424_001/DJI_20260107142534_0001_V.JPG | status=skipped | pair_match=matched_by_visible_path | footprint_match=matched_by_thermal_path | grid_cells=0
+   skip_reason=thermal_footprint_has_zero_or_invalid_area
+2. data/raw/hkust/20260107_Thermal_HKUST/DCIM/DJI_202601071424_001/DJI_20260107142623_0003_V.JPG | status=skipped | pair_match=matched_by_visible_path | footprint_match=matched_by_thermal_path | grid_cells=0
+   skip_reason=thermal_footprint_has_zero_or_invalid_area
+3. data/raw/hkust/20260107_Thermal_HKUST/DCIM/DJI_202601071424_001/DJI_20260107143259_0005_V.JPG | status=grid_created | pair_match=matched_by_visible_path | footprint_match=matched_by_thermal_path | grid_cells=1728
+4. data/raw/hkust/20260107_Thermal_HKUST/DCIM/DJI_202601071424_001/DJI_20260107143311_0006_V.JPG | status=grid_created | pair_match=matched_by_visible_path | footprint_match=matched_by_thermal_path | grid_cells=1728
+5. data/raw/hkust/20260107_Thermal_HKUST/DCIM/DJI_202601071424_001/DJI_20260107143320_0007_V.JPG | status=grid_created | pair_match=matched_by_visible_path | footprint_match=matched_by_thermal_path | grid_cells=1728
+6. data/raw/hkust/20260107_Thermal_HKUST/DCIM/DJI_202601071424_001/DJI_20260107143328_0008_V.JPG | status=grid_created | pair_match=matched_by_visible_path | footprint_match=matched_by_thermal_path | grid_cells=1728
+7. data/raw/hkust/20260107_Thermal_HKUST/DCIM/DJI_202601071424_001/DJI_20260107143344_0009_V.JPG | status=grid_created | pair_match=matched_by_visible_path | footprint_match=matched_by_thermal_path | grid_cells=1728
+8. data/raw/hkust/20260107_Thermal_HKUST/DCIM/DJI_202601071424_001/DJI_20260107143352_0010_V.JPG | status=grid_created | pair_match=matched_by_visible_path | footprint_match=matched_by_thermal_path | grid_cells=1728
+9. data/raw/hkust/20260107_Thermal_HKUST/DCIM/DJI_202601071424_001/DJI_20260107143401_0011_V.JPG | status=grid_created | pair_match=matched_by_visible_path | footprint_match=matched_by_thermal_path | grid_cells=1728
+10. data/raw/hkust/20260107_Thermal_HKUST/DCIM/DJI_202601071424_001/DJI_20260107143409_0012_V.JPG | status=grid_created | pair_match=matched_by_visible_path | footprint_match=matched_by_thermal_path | grid_cells=1728
