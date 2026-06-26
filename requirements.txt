@@ -1,0 +1,14 @@
+# Core data, GIS, raster, and plotting dependencies for the project scripts.
+numpy
+pandas
+matplotlib
+pyproj
+rasterio
+Pillow
+
+# Optional but recommended for GeoJSON/GIS exports when available.
+geopandas
+shapely
+
+# External command-line dependency used by scripts/02_extract_dji_metadata.py:
+# install ExifTool separately; it is not distributed as a Python package.

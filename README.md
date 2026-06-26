@@ -13,6 +13,12 @@ Preliminary land-use plotting work for Hong Kong LUHK 2024 data.
 Install the Python dependencies in your environment, then run:
 
 ```bash
+python3 -m pip install -r requirements.txt
+```
+
+Generate the LUHK plot with:
+
+```bash
 python scripts/plot_hong_kong_land_use.py
 ```
 

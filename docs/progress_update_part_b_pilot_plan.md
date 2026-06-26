@@ -213,3 +213,8 @@ Part A temperature extraction can resume when Windows access becomes available.
 - Confirm whether affine transformation and homography should both be evaluated
   during the first pilot.
 - Discuss access to a Windows device and the preferred DJI extraction workflow.
+
+
+
+need to find the经纬度 of the _T.jpg, match with the HK grid graph, use the major one to define the landuse;
+NEED DJI TAT3 to get the centre 经纬度, need a 算法to calculate the real coordinates of rach pixel. 考虑畸变
