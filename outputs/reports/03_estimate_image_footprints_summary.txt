@@ -1,0 +1,28 @@
+Image footprint estimation summary
+
+total footprint rows written: 1646
+valid footprints: 1641
+incomplete footprints: 5
+visible rows: 823
+thermal rows: 823
+visible rows using fallback: 0
+thermal rows using fallback: 0
+
+camera rule:
+- visible _V.JPG uses visible metadata only; no thermal fallback is allowed
+- thermal _T.JPG keeps the thermal profile fallback only when metadata cannot resolve FOV
+- yaw/heading is reported but not yet used; footprints are approximate north-up rectangles
+
+valid ground_width_m: min=60.994, median=323.905, max=785.733
+valid ground_height_m: min=45.745, median=259.124, max=541.658
+
+output CSV path: data/processed/footprints/image_footprints.csv
+output GeoJSON path: outputs/geodata/image_footprints.geojson
+preview figure path: outputs/figures/image_footprint_preview.png
+
+first incomplete rows:
+- 20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107142534_0001 visible DJI_20260107142534_0001_V.JPG: missing or invalid required footprint metadata: positive_relative_altitude
+- 20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107142534_0001 thermal DJI_20260107142534_0001_T.JPG: missing or invalid required footprint metadata: positive_relative_altitude
+- 20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107142623_0003 visible DJI_20260107142623_0003_V.JPG: missing or invalid required footprint metadata: positive_relative_altitude
+- 20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107142623_0003 thermal DJI_20260107142623_0003_T.JPG: missing or invalid required footprint metadata: positive_relative_altitude
+- 20260202_Thermal_HKUST/DCIM/DJI_202602021650_009::sample_0001 thermal DJI_20260202165447_0001_T.JPG: missing or invalid required footprint metadata: relative_altitude

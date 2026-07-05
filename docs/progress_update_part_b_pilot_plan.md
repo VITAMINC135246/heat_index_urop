@@ -15,9 +15,13 @@ paused.
 While Part A is paused, I have advanced Part B: land-use and surface-cover
 alignment. The raw data structure has been preserved, a reproducible V/T pair
 inventory has been generated, and a two-layer classification scheme has been
-defined. The next pilot task is to select one V/T pair, register the
-high-resolution visible image to the thermal grid, and transfer a visible-image
-surface-cover annotation to that grid.
+defined.
+
+Current implementation update: the pilot LUHK workflow now estimates separate
+footprints for visible `_V.JPG` and thermal `_T.JPG` images, selects five valid
+HKUST V/T pairs, and creates 10 m cells aligned to the LUHK raster row/column
+grid. Visible and thermal image correspondence is expressed through shared
+LUHK `global_cell_id` values, not by assuming identical V/T camera geometry.
 
 ## Project Workflow Overview: A-D
 
@@ -33,6 +37,9 @@ surface-cover annotation to that grid.
 
 - Build and validate visible/thermal image pairs.
 - Use LUHK as broad land-use context.
+- Estimate visible and thermal footprints separately from each image's own
+  metadata.
+- Use LUHK-aligned 10 m raster cells as the common geospatial grid.
 - Annotate physical surface cover on the visible image.
 - Establish visible-to-thermal (V→T) geometric registration.
 - Transfer the visible-image categorical mask to the thermal `640 × 512` grid.
@@ -193,6 +200,22 @@ therefore not started in the current environment.
 
 Part B does not depend on having the temperature matrix and can proceed now.
 Part A temperature extraction can resume when Windows access becomes available.
+
+## Current LUHK Overlay Implementation
+
+The current scripts implement a five-pair LUHK pilot:
+
+- `scripts/03_estimate_image_footprints.py` creates one footprint row per
+  visible or thermal image.
+- `scripts/04_create_10m_grids_pilot.py` creates LUHK-raster-aligned 10 m
+  cells and records visible coverage, thermal coverage, and common V/T cells.
+- `scripts/05_assign_luhk_landuse_pilot_overlays.py` outputs separate visible
+  overlays, thermal overlays, common-cell overlays, and EPSG:2326 map views.
+
+Visible `_V.JPG` footprints use visible metadata only. Thermal fallback camera
+assumptions are not used for visible overlays. Thermal `_T.JPG` footprints keep
+the thermal profile fallback only as a labeled fallback when metadata cannot
+resolve FOV.
 
 ## Next-Week Plan
 

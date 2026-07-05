@@ -36,6 +36,14 @@ Completed progress
   exact match first, then same session + same sample number.
 - Current inventory: 910 records, 909 paired, one missing thermal counterpart.
 - Defined separate broad land-use and visible surface-cover layers.
+- Implemented a revised five-pair LUHK pilot workflow:
+  scripts/03_estimate_image_footprints.py estimates separate visible and thermal
+  footprints; scripts/04_create_10m_grids_pilot.py creates LUHK-aligned 10 m
+  cells using raster row/col global IDs; and
+  scripts/05_assign_luhk_landuse_pilot_overlays.py outputs visible, thermal,
+  common-cell, and EPSG:2326 map overlays.
+- Visible JPG footprints use visible metadata only. Thermal fallback camera
+  assumptions are not applied to visible overlays.
 
 Classification
 --------------
@@ -67,6 +75,10 @@ V and T images have different resolutions. One verified pair has a 4032 × 3024
 visible image and a 1280 × 1024 thermal JPG, while the target temperature grid
 is 640 × 512. Different field of view, sensor position, rotation, scale, and
 perspective also mean that simple resizing is not sufficient.
+
+The current LUHK pilot does not assume V and T have identical footprints. It
+uses shared LUHK 10 m global_cell_id values to identify cells covered by the
+visible footprint, the thermal footprint, or both.
 
 Target mapping:
 visible image coordinate → thermal image 640 × 512 coordinate

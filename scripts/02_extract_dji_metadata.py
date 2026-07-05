@@ -798,8 +798,12 @@ def normalize_metadata_record(
         "ir_window_transmission": parse_float(
             first_available(meta, TAG_ALIASES["ir_window_transmission"])
         ),
-        "assumed_focal_length_mm": 12,
-        "assumed_aperture": 1.0,
+        "assumed_focal_length_mm": (
+            12 if image_record["image_type"] == "thermal" else None
+        ),
+        "assumed_aperture": (
+            1.0 if image_record["image_type"] == "thermal" else None
+        ),
         "assumed_image_top_is_north": True,
         "assumed_nadir_view": True,
         "assumed_gps_as_image_center": True,

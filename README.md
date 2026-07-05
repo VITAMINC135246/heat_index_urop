@@ -84,6 +84,30 @@ The current Part B pilot progress, project workflow, registration plan, and
 next-week priorities are summarized in
 `docs/progress_update_part_b_pilot_plan.md`.
 
+## Current V/T footprint and LUHK grid workflow
+
+The current pilot workflow estimates separate footprints for DJI visible
+`_V.JPG` and thermal `_T.JPG` images. Thermal analysis still uses `_T.JPG`
+geometry. Visible overlays use visible geometry and visible metadata; they must
+not borrow the thermal fallback profile.
+
+Run the current pilot sequence from the project root:
+
+```bash
+python3 scripts/03_estimate_image_footprints.py
+python3 scripts/04_create_10m_grids_pilot.py --max-pairs 5
+python3 scripts/05_assign_luhk_landuse_pilot_overlays.py
+```
+
+Step 03 writes one footprint row per image to
+`data/processed/footprints/image_footprints.csv`. Step 04 selects five valid
+HKUST V/T pairs and creates 10 m cells aligned to the official LUHK raster
+row/column grid, not to each image footprint origin. Step 05 draws separate
+visible, thermal, common-cell, and EPSG:2326 map overlays for each pilot pair.
+
+The explicit V/T camera rules, metadata priority, LUHK-aligned grid rule, and
+remaining limitations are documented in `docs/camera_parameter_assumptions.md`.
+
 ## Data-management rule
 
 Treat `data/raw/` as read-only source data. Do not move, rename, overwrite, or
