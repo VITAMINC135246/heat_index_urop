@@ -3,6 +3,16 @@
 **Prepared for:** Professor progress discussion
 **Date:** 2026-06-16
 
+## July 2026 Supersession Note
+
+This document is retained as a historical progress record. Its original A-D
+workflow framing has been superseded by the revised A-E project structure in
+`docs/revised_project_overview.md`. The current objective is to link UAV thermal
+imagery, visible-image surface-cover information, and LUHK 2024 land-use data,
+then analyze temperature and delta-temperature differences across land-use and
+surface-cover conditions. Prediction modeling is now treated as a later optional
+extension rather than the immediate goal.
+
 ## Executive Summary
 
 The received DJI dataset structure and contents appear usable. Before leaving
@@ -23,41 +33,67 @@ HKUST V/T pairs, and creates 10 m cells aligned to the LUHK raster row/column
 grid. Visible and thermal image correspondence is expressed through shared
 LUHK `global_cell_id` values, not by assuming identical V/T camera geometry.
 
-## Project Workflow Overview: A-D
+## Project Workflow Overview: Revised A-E
 
-### A. Data Extraction
+### A. Data Inventory And Spatial Foundation
 
-- Extract a `640 × 512` pixel-level temperature matrix from each DJI thermal
-  R-JPEG.
-- Use Windows with DJI TDT 3 or DJI Thermal SDK.
-- This part is temporarily paused because the required Windows/DJI environment
-  is not currently available.
+- Maintain the V/T pair inventory and metadata summaries.
+- Identify usable HKUST images and deprioritize Garden Hill images for the
+  current HKUST-focused workflow.
+- Record missing V/T cases and selected pilot images.
+- Keep LUHK 2024 as the official 10 m broad land-use raster.
+- Document camera and spatial assumptions, including approximate nadir view,
+  image top as north, GPS as approximate image center, metadata altitude, and
+  unknown terrain elevation.
 
-### B. Land-Use and Surface-Cover Alignment
+Current status: Mostly completed in first-pass form.
 
-- Build and validate visible/thermal image pairs.
-- Use LUHK as broad land-use context.
-- Estimate visible and thermal footprints separately from each image's own
-  metadata.
-- Use LUHK-aligned 10 m raster cells as the common geospatial grid.
-- Annotate physical surface cover on the visible image.
-- Establish visible-to-thermal (V→T) geometric registration.
-- Transfer the visible-image categorical mask to the thermal `640 × 512` grid.
+### B. V/T ROI Alignment And Visible Surface-Cover Classification
 
-### C. ΔT Spectrum and Statistical Analysis
+- Align visible images to thermal images or crop visible images to the thermal
+  ROI.
+- Classify visible-image surface cover inside the thermal ROI.
+- Keep LUHK broad land-use context separate from visible-image surface cover.
+- Produce V/T ROI previews and alignment/classification QA notes.
+- Use OpenCV feature matching or homography where feasible.
+- Use metadata-based footprint estimation, QGIS Georeferencer, or manual GCP
+  correction when needed.
+- Use manual inspection for failed or uncertain cases.
 
-- Compare temperature or ΔT among land-use and surface-cover classes.
-- Examine the effects of shadow, surface-cover composition, and broad
-  land-use context.
-- Retain both broad context and visible physical surface information instead
-  of treating them as the same variable.
+Current status: The revised method has been decided, but a stable pilot
+alignment and surface-cover review workflow still needs to be completed.
 
-### D. Prediction Model Building
+### C. Temperature Extraction And Delta-T Table Construction
 
-- Later, build a simple prediction model using land-use/surface-cover features
-  and extracted temperature matrices.
-- The initial objective can be point-level or window-level ΔT prediction,
-  rather than an immediate full-city real-time model.
+- Confirm DJI R-JPEG thermal files are usable.
+- Extract pixel-level or region-level temperature values.
+- Obtain or define an ambient temperature source.
+- Calculate delta-T.
+- Join temperature, LUHK land use, surface cover, metadata, and QA fields into
+  an analysis-ready table.
+
+Current status: Not fully started because temperature extraction depends on
+Windows, DJI Thermal Analysis Tool 3, or DJI Thermal SDK access.
+
+### D. Statistical Analysis By Land-Use Context And Surface Cover
+
+- Compare delta-T distributions by LUHK land-use category.
+- Compare delta-T distributions by visible-image surface-cover category.
+- Analyze differences within broad LUHK categories, especially GIC areas at
+  HKUST.
+- Generate summary tables, boxplots, histograms, and maps.
+
+Current status: Not started. This depends on successful temperature extraction
+and reliable spatial and classification alignment.
+
+### E. Reporting, Visualization, And Optional Exploratory Modeling
+
+- Prepare the final pilot workflow report and figures.
+- Document assumptions, QA outcomes, and limitations.
+- Optionally test simple exploratory models only after enough reliable labeled
+  data and temperature tables exist.
+
+Current status: Not started. This depends on Parts B-D.
 
 ## Current Data Status
 
@@ -198,12 +234,13 @@ I currently do not have access to a Windows device or the required DJI TDT 3 /
 DJI Thermal SDK environment. Pixel-level temperature-matrix extraction has
 therefore not started in the current environment.
 
-Part B does not depend on having the temperature matrix and can proceed now.
-Part A temperature extraction can resume when Windows access becomes available.
+Part B does not depend on having the temperature matrix and can proceed after
+Part A closure. Temperature extraction belongs to revised Part C and can resume
+when Windows / DJI extraction access is available.
 
 ## Current LUHK Overlay Implementation
 
-The current scripts implement a five-pair LUHK pilot:
+The existing scripts previously generated a five-pair LUHK pilot diagnostic:
 
 - `scripts/03_estimate_image_footprints.py` creates one footprint row per
   visible or thermal image.
@@ -217,10 +254,16 @@ assumptions are not used for visible overlays. Thermal `_T.JPG` footprints keep
 the thermal profile fallback only as a labeled fallback when metadata cannot
 resolve FOV.
 
+These outputs are useful history, but no footprint, cover, or LUHK overlay
+should be treated as final until the Matrice 4T per-image visible camera
+selection rule has been validated.
+
 ## Next-Week Plan
 
 - Validate and freeze the updated same-session/sample-number pairing inventory.
 - Confirm and freeze the first unique pilot pair.
+- Validate per-image Matrice 4T camera selection before treating footprint or
+  cover outputs as final.
 - Create `pilot_pairs.csv`.
 - Complete the first V→T registration.
 - Generate registration diagnostics and review reprojection error.
@@ -237,7 +280,11 @@ resolve FOV.
   during the first pilot.
 - Discuss access to a Windows device and the preferred DJI extraction workflow.
 
+## Raw Historical Note
 
-
-need to find the经纬度 of the _T.jpg, match with the HK grid graph, use the major one to define the landuse;
-NEED DJI TAT3 to get the centre 经纬度, need a 算法to calculate the real coordinates of rach pixel. 考虑畸变
+An older raw note at the end of this document had text-encoding corruption. Its
+intended meaning appears to have been: find the thermal image coordinates,
+match them with the Hong Kong grid, use the dominant LUHK context where needed,
+and use DJI thermal tools plus an algorithm to estimate real coordinates for
+thermal pixels while considering distortion. This note is historical only; the
+current revised workflow is controlled by `docs/revised_project_overview.md`.

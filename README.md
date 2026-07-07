@@ -1,12 +1,71 @@
 # Heat Index UROP
 
-Preliminary land-use plotting work for Hong Kong LUHK 2024 data.
+Pilot workflow for linking UAV thermal imagery, visible-image surface-cover
+information, and official LUHK 2024 land-use data. The current objective is to
+analyze temperature and delta-temperature differences across land-use and
+surface-cover conditions, not to immediately build a full heat-index prediction
+model.
 
 ## Contents
 
-- `scripts/plot_hong_kong_land_use.py`: extracts the LUHK 2024 GeoTIFF ZIP, groups LUHK codes into broader land-use categories, and generates a spatial plot.
-- `data/`: source LUHK CSV and GeoTIFF ZIP data.
-- `outputs/`: generated land-use figures.
+- `docs/revised_project_overview.md`: current A-E project objective,
+  methodology, feasibility assessment, and progress summary.
+- `docs/method_change_log.md`: record of major method revisions.
+- `docs/camera_parameter_assumptions.md`: camera and footprint assumptions for
+  the current V/T and LUHK pilot workflow.
+- `docs/part_b_land_use_surface_cover_scheme.txt`: LUHK land-use and
+  visible-image surface-cover classification reference.
+- `scripts/`: reproducible inventory, metadata, footprint, grid, and LUHK
+  overlay scripts.
+- `data/metadata/`: generated V/T and metadata CSV tables kept under version
+  control.
+- `outputs/`: generated reports, geodata, and progress figures.
+
+## Current project direction
+
+The revised workflow separates three linked data layers:
+
+1. LUHK 2024 provides official 10 m broad land-use context.
+2. Visible UAV images provide finer surface-cover information inside the
+   thermal region of interest.
+3. Thermal UAV images provide the actual temperature information.
+
+Because temperature is only available in the thermal image, the current pilot
+focuses on the thermal ROI rather than the whole visible image. V/T alignment
+or ROI construction is required before visible-image surface-cover masks can be
+linked to thermal pixels or thermal grid cells.
+
+Semi-automatic tools such as SLIC, maskSLIC, SAM, QGIS SCP, or Deepness may be
+used as candidate segmentation or baseline tools, but manual review remains
+necessary. CNN or U-Net training and full Hong Kong heat-index prediction are
+later optional extensions, not the immediate objective.
+
+## Windows Python Environment
+
+The project uses a local Windows virtual environment. From the project root:
+
+```powershell
+C:\Users\Victo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+Verify the spatial stack:
+
+```powershell
+.\.venv\Scripts\python.exe -c "import rasterio, geopandas, shapely, pyproj, pandas, numpy, PIL, matplotlib; print('spatial stack ok')"
+.\.venv\Scripts\python.exe scripts\inspect_camera_metadata.py
+```
+
+If matplotlib cannot write its default cache under the user profile, set a
+local cache directory before plotting:
+
+```powershell
+$env:MPLCONFIGDIR = "$PWD\.matplotlib-cache"
+```
+
+`.venv/`, local raw data, source rasters, and temporary plotting caches are not
+tracked by Git.
 
 ## Usage
 
@@ -16,11 +75,20 @@ Install the Python dependencies in your environment, then run:
 python3 -m pip install -r requirements.txt
 ```
 
-Generate the LUHK plot with:
+Generate or refresh the core metadata tables with:
 
 ```bash
-python scripts/plot_hong_kong_land_use.py
+python3 scripts/01_create_vt_pairs.py
+python3 scripts/02_extract_dji_metadata.py
 ```
+
+The current pilot LUHK grid workflow is listed below. Temperature extraction
+from DJI thermal files is still pending Windows, DJI Thermal Analysis Tool 3, or
+DJI Thermal SDK access.
+
+Do not proceed to footprint, cover, or LUHK overlay production until per-image
+camera selection has been validated. DJI Matrice 4T visible `_V.JPG` images may
+come from wide, medium tele, or tele visible cameras.
 
 ## Dataset layout
 
@@ -66,6 +134,20 @@ Pilot selection is explicit. Set `PILOT_PAIR_ID` near the top of
 rerun the script. When it is `None`, no record is marked as the pilot; sample
 number `0016` alone does not automatically select a pilot.
 
+## Revised A-E workflow
+
+- Part A: inventory and spatial foundation.
+- Part B: V/T ROI alignment and visible-image surface-cover classification
+  inside the thermal ROI.
+- Part C: thermal temperature extraction and Delta-T calculation.
+- Part D: statistical analysis by LUHK land-use context and visible-image
+  surface-cover class.
+- Part E: reporting, visualization, and optional exploratory modeling.
+
+Part A does not include V/T geometric alignment, visible/thermal ROI matching,
+segmentation, temperature extraction, LUHK overlay production, or model
+preparation.
+
 ## Part B classification scheme
 
 Part B keeps broad land use and visible surface cover as separate layers.
@@ -80,16 +162,18 @@ classification definitions and annotation principles are documented in
 
 ## Progress update
 
-The current Part B pilot progress, project workflow, registration plan, and
-next-week priorities are summarized in
-`docs/progress_update_part_b_pilot_plan.md`.
+The current revised planning overview is summarized in
+`docs/revised_project_overview.md`. The older June 2026 Part B pilot progress
+note remains in `docs/progress_update_part_b_pilot_plan.md` for research
+history, but its A-D framing has been superseded by the revised A-E structure.
 
 ## Current V/T footprint and LUHK grid workflow
 
 The current pilot workflow estimates separate footprints for DJI visible
 `_V.JPG` and thermal `_T.JPG` images. Thermal analysis still uses `_T.JPG`
 geometry. Visible overlays use visible geometry and visible metadata; they must
-not borrow the thermal fallback profile.
+not borrow the thermal fallback profile. These scripts are spatial-support
+tools for later stages, not Part A deliverables.
 
 Run the current pilot sequence from the project root:
 

@@ -27,6 +27,7 @@ thermal_profile = {
     "target_suffix": "_T.JPG",
     "expected_resolution_px": (640, 512),
     "fallback_focal_length_mm": 12.0,
+    "fallback_focal_length_35mm": 53.0,
     "fallback_aperture_f_number": 1.0,
     "fallback_horizontal_fov_deg": 61.0,
     "fallback_vertical_fov_deg": 48.0,
@@ -45,18 +46,55 @@ visible_profile = {
     "target_image_type": "visible",
     "target_suffix": "_V.JPG",
     "expected_resolution_px": None,
-    "fallback_focal_length_mm": 6.7,
+    "fallback_focal_length_mm": None,
+    "fallback_focal_length_35mm": None,
     "fallback_aperture_f_number": None,
     "fallback_horizontal_fov_deg": None,
     "fallback_vertical_fov_deg": None,
-    "fallback_sensor_width_mm": 9.65,
-    "fallback_sensor_height_mm": 7.24,
+    "fallback_sensor_width_mm": None,
+    "fallback_sensor_height_mm": None,
     "approximate": True,
     "notes": (
-        "Approximate visible fallback profile for _V.JPG overlays when visible "
-        "EXIF/XMP lacks explicit FOV or sensor dimensions. Actual visible image "
-        "dimensions must still be read from the _V.JPG file."
+        "DJI Matrice 4T has wide, medium tele, and tele visible cameras. Do not "
+        "apply one fixed visible fallback. Identify the per-image visible camera "
+        "from EXIF/XMP focal length and 35mm-equivalent focal length before "
+        "footprint estimation."
     ),
+}
+
+MATRICE_4T_CAMERA_RULES = {
+    "wide_visible": {
+        "image_type": "visible",
+        "actual_focal_length_mm": 6.7,
+        "focal_length_35mm": 24.0,
+        "f_number": 1.7,
+        "sensor": '1/1.3" CMOS',
+        "notes": "Wide-angle visible camera.",
+    },
+    "medium_tele_visible": {
+        "image_type": "visible",
+        "actual_focal_length_mm": 19.4,
+        "focal_length_35mm": 70.0,
+        "f_number": 2.8,
+        "sensor": '1/1.3" CMOS',
+        "notes": "Medium tele visible camera.",
+    },
+    "tele_visible": {
+        "image_type": "visible",
+        "actual_focal_length_mm": 40.0,
+        "focal_length_35mm": 168.0,
+        "f_number": 2.8,
+        "sensor": '1/1.5" CMOS',
+        "notes": "Tele visible camera.",
+    },
+    "thermal": {
+        "image_type": "thermal",
+        "actual_focal_length_mm": 12.0,
+        "focal_length_35mm": 53.0,
+        "f_number": 1.0,
+        "sensor": "uncooled VOx microbolometer",
+        "notes": "Infrared thermal camera; metadata may report 52-53 mm equivalent focal length.",
+    },
 }
 
 CAMERA_PROFILES = {
@@ -173,6 +211,73 @@ def valid_positive(value: float | None) -> bool:
     return value is not None and math.isfinite(value) and value > 0
 
 
+def approximately_equal(value: float | None, expected: float, tolerance: float = 1.0) -> bool:
+    """Return True when a numeric metadata value is close to an expected value."""
+    return value is not None and abs(value - expected) <= tolerance
+
+
+def classify_matrice_4t_camera(row: Any) -> dict[str, Any]:
+    """Classify a DJI Matrice 4T image camera from existing metadata.
+
+    This is a preliminary metadata rule for later footprint and alignment work.
+    It uses per-image EXIF/XMP focal length, 35mm-equivalent focal length, image
+    type, and image dimensions. Callers should still treat the result as
+    unvalidated until visual QA or vendor metadata checks confirm it.
+    """
+    image_type = str(first_existing_value(row, ["image_type", "ImageType"]) or "").casefold()
+    focal_length = parse_float(first_existing_value(row, ["focal_length", "focal_length_mm", "FocalLength"]))
+    focal_35mm = parse_float(
+        first_existing_value(row, ["focal_length_35mm", "FocalLengthIn35mmFormat", "FocalLength35mm"])
+    )
+    image_width = parse_float(first_existing_value(row, ["image_width", "ImageWidth"]))
+    image_height = parse_float(first_existing_value(row, ["image_height", "ImageHeight"]))
+
+    if image_type == "thermal":
+        if approximately_equal(focal_length, 12.0, 0.5) and (
+            approximately_equal(focal_35mm, 53.0, 1.5) or approximately_equal(focal_35mm, 52.0, 1.5)
+        ):
+            return {
+                "camera_key": "thermal",
+                "confidence": "high",
+                "reason": "thermal image with 12 mm actual focal length and approximately 52-53 mm 35mm-equivalent focal length",
+            }
+        return {
+            "camera_key": "thermal_unconfirmed",
+            "confidence": "needs_review",
+            "reason": "thermal image type but focal-length metadata does not match the expected Matrice 4T thermal camera rule",
+        }
+
+    if image_type == "visible":
+        visible_rules = ["wide_visible", "medium_tele_visible", "tele_visible"]
+        for key in visible_rules:
+            rule = MATRICE_4T_CAMERA_RULES[key]
+            if approximately_equal(focal_35mm, float(rule["focal_length_35mm"]), 1.0):
+                actual_match = approximately_equal(focal_length, float(rule["actual_focal_length_mm"]), 0.5)
+                return {
+                    "camera_key": key,
+                    "confidence": "high" if actual_match else "medium",
+                    "reason": (
+                        f"visible image with {focal_35mm:g} mm 35mm-equivalent focal length"
+                        + (" and matching actual focal length" if actual_match else "")
+                    ),
+                }
+        return {
+            "camera_key": "visible_unclassified",
+            "confidence": "needs_review",
+            "reason": (
+                "visible image does not match expected Matrice 4T visible focal-length rules; "
+                f"metadata focal_length={focal_length}, focal_length_35mm={focal_35mm}, "
+                f"image_size={image_width}x{image_height}"
+            ),
+        }
+
+    return {
+        "camera_key": "unknown",
+        "confidence": "needs_review",
+        "reason": "missing or unknown image_type metadata",
+    }
+
+
 def fov_from_focal_and_sensor(
     focal_length_mm: float,
     sensor_width_mm: float,
@@ -209,8 +314,8 @@ def resolve_camera_parameters(
     Footprint estimation prefers explicit FOV metadata. If FOV is unavailable,
     it uses focal length plus sensor dimensions only when both are available.
     Focal length alone is not enough. When visible sensor/FOV metadata is
-    incomplete, this function uses only `visible_profile`, marks the result as
-    approximate, and returns a warning for the caller to log.
+    incomplete, this function does not apply a visible fallback because DJI
+    Matrice 4T has multiple visible cameras.
     """
     profile = camera_profile_for_target(target_image_type)
     warnings: list[str] = []
@@ -380,5 +485,6 @@ def resolve_camera_parameters(
         "aperture_value": aperture,
         "f_number_value": f_number,
         "aperture_ignored": True,
+        "matrice_4t_camera": classify_matrice_4t_camera(row),
         "warnings": warnings,
     }

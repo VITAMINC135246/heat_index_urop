@@ -1,6 +1,16 @@
 Heat Index UROP - Part B Pilot Progress Summary
 Date: 2026-06-16
 
+July 2026 supersession note
+---------------------------
+This text file is retained as a historical progress record. Its original A-D
+workflow framing has been superseded by the revised A-E project structure in
+docs/revised_project_overview.md. The current objective is to link UAV thermal
+imagery, visible-image surface-cover information, and LUHK 2024 land-use data,
+then analyze temperature and delta-temperature differences across land-use and
+surface-cover conditions. Prediction modeling is now a later optional extension,
+not the immediate goal.
+
 Current position
 ----------------
 The received DJI dataset structure and contents appear usable. Before leaving
@@ -9,8 +19,34 @@ DJI Thermal Analysis Tool 3 (TDT 3). Pixel-level temperature-matrix extraction
 is temporarily paused because I currently do not have a Windows device or a
 working DJI TDT 3 / DJI Thermal SDK environment.
 
-Project workflow
-----------------
+Current revised workflow
+------------------------
+A. Data inventory and spatial foundation
+   Maintain the V/T pair inventory, metadata summaries, LUHK category
+   reference, camera assumptions, and selected HKUST pilot image list. Garden
+   Hill images are currently deprioritized for the HKUST-focused workflow.
+
+B. V/T ROI alignment and visible-image surface-cover classification
+   Align visible images to thermal images or crop visible images to the thermal
+   ROI, classify visible-image surface cover inside the thermal ROI, and record
+   alignment/classification QA notes. Manual inspection remains necessary for
+   uncertain cases.
+
+C. Temperature extraction and Delta-T table construction
+   Extract pixel-level or region-level temperature values from DJI thermal
+   images when Windows, DJI Thermal Analysis Tool 3, or DJI Thermal SDK access
+   is available. Join temperature, LUHK, surface cover, metadata, and QA fields.
+
+D. Statistical analysis by land-use context and surface cover
+   Compare delta-T distributions by LUHK land-use category and visible-image
+   surface-cover category.
+
+E. Reporting, visualization, and optional exploratory modeling
+   Prepare the final pilot workflow report and figures. Simple exploratory
+   models should only be tested after enough reliable labeled data exists.
+
+Historical project workflow (superseded)
+----------------------------------------
 A. Data extraction
    Extract 640 × 512 temperature matrices from DJI thermal R-JPEGs when a
    Windows/DJI environment is available.

@@ -1,0 +1,24 @@
+metric,value
+validated_on,2026-07-07
+metadata_csv,data/metadata/dji_image_metadata.csv
+total_metadata_rows,1819
+visible_rows,910
+thermal_rows,909
+preliminary_rule,"Use image_type plus per-image focal_length_35mm: 24=wide visible, 70=medium tele visible, 168=tele visible, 52-53=thermal."
+important_warning,"This is a metadata validation rule only; later footprint, cover, and LUHK overlay outputs remain non-final until camera selection is validated per image."
+classified_medium_tele_visible,16
+classified_tele_visible,485
+classified_thermal,909
+classified_wide_visible,409
+classification_confidence_high,1819
+visible_focal_length_35mm_24.0,409
+visible_focal_length_35mm_70.0,16
+visible_focal_length_35mm_168.0,485
+thermal_focal_length_35mm_52.0,909
+combo_thermal_12.0_52.0_640.0x512.0,894
+combo_visible_40.0_168.0_4096.0x3072.0,485
+combo_visible_6.7_24.0_4032.0x3024.0,403
+combo_thermal_12.0_52.0_1280.0x1024.0,15
+combo_visible_19.4_70.0_4032.0x3024.0,15
+combo_visible_6.7_24.0_3840.0x2160.0,6
+combo_visible_19.4_70.0_3840.0x2160.0,1

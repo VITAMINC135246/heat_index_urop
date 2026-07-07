@@ -2,8 +2,9 @@ Part B Land-Use and Surface-Cover Classification Scheme
 =======================================================
 
 Project: Heat Index UROP
-Purpose: Reference for visible-image annotation, LUHK overlay, V-to-T mask
-         transfer, and later temperature analysis
+Purpose: Reference for visible-image surface-cover annotation inside the
+         thermal ROI, LUHK broad-context handling, V-to-T mask transfer, and
+         later temperature analysis
 Created: 2026-06-16
 
 
