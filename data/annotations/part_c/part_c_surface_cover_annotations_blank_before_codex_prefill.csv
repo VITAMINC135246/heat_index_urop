@@ -1,0 +1,777 @@
+pair_id,segment_id,suggested_class,manual_class,confidence,review_status,notes
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,1,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,2,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,3,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,4,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,5,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,6,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,7,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,8,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,9,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,10,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,11,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,12,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,13,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,14,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,15,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,16,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,17,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,18,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,19,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,20,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,21,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,22,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,23,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,24,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,25,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,26,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,27,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,28,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,29,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,30,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,31,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,32,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,33,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,34,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,35,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,36,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,37,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,38,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,39,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,40,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,41,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,42,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,43,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,44,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,45,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,46,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,47,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,48,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,49,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,50,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,51,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,52,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,53,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,54,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,55,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,56,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,57,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,58,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,59,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,60,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,61,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,62,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,63,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,64,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,65,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,66,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,67,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,68,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,69,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,70,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,71,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,72,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,73,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,74,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,75,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,76,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,77,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,78,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,79,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,80,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,81,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,82,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,83,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,84,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,85,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,86,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,87,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,88,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,89,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,90,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,91,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,92,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,93,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,94,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,95,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,96,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,97,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,98,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,99,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,100,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,101,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,102,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,103,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,104,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,105,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,106,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,107,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,108,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,109,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,110,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,111,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,112,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,113,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,114,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,115,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,116,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,117,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,118,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,119,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,120,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,121,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,122,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,123,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,124,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,125,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,126,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,127,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,128,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,129,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,130,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,131,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,132,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,133,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,134,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,135,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,136,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,137,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,138,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,139,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,140,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,141,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,142,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,143,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,144,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,145,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,146,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,147,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,148,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,149,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,150,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,151,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,152,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,153,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,154,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,155,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,156,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,157,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,158,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005,159,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,1,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,2,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,3,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,4,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,5,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,6,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,7,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,8,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,9,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,10,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,11,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,12,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,13,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,14,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,15,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,16,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,17,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,18,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,19,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,20,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,21,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,22,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,23,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,24,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,25,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,26,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,27,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,28,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,29,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,30,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,31,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,32,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,33,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,34,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,35,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,36,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,37,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,38,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,39,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,40,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,41,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,42,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,43,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,44,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,45,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,46,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,47,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,48,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,49,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,50,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,51,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,52,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,53,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,54,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,55,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,56,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,57,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,58,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,59,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,60,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,61,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,62,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,63,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,64,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,65,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,66,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,67,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,68,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,69,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,70,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,71,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,72,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,73,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,74,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,75,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,76,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,77,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,78,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,79,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,80,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,81,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,82,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,83,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,84,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,85,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,86,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,87,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,88,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,89,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,90,vegetation_tree,,low,needs_review,green-dominant segment; tree/low vegetation must be reviewed
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,91,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,92,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,93,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,94,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,95,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,96,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,97,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,98,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,99,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,100,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,101,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,102,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,103,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,104,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,105,grass_low_vegetation,,low,needs_review,green-dominant bright segment; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,106,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,107,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,108,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,109,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,110,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,111,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,112,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,113,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,114,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,115,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,116,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,117,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,118,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,119,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,120,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,121,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,122,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,123,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,124,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,125,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,126,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,127,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,128,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,129,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,130,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,131,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,132,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,133,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,134,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,135,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,136,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,137,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,138,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,139,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,140,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,141,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,142,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,143,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,144,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,145,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,146,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,147,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,148,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,149,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,150,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,151,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,152,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,153,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,154,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,155,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,156,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,157,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,158,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,159,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,160,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,161,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,162,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007,163,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,1,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,2,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,3,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,4,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,5,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,6,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,7,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,8,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,9,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,10,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,11,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,12,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,13,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,14,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,15,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,16,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,17,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,18,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,19,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,20,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,21,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,22,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,23,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,24,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,25,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,26,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,27,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,28,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,29,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,30,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,31,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,32,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,33,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,34,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,35,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,36,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,37,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,38,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,39,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,40,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,41,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,42,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,43,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,44,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,45,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,46,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,47,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,48,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,49,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,50,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,51,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,52,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,53,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,54,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,55,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,56,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,57,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,58,grass_low_vegetation,,low,needs_review,green-dominant bright segment; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,59,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,60,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,61,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,62,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,63,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,64,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,65,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,66,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,67,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,68,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,69,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,70,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,71,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,72,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,73,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,74,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,75,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,76,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,77,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,78,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,79,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,80,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,81,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,82,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,83,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,84,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,85,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,86,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,87,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,88,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,89,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,90,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,91,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,92,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,93,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,94,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,95,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,96,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,97,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,98,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,99,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,100,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,101,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,102,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,103,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,104,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,105,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,106,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,107,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,108,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,109,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,110,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,111,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,112,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,113,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,114,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,115,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,116,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,117,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,118,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,119,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,120,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,121,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,122,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,123,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,124,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,125,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,126,vegetation_tree,,low,needs_review,green-dominant segment; tree/low vegetation must be reviewed
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,127,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,128,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,129,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,130,vegetation_tree,,low,needs_review,green-dominant segment; tree/low vegetation must be reviewed
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,131,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,132,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,133,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,134,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,135,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,136,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,137,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,138,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,139,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,140,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,141,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,142,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,143,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,144,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,145,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,146,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,147,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,148,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,149,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,150,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,151,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,152,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,153,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,154,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,155,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,156,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,157,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,158,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008,159,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,1,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,2,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,3,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,4,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,5,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,6,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,7,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,8,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,9,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,10,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,11,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,12,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,13,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,14,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,15,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,16,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,17,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,18,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,19,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,20,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,21,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,22,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,23,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,24,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,25,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,26,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,27,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,28,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,29,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,30,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,31,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,32,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,33,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,34,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,35,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,36,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,37,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,38,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,39,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,40,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,41,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,42,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,43,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,44,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,45,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,46,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,47,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,48,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,49,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,50,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,51,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,52,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,53,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,54,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,55,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,56,vegetation_tree,,low,needs_review,green-dominant segment; tree/low vegetation must be reviewed
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,57,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,58,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,59,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,60,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,61,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,62,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,63,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,64,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,65,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,66,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,67,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,68,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,69,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,70,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,71,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,72,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,73,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,74,vegetation_tree,,low,needs_review,green-dominant segment; tree/low vegetation must be reviewed
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,75,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,76,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,77,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,78,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,79,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,80,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,81,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,82,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,83,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,84,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,85,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,86,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,87,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,88,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,89,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,90,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,91,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,92,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,93,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,94,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,95,grass_low_vegetation,,low,needs_review,green-dominant bright segment; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,96,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,97,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,98,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,99,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,100,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,101,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,102,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,103,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,104,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,105,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,106,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,107,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,108,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,109,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,110,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,111,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,112,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,113,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,114,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,115,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,116,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,117,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,118,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,119,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,120,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,121,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,122,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,123,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,124,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,125,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,126,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,127,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,128,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,129,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,130,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,131,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,132,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,133,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,134,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,135,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,136,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,137,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,138,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,139,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,140,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,141,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,142,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,143,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,144,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,145,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,146,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,147,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,148,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,149,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,150,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009,151,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,1,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,2,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,3,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,4,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,5,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,6,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,7,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,8,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,9,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,10,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,11,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,12,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,13,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,14,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,15,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,16,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,17,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,18,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,19,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,20,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,21,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,22,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,23,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,24,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,25,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,26,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,27,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,28,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,29,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,30,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,31,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,32,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,33,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,34,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,35,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,36,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,37,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,38,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,39,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,40,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,41,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,42,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,43,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,44,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,45,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,46,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,47,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,48,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,49,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,50,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,51,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,52,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,53,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,54,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,55,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,56,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,57,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,58,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,59,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,60,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,61,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,62,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,63,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,64,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,65,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,66,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,67,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,68,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,69,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,70,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,71,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,72,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,73,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,74,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,75,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,76,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,77,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,78,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,79,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,80,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,81,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,82,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,83,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,84,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,85,shadow,,medium,needs_review,low brightness heuristic; manual review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,86,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,87,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,88,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,89,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,90,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,91,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,92,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,93,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,94,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,95,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,96,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,97,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,98,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,99,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,100,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,101,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,102,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,103,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,104,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,105,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,106,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,107,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,108,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,109,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,110,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,111,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,112,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,113,asphalt_road,,low,needs_review,dark low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,114,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,115,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,116,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,117,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,118,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,119,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,120,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,121,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,122,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,123,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,124,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,125,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,126,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,127,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,128,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,129,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,130,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,131,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,132,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,133,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,134,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,135,water,,low,needs_review,blue/cyan heuristic; review required
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,136,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,137,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,138,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,139,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,140,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,141,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,142,concrete_pavement,,low,needs_review,bright low-saturation hardscape heuristic
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,143,unclear_ignore,,low,needs_review,heuristic could not assign a reliable surface-cover suggestion
+20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,144,water,,low,needs_review,blue/cyan heuristic; review required
