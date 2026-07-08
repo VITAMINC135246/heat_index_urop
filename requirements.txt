@@ -5,6 +5,8 @@ matplotlib
 pyproj
 rasterio
 Pillow
+scikit-image
+opencv-python-headless
 
 # Optional but recommended for GeoJSON/GIS exports when available.
 geopandas

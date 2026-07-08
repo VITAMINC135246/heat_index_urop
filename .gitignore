@@ -1,6 +1,7 @@
 .DS_Store
 .vscode/
 __pycache__/
+**/__pycache__/
 *.py[cod]
 .venv/
 venv/
@@ -65,6 +66,8 @@ outputs/georef/
 !docs/**
 !scripts/
 !scripts/**
+scripts/**/__pycache__/
+scripts/**/*.py[cod]
 !outputs/
 !outputs/reports/
 !outputs/reports/*.txt
