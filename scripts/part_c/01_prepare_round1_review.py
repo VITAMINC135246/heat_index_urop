@@ -54,6 +54,7 @@ LUHK_SUMMARY_CSV = SUMMARY_DIR / "part_c_luhk_context_summary.csv"
 ROUND1_SUMMARY_CSV = SUMMARY_DIR / "part_c_round1_summary.csv"
 ROUND1_SUMMARY_MD = SUMMARY_DIR / "part_c_round1_summary.md"
 MANUAL_REVIEW_GUIDE_MD = SUMMARY_DIR / "part_c_manual_review_guide.md"
+CLASS_OVERLAY_MANIFEST_CSV = SUMMARY_DIR / "part_c_surface_cover_review_overlays.csv"
 EARLY_DRAFT_MANIFEST_CSV = SUPERPIXEL_DIR / "early_part_b_draft_superpixels_manifest.csv"
 MASK_README = MASK_DIR / "README.md"
 
@@ -64,6 +65,8 @@ SLIC_PARAMS = {
     "start_label": 1,
     "image_basis": "refined_visible_roi_resized_to_thermal_grid",
 }
+
+STATUS_NOT_YET = "Not yet"
 
 SURFACE_CLASSES = [
     ("roof", "Building roof surfaces visible in the refined ROI."),
@@ -307,7 +310,7 @@ def summarize_segments(
                 "mean_v": round(float(mean_hsv[2]), 6),
                 "suggested_class": suggested,
                 "suggestion_confidence": confidence,
-                "review_status": "needs_review",
+                "review_status": STATUS_NOT_YET,
                 "notes": note,
             }
         )
@@ -324,7 +327,7 @@ def annotation_rows(segment_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "suggested_class": row["suggested_class"],
                 "manual_class": "",
                 "confidence": row["suggestion_confidence"],
-                "review_status": "needs_review",
+                "review_status": STATUS_NOT_YET,
                 "notes": row["notes"],
             }
         )
@@ -972,6 +975,7 @@ def write_round1_summary_md(summary_rows: list[dict[str, Any]]) -> None:
                 f"- Refined ROI: `{row['refined_visible_roi_path']}`",
                 f"- Thermal-grid ROI: `{row['refined_visible_roi_resized_to_thermal_grid_path']}`",
                 f"- Review contact sheet: `{row['pair_review_contact_sheet_path']}`",
+                f"- Surface-cover class review sheet: `outputs/part_c/surface_cover_review/{row['image_id']}/{row['image_id']}_surface_cover_class_review_sheet.png`",
                 f"- Segmentation contact sheet: `{row['segmentation_contact_sheet_path']}`",
                 f"- Segment ID full map: `{row['segment_id_labels_full_path']}`",
                 f"- Segment ID quadrant map: `{row['segment_id_labels_quadrants_path']}`",
@@ -986,8 +990,9 @@ def write_round1_summary_md(summary_rows: list[dict[str, Any]]) -> None:
             "",
             f"- Main annotation file: `{relative_posix(MAIN_ANNOTATION_CSV)}`",
             f"- Approved class list: `{relative_posix(SURFACE_CLASSES_CSV)}`",
+            f"- Surface-cover class overlay manifest: `{relative_posix(CLASS_OVERLAY_MANIFEST_CSV)}`",
             "",
-            "Use the segment ID label maps to locate each `segment_id`, then fill `manual_class` during review. Suggested classes are low-confidence heuristics, not final labels.",
+            "Use the segment ID label maps to locate each `segment_id`, then edit `manual_class` during review. Leave `suggested_class` as the current baseline candidate. Use `review_status = Yes` only after a row has been checked; otherwise use `Not yet`.",
             "",
             "## Parked Draft Assets",
             "",
@@ -1006,7 +1011,7 @@ def write_round1_summary_md(summary_rows: list[dict[str, Any]]) -> None:
             "",
             "## Next Manual Task",
             "",
-            f"Review the contact sheets, then fill `manual_class` in `{relative_posix(MAIN_ANNOTATION_CSV)}` or the per-pair annotation CSVs.",
+            f"Review the contact sheets, then edit `manual_class` in `{relative_posix(MAIN_ANNOTATION_CSV)}`.",
             "",
         ]
     )
@@ -1025,8 +1030,8 @@ def write_manual_review_guide(summary_rows: list[dict[str, Any]]) -> None:
         "1. Open the LUHK overlay contact sheet for a pair and judge whether the approximate LUHK footprint looks spatially plausible.",
         "2. Open the Part C review contact sheet and confirm the refined visible ROI covers the accepted thermal target area.",
         "3. Open the segment ID quadrant map to locate segment IDs.",
-        "4. Fill `manual_class` in the main annotation CSV or the per-pair annotation CSV.",
-        "5. Update `review_status` to `reviewed` only after the segment has been checked.",
+        "4. Edit `manual_class` in the main annotation CSV when your decision differs from `suggested_class`.",
+        "5. Update `review_status` to `Yes` only after the segment has been checked; otherwise leave `Not yet`.",
         "",
         "## Segment ID Lookup",
         "",
@@ -1042,7 +1047,9 @@ def write_manual_review_guide(summary_rows: list[dict[str, Any]]) -> None:
         "- Use LUHK only as broad land-use context and uncertainty evidence.",
         "- If a segment is mixed, label the dominant visible surface when one class clearly dominates.",
         "- If a segment is too mixed, shadowed, or ambiguous, use `unclear_ignore`.",
-        "- Keep `suggested_class` as-is; put your decision in `manual_class`.",
+        "- Keep `suggested_class` as-is; put your final review decision in `manual_class`.",
+        "- Use only classes listed in `data/annotations/part_c/surface_cover_classes.csv`.",
+        "- Edit the main CSV first; the per-pair CSVs are mirrors for browsing and can be regenerated.",
         "- Confidence can stay low/medium/high according to your certainty.",
         "",
         "## Per-Pair Files",
@@ -1055,6 +1062,7 @@ def write_manual_review_guide(summary_rows: list[dict[str, Any]]) -> None:
                 "",
                 f"- LUHK overlay: `{row['luhk_overlay_contact_sheet_path']}`",
                 f"- Review contact sheet: `{row['pair_review_contact_sheet_path']}`",
+                f"- Surface-cover class review sheet: `outputs/part_c/surface_cover_review/{row['image_id']}/{row['image_id']}_surface_cover_class_review_sheet.png`",
                 f"- Segment ID quadrants: `{row['segment_id_labels_quadrants_path']}`",
                 f"- Segment summary: `{row['segment_summary_path']}`",
                 f"- Annotation CSV: `{row['pair_annotation_csv_path']}`",

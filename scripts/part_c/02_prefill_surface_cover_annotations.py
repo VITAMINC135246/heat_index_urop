@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
-"""Prefill Part C surface-cover annotation CSVs with reviewable draft labels.
+"""Synchronize Part C surface-cover suggestions and render review overlays.
 
-The prefill is a Codex draft based on visible ROI segment color/texture
-features. It is not ground truth, does not use LUHK as surface cover, and does
-not generate final masks.
+This utility keeps the annotation CSVs in the manual-review format:
+
+- suggested_class stores the current suggested surface-cover label
+- manual_class starts as a copy of suggested_class and is edited by the reviewer
+- review_status uses only "Not yet" and "Yes"
+
+It also renders per-pair surface-cover overlays in
+outputs/part_c/surface_cover_review/<image_id>/.
 """
 
 from __future__ import annotations
 
 import csv
-import math
 import os
-import re
-import shutil
 import sys
+import argparse
 from pathlib import Path
 from typing import Any
 
@@ -23,19 +26,18 @@ os.environ.setdefault("MPLCONFIGDIR", str(PROJECT_ROOT / ".matplotlib-cache"))
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageDraw, ImageOps
-from skimage import color, filters, segmentation
+from skimage import segmentation
 
 
 ANNOTATION_DIR = PROJECT_ROOT / "data" / "annotations" / "part_c"
 MAIN_ANNOTATION_CSV = ANNOTATION_DIR / "part_c_surface_cover_annotations.csv"
-SUMMARY_CSV = PROJECT_ROOT / "outputs" / "part_c" / "summaries" / "part_c_round1_summary.csv"
-PREFILL_SEGMENTS_CSV = PROJECT_ROOT / "outputs" / "part_c" / "summaries" / "part_c_codex_prefill_segments.csv"
-PREFILL_SUMMARY_CSV = PROJECT_ROOT / "outputs" / "part_c" / "summaries" / "part_c_codex_prefill_summary.csv"
-PREFILL_SUMMARY_MD = PROJECT_ROOT / "outputs" / "part_c" / "summaries" / "part_c_codex_prefill_summary.md"
-BLANK_BACKUP_CSV = ANNOTATION_DIR / "part_c_surface_cover_annotations_blank_before_codex_prefill.csv"
+SURFACE_CLASSES_CSV = ANNOTATION_DIR / "surface_cover_classes.csv"
+ROUND1_SUMMARY_CSV = PROJECT_ROOT / "outputs" / "part_c" / "summaries" / "part_c_round1_summary.csv"
+CLASS_COUNTS_CSV = PROJECT_ROOT / "outputs" / "part_c" / "summaries" / "part_c_surface_cover_class_counts.csv"
+OVERLAY_PATHS_CSV = PROJECT_ROOT / "outputs" / "part_c" / "summaries" / "part_c_surface_cover_review_overlays.csv"
 
-PREFILL_VERSION = "codex_draft_v1"
-PREFILL_STATUS = "codex_prefilled_needs_review"
+STATUS_NOT_YET = "Not yet"
+STATUS_YES = "Yes"
 
 CLASS_COLORS = {
     "roof": "#f2f2f2",
@@ -65,11 +67,6 @@ def resolve_project_path(path_text: Any) -> Path:
     return PROJECT_ROOT / path
 
 
-def safe_name(value: Any) -> str:
-    text = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(value))
-    return text.strip("_") or "item"
-
-
 def is_blank(value: Any) -> bool:
     if value is None:
         return True
@@ -90,295 +87,188 @@ def write_rows_csv(path: Path, rows: list[dict[str, Any]], columns: list[str]) -
             writer.writerow(row)
 
 
-def load_rgb(path: Path) -> Image.Image:
-    with Image.open(path) as image:
-        image = ImageOps.exif_transpose(image)
-        image.load()
-        return image.convert("RGB")
+def load_allowed_classes() -> list[str]:
+    classes_df = pd.read_csv(SURFACE_CLASSES_CSV)
+    classes = [str(value).strip() for value in classes_df["class_name"].tolist()]
+    missing_colors = [class_name for class_name in classes if class_name not in CLASS_COLORS]
+    if missing_colors:
+        raise ValueError("Missing display colors for classes: " + ", ".join(missing_colors))
+    return classes
 
 
-def load_label_map(path: Path) -> np.ndarray:
-    with Image.open(path) as image:
-        image.load()
-        return np.asarray(image, dtype=np.int32)
+def normalize_annotations(allowed_classes: list[str], reset_review_baseline: bool) -> pd.DataFrame:
+    if not MAIN_ANNOTATION_CSV.is_file():
+        raise FileNotFoundError(MAIN_ANNOTATION_CSV)
+
+    df = pd.read_csv(MAIN_ANNOTATION_CSV)
+    required = ["pair_id", "segment_id", "suggested_class", "manual_class", "confidence", "review_status", "notes"]
+    missing = [column for column in required if column not in df.columns]
+    if missing:
+        raise ValueError("Missing required annotation columns: " + ", ".join(missing))
+
+    for column in required:
+        df[column] = df[column].astype("object")
+
+    manual_labels: list[str] = []
+    suggested_labels: list[str] = []
+    for _, row in df.iterrows():
+        suggested = "" if is_blank(row["suggested_class"]) else str(row["suggested_class"]).strip()
+        manual = "" if is_blank(row["manual_class"]) else str(row["manual_class"]).strip()
+        if reset_review_baseline:
+            latest = manual or suggested
+            suggested = latest
+            manual = latest
+        else:
+            if not manual:
+                manual = suggested
+            if not suggested:
+                suggested = manual
+        suggested_labels.append(suggested)
+        manual_labels.append(manual)
+
+    invalid = sorted(
+        {
+            label
+            for label in suggested_labels + manual_labels
+            if label not in allowed_classes
+        }
+    )
+    if invalid:
+        raise ValueError("Annotation labels outside the approved class list: " + ", ".join(invalid))
+
+    df["suggested_class"] = suggested_labels
+    df["manual_class"] = manual_labels
+    df["review_status"] = df["review_status"].map(lambda value: STATUS_YES if str(value).strip() == STATUS_YES else STATUS_NOT_YET)
+    df["notes"] = ""
+    df.to_csv(MAIN_ANNOTATION_CSV, index=False)
+
+    for pair_id, pair_df in df.groupby("pair_id", sort=False):
+        image_id = str(pair_id).split("::")[-1]
+        pair_path = ANNOTATION_DIR / f"{image_id}_surface_cover_annotations.csv"
+        pair_df.to_csv(pair_path, index=False)
+
+    return df
 
 
-def rgb_hex_to_uint8(hex_color: str) -> tuple[int, int, int]:
+def hex_to_rgb(hex_color: str) -> tuple[int, int, int]:
     hex_color = hex_color.lstrip("#")
     return tuple(int(hex_color[i : i + 2], 16) for i in (0, 2, 4))
 
 
-def segment_texture(gray: np.ndarray, mask: np.ndarray) -> float:
-    if mask.sum() == 0:
-        return 0.0
-    edges = filters.sobel(gray)
-    return float(edges[mask].mean())
+def colorized_overlay(base_image: Image.Image, labels: np.ndarray, label_by_segment: dict[int, str]) -> Image.Image:
+    base = np.asarray(base_image.convert("RGB"), dtype=np.float32)
+    class_rgb = np.zeros_like(base)
+    for segment_id, class_name in label_by_segment.items():
+        class_rgb[labels == segment_id] = hex_to_rgb(CLASS_COLORS[class_name])
+    blended = np.clip(0.48 * base + 0.52 * class_rgb, 0, 255).astype(np.uint8)
+    boundary = segmentation.mark_boundaries(blended / 255.0, labels, color=(1.0, 1.0, 0.0), mode="thick")
+    return Image.fromarray((boundary * 255.0 + 0.5).astype(np.uint8), mode="RGB")
 
 
-def segment_compactness(mask: np.ndarray) -> float:
-    area = float(mask.sum())
-    if area <= 0:
-        return 0.0
-    ys, xs = np.where(mask)
-    bbox_area = float((xs.max() - xs.min() + 1) * (ys.max() - ys.min() + 1))
-    return area / bbox_area if bbox_area > 0 else 0.0
+def legend_image(class_counts: pd.Series) -> Image.Image:
+    image = Image.new("RGB", (640, 512), "white")
+    draw = ImageDraw.Draw(image)
+    draw.text((18, 18), "Surface-cover class legend", fill=(0, 0, 0))
+    y = 62
+    for class_name, hex_color in CLASS_COLORS.items():
+        count = int(class_counts.get(class_name, 0))
+        draw.rectangle((24, y, 56, y + 24), fill=hex_color, outline=(0, 0, 0))
+        draw.text((70, y + 4), f"{class_name} ({count})", fill=(0, 0, 0))
+        y += 38
+    return image
 
 
-def classify_features(features: dict[str, float]) -> tuple[str, str, str]:
-    r = features["mean_r"]
-    g = features["mean_g"]
-    b = features["mean_b"]
-    h = features["mean_h"]
-    s = features["mean_s"]
-    v = features["mean_v"]
-    std_v = features["std_v"]
-    texture = features["texture"]
-    area_fraction = features["pixel_fraction"]
-    compactness = features["compactness"]
-    gray_range = max(r, g, b) - min(r, g, b)
-    green_excess = g - max(r, b)
-    blue_excess = b - max(r, g)
-    red_excess = r - max(g, b)
-    brightness255 = v * 255.0
-
-    # Tiny bright or saturated specks are often cars or temporary objects in
-    # the parking/road parts of the pilot ROIs. Keep this deliberately narrow.
-    if area_fraction < 0.0018 and brightness255 > 150 and (s > 0.22 or gray_range < 24):
-        return "vehicle_temporary_object", "low", "tiny bright/saturated segment; likely vehicle/object but must be checked"
-
-    # Water is intentionally very restrictive because shaded canopy can look
-    # blue in visible imagery. Require a brighter, strongly blue, smooth region.
-    if (
-        blue_excess > 12
-        and b > 125
-        and (b - r) > 34
-        and v > 0.48
-        and s > 0.20
-        and texture < 0.045
-        and area_fraction > 0.003
-        and compactness > 0.38
-    ):
-        return "water", "low", "blue-dominant low-texture segment; verify against visible ROI"
-
-    # Vegetation: most pilot pixels are canopy. Separate tree canopy from grass
-    # using brightness and texture/open-area smoothness.
-    if blue_excess > 8 and g > r and brightness255 < 145:
-        return "vegetation_tree", "low", "cool-toned shaded canopy-like segment"
-    if green_excess > 4 or (0.18 <= h <= 0.46 and s > 0.10 and g >= r and g >= b - 4):
-        if brightness255 > 120 and texture < 0.055 and compactness > 0.45:
-            return "grass_low_vegetation", "medium", "bright smoother green segment"
-        return "vegetation_tree", "medium", "green or textured canopy-like segment"
-
-    # Deep non-green low-brightness regions are shadows.
-    if brightness255 < 64 and s < 0.24:
-        return "shadow", "medium", "dark low-saturation segment"
-    if brightness255 < 52:
-        return "shadow", "low", "very dark segment"
-
-    # Bare soil and exposed earth tend toward brown/orange.
-    if red_excess > 5 and r > 80 and 0.04 <= h <= 0.16 and 0.12 <= s <= 0.55:
-        return "bare_soil", "low", "brown/orange exposed-ground color heuristic"
-
-    # Built/paved surfaces. Roofs are usually brighter and smaller/more compact;
-    # concrete and asphalt catch the larger hardscape pieces.
-    if s < 0.18 and brightness255 > 178:
-        if area_fraction < 0.009 and compactness > 0.36:
-            return "roof", "medium", "bright low-saturation compact segment"
-        return "concrete_pavement", "medium", "bright low-saturation hardscape segment"
-    if s < 0.22 and brightness255 > 128:
-        if area_fraction < 0.006 and std_v > 0.045:
-            return "roof", "low", "medium-bright compact built-surface segment"
-        return "concrete_pavement", "medium", "medium-bright hardscape segment"
-    if s < 0.20 and 62 <= brightness255 <= 128:
-        return "asphalt_road", "low", "dark gray low-saturation hardscape heuristic"
-
-    # Yellowed grass/open ground can fall outside the green test.
-    if 0.12 <= h <= 0.24 and s > 0.12 and brightness255 > 100:
-        return "grass_low_vegetation", "low", "yellow-green open vegetation heuristic"
-
-    return "unclear_ignore", "low", "ambiguous mixed segment; human review needed"
+def review_sheet(overlay: Image.Image, legend: Image.Image, image_id: str) -> Image.Image:
+    tile_w, tile_h = 640, 560
+    label_h = 30
+    sheet = Image.new("RGB", (tile_w * 2, tile_h), "white")
+    items = [(f"{image_id} surface-cover overlay", overlay), ("legend", legend)]
+    for index, (label, image) in enumerate(items):
+        tile = Image.new("RGB", (tile_w, tile_h), "white")
+        body = image.copy()
+        body.thumbnail((tile_w, tile_h - label_h), Image.Resampling.LANCZOS)
+        x = (tile_w - body.width) // 2
+        y = label_h + (tile_h - label_h - body.height) // 2
+        tile.paste(body, (x, y))
+        draw = ImageDraw.Draw(tile)
+        draw.text((8, 8), label, fill=(0, 0, 0))
+        sheet.paste(tile, (index * tile_w, 0))
+    return sheet
 
 
-def compute_segment_features(image: Image.Image, labels: np.ndarray) -> list[dict[str, Any]]:
-    rgb = np.asarray(image.convert("RGB"), dtype=np.float32) / 255.0
-    hsv = color.rgb2hsv(rgb)
-    gray = color.rgb2gray(rgb)
+def render_pair_overlays(annotations_df: pd.DataFrame) -> list[dict[str, Any]]:
+    summary_df = pd.read_csv(ROUND1_SUMMARY_CSV)
     rows: list[dict[str, Any]] = []
-    for segment_id in sorted(int(value) for value in np.unique(labels) if int(value) > 0):
-        mask = labels == segment_id
-        if mask.sum() == 0:
+    for _, summary_row in summary_df.iterrows():
+        pair_id = str(summary_row["pair_id"])
+        image_id = str(summary_row["image_id"])
+        pair_df = annotations_df.loc[annotations_df["pair_id"].astype(str).eq(pair_id)].copy()
+        if pair_df.empty:
             continue
-        ys, xs = np.where(mask)
-        rgb_values = rgb[mask]
-        hsv_values = hsv[mask]
-        mean_rgb = rgb_values.mean(axis=0)
-        mean_hsv = hsv_values.mean(axis=0)
-        std_hsv = hsv_values.std(axis=0)
-        area_px = int(mask.sum())
-        features = {
-            "segment_id": segment_id,
-            "pixel_count": area_px,
-            "pixel_fraction": area_px / float(labels.size),
-            "bbox_x_min": int(xs.min()),
-            "bbox_y_min": int(ys.min()),
-            "bbox_x_max": int(xs.max()),
-            "bbox_y_max": int(ys.max()),
-            "centroid_x": float(xs.mean()),
-            "centroid_y": float(ys.mean()),
-            "mean_r": float(mean_rgb[0] * 255.0),
-            "mean_g": float(mean_rgb[1] * 255.0),
-            "mean_b": float(mean_rgb[2] * 255.0),
-            "mean_h": float(mean_hsv[0]),
-            "mean_s": float(mean_hsv[1]),
-            "mean_v": float(mean_hsv[2]),
-            "std_h": float(std_hsv[0]),
-            "std_s": float(std_hsv[1]),
-            "std_v": float(std_hsv[2]),
-            "texture": segment_texture(gray, mask),
-            "compactness": segment_compactness(mask),
+
+        base_path = resolve_project_path(summary_row["refined_visible_roi_resized_to_thermal_grid_path"])
+        label_path = resolve_project_path(summary_row["segment_id_map_16bit_path"])
+        base_image = ImageOps.exif_transpose(Image.open(base_path)).convert("RGB")
+        labels = np.asarray(Image.open(label_path), dtype=np.int32)
+        label_by_segment = {
+            int(row["segment_id"]): str(row["manual_class"]).strip()
+            for _, row in pair_df.iterrows()
         }
-        draft_class, confidence, reason = classify_features(features)
-        features.update(
+        class_counts = pair_df["manual_class"].value_counts()
+        overlay = colorized_overlay(base_image, labels, label_by_segment)
+        legend = legend_image(class_counts)
+        sheet = review_sheet(overlay, legend, image_id)
+
+        out_dir = PROJECT_ROOT / "outputs" / "part_c" / "surface_cover_review" / image_id
+        out_dir.mkdir(parents=True, exist_ok=True)
+        overlay_path = out_dir / f"{image_id}_surface_cover_class_overlay.png"
+        legend_path = out_dir / f"{image_id}_surface_cover_class_legend.png"
+        sheet_path = out_dir / f"{image_id}_surface_cover_class_review_sheet.png"
+        overlay.save(overlay_path)
+        legend.save(legend_path)
+        sheet.save(sheet_path)
+        rows.append(
             {
-                "codex_prefill_class": draft_class,
-                "codex_prefill_confidence": confidence,
-                "codex_prefill_reason": reason,
+                "pair_id": pair_id,
+                "image_id": image_id,
+                "surface_cover_class_overlay_path": relative_posix(overlay_path),
+                "surface_cover_class_legend_path": relative_posix(legend_path),
+                "surface_cover_class_review_sheet_path": relative_posix(sheet_path),
             }
         )
-        rows.append(features)
     return rows
 
 
-def make_class_overlay(
-    image: Image.Image,
-    labels: np.ndarray,
-    feature_rows: list[dict[str, Any]],
-    output_path: Path,
-) -> str:
-    base = np.asarray(image.convert("RGB"), dtype=np.float32)
-    class_rgb = np.zeros_like(base)
-    class_by_segment = {int(row["segment_id"]): row["codex_prefill_class"] for row in feature_rows}
-    for segment_id, class_name in class_by_segment.items():
-        class_rgb[labels == segment_id] = rgb_hex_to_uint8(CLASS_COLORS[class_name])
-    blended = np.clip(0.48 * base + 0.52 * class_rgb, 0, 255).astype(np.uint8)
-    boundary = segmentation.mark_boundaries(blended / 255.0, labels, color=(1.0, 1.0, 0.0), mode="thick")
-    overlay = Image.fromarray((boundary * 255.0 + 0.5).astype(np.uint8), mode="RGB")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    overlay.save(output_path)
-    return relative_posix(output_path)
-
-
-def make_legend(output_path: Path) -> str:
-    width, height = 620, 360
-    image = Image.new("RGB", (width, height), "white")
-    draw = ImageDraw.Draw(image)
-    draw.text((18, 18), f"Surface-cover prefill legend ({PREFILL_VERSION})", fill=(0, 0, 0))
-    y = 62
-    for class_name, hex_color in CLASS_COLORS.items():
-        draw.rectangle((24, y, 54, y + 22), fill=rgb_hex_to_uint8(hex_color), outline=(0, 0, 0))
-        draw.text((66, y + 3), class_name, fill=(0, 0, 0))
-        y += 29
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    image.save(output_path)
-    return relative_posix(output_path)
-
-
-def write_prefill_summary_md(pair_rows: list[dict[str, Any]], class_counts: pd.DataFrame) -> None:
-    lines = [
-        "# Part C Codex Prefill Summary",
-        "",
-        f"Prefill version: `{PREFILL_VERSION}`",
-        "",
-        "These labels are a draft for human review. They were inferred from visible ROI segment color, brightness, texture, and shape features. LUHK was not used as surface-cover evidence.",
-        "",
-        "## Overall Class Counts",
-        "",
+def write_class_counts(annotations_df: pd.DataFrame, allowed_classes: list[str]) -> None:
+    counts = annotations_df["manual_class"].value_counts()
+    rows = [
+        {
+            "class_name": class_name,
+            "segment_count": int(counts.get(class_name, 0)),
+        }
+        for class_name in allowed_classes
     ]
-    for _, row in class_counts.iterrows():
-        lines.append(f"- `{row['manual_class']}`: {int(row['count'])}")
-    lines.extend(["", "## Per-Pair Review Files", ""])
-    for row in pair_rows:
-        lines.extend(
-            [
-                f"### {row['image_id']}",
-                "",
-                f"- Annotation CSV: `{row['annotation_csv_path']}`",
-                f"- Prefill class overlay: `{row['prefill_class_overlay_path']}`",
-                f"- Segment ID quadrants: `{row['segment_id_labels_quadrants_path']}`",
-                "",
-            ]
-        )
-    lines.extend(
-        [
-            "## Review Notes",
-            "",
-            "- Check `roof` versus `concrete_pavement` carefully around buildings.",
-            "- Check dark roofs and solar panels; color rules may label them as `vegetation_tree`.",
-            "- Check dark canopy versus `shadow` carefully.",
-            "- Check `water`; this draft uses a restrictive blue/low-texture rule, but shaded surfaces can still confuse it.",
-            "- Change `manual_class` directly where needed and set `review_status` to `reviewed` after human review.",
-            "",
-        ]
+    write_rows_csv(CLASS_COUNTS_CSV, rows, ["class_name", "segment_count"])
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Validate Part C surface-cover annotations and render per-pair review overlays."
     )
-    PREFILL_SUMMARY_MD.parent.mkdir(parents=True, exist_ok=True)
-    PREFILL_SUMMARY_MD.write_text("\n".join(lines), encoding="utf-8")
-
-
-def backup_blank_annotations() -> None:
-    if BLANK_BACKUP_CSV.exists() or not MAIN_ANNOTATION_CSV.exists():
-        return
-    df = pd.read_csv(MAIN_ANNOTATION_CSV)
-    if "manual_class" in df.columns and df["manual_class"].fillna("").astype(str).str.strip().eq("").all():
-        shutil.copy2(MAIN_ANNOTATION_CSV, BLANK_BACKUP_CSV)
-
-
-def base_annotation_note(value: Any) -> str:
-    if is_blank(value):
-        return ""
-    text = str(value)
-    marker = " | original_note: "
-    while text.startswith(f"{PREFILL_VERSION}:") and marker in text:
-        text = text.split(marker, 1)[1]
-    return text
-
-
-def update_annotation_file(path: Path, prefill_df: pd.DataFrame) -> None:
-    df = pd.read_csv(path)
-    for column in ["manual_class", "confidence", "review_status", "notes"]:
-        if column in df.columns:
-            df[column] = df[column].astype("object")
-    key_cols = ["pair_id", "segment_id"]
-    merged = df.merge(
-        prefill_df[
-            key_cols
-            + [
-                "codex_prefill_class",
-                "codex_prefill_confidence",
-                "codex_prefill_reason",
-            ]
-        ],
-        on=key_cols,
-        how="left",
+    parser.add_argument(
+        "--reset-review-baseline",
+        action="store_true",
+        help=(
+            "Copy the latest existing label into both suggested_class and manual_class, "
+            "then reset review_status to Not yet. Use this only when starting a fresh review pass."
+        ),
     )
-    for index, row in merged.iterrows():
-        if is_blank(row.get("codex_prefill_class")):
-            continue
-        if not is_blank(row.get("manual_class")) and row.get("review_status") != PREFILL_STATUS:
-            continue
-        merged.at[index, "manual_class"] = row["codex_prefill_class"]
-        merged.at[index, "confidence"] = row["codex_prefill_confidence"]
-        merged.at[index, "review_status"] = PREFILL_STATUS
-        old_note = base_annotation_note(row.get("notes"))
-        merged.at[index, "notes"] = (
-            f"{PREFILL_VERSION}: {row['codex_prefill_reason']}"
-            + (f" | original_note: {old_note}" if old_note else "")
-        )
-    output_cols = [column for column in df.columns]
-    merged[output_cols].to_csv(path, index=False)
+    return parser.parse_args()
 
 
 def main() -> int:
-    required = [SUMMARY_CSV, MAIN_ANNOTATION_CSV]
+    args = parse_args()
+    required = [MAIN_ANNOTATION_CSV, SURFACE_CLASSES_CSV, ROUND1_SUMMARY_CSV]
     missing = [relative_posix(path) for path in required if not path.is_file()]
     if missing:
         print("Missing required Part C files:", file=sys.stderr)
@@ -386,89 +276,24 @@ def main() -> int:
             print(f"- {path}", file=sys.stderr)
         return 1
 
-    summary_df = pd.read_csv(SUMMARY_CSV)
-    all_feature_rows: list[dict[str, Any]] = []
-    pair_summary_rows: list[dict[str, Any]] = []
-
-    for _, pair in summary_df.iterrows():
-        image_id = str(pair["image_id"])
-        pair_id = str(pair["pair_id"])
-        image = load_rgb(resolve_project_path(pair["refined_visible_roi_resized_to_thermal_grid_path"]))
-        labels = load_label_map(resolve_project_path(pair["segment_id_map_16bit_path"]))
-        feature_rows = compute_segment_features(image, labels)
-        for row in feature_rows:
-            row["pair_id"] = pair_id
-            row["image_id"] = image_id
-            row["prefill_version"] = PREFILL_VERSION
-        all_feature_rows.extend(feature_rows)
-
-        overlay_path = resolve_project_path(pair["superpixel_overlay_path"]).with_name(
-            f"{safe_name(image_id)}_codex_prefill_class_overlay.png"
-        )
-        legend_path = overlay_path.with_name(f"{safe_name(image_id)}_codex_prefill_class_legend.png")
-        overlay_rel = make_class_overlay(image, labels, feature_rows, overlay_path)
-        legend_rel = make_legend(legend_path)
-        pair_summary_rows.append(
-            {
-                "pair_id": pair_id,
-                "image_id": image_id,
-                "annotation_csv_path": pair["pair_annotation_csv_path"],
-                "prefill_class_overlay_path": overlay_rel,
-                "prefill_class_legend_path": legend_rel,
-                "segment_id_labels_quadrants_path": pair["segment_id_labels_quadrants_path"],
-            }
-        )
-
-    feature_columns = [
-        "pair_id",
-        "image_id",
-        "segment_id",
-        "pixel_count",
-        "pixel_fraction",
-        "bbox_x_min",
-        "bbox_y_min",
-        "bbox_x_max",
-        "bbox_y_max",
-        "centroid_x",
-        "centroid_y",
-        "mean_r",
-        "mean_g",
-        "mean_b",
-        "mean_h",
-        "mean_s",
-        "mean_v",
-        "std_h",
-        "std_s",
-        "std_v",
-        "texture",
-        "compactness",
-        "codex_prefill_class",
-        "codex_prefill_confidence",
-        "codex_prefill_reason",
-        "prefill_version",
-    ]
-    write_rows_csv(PREFILL_SEGMENTS_CSV, all_feature_rows, feature_columns)
-
-    prefill_df = pd.DataFrame(all_feature_rows)
-    backup_blank_annotations()
-    update_annotation_file(MAIN_ANNOTATION_CSV, prefill_df)
-    for row in pair_summary_rows:
-        update_annotation_file(resolve_project_path(row["annotation_csv_path"]), prefill_df)
-
-    annotated = pd.read_csv(MAIN_ANNOTATION_CSV)
-    class_counts = (
-        annotated["manual_class"]
-        .fillna("missing")
-        .value_counts()
-        .rename_axis("manual_class")
-        .reset_index(name="count")
+    allowed_classes = load_allowed_classes()
+    annotations_df = normalize_annotations(allowed_classes, reset_review_baseline=args.reset_review_baseline)
+    write_class_counts(annotations_df, allowed_classes)
+    overlay_rows = render_pair_overlays(annotations_df)
+    write_rows_csv(
+        OVERLAY_PATHS_CSV,
+        overlay_rows,
+        [
+            "pair_id",
+            "image_id",
+            "surface_cover_class_overlay_path",
+            "surface_cover_class_legend_path",
+            "surface_cover_class_review_sheet_path",
+        ],
     )
-    write_rows_csv(PREFILL_SUMMARY_CSV, class_counts.to_dict("records"), ["manual_class", "count"])
-    write_prefill_summary_md(pair_summary_rows, class_counts)
-
-    print(f"Prefilled annotation rows: {len(annotated)}")
-    print(f"Manual class nonblank: {annotated['manual_class'].fillna('').astype(str).str.strip().ne('').sum()}")
-    print(f"Prefill summary: {relative_posix(PREFILL_SUMMARY_MD)}")
+    print(f"Annotation rows: {len(annotations_df)}")
+    print(f"Review status values: {', '.join(sorted(annotations_df['review_status'].unique()))}")
+    print(f"Overlay manifest: {relative_posix(OVERLAY_PATHS_CSV)}")
     return 0
 
 

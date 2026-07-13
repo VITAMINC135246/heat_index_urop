@@ -35,6 +35,7 @@ No thermal temperature extraction, supervised model training, manual annotation 
 - Refined ROI: `outputs/part_c/surface_cover_review/DJI_20260107143259_0005/DJI_20260107143259_0005_refined_visible_roi.png`
 - Thermal-grid ROI: `outputs/part_c/surface_cover_review/DJI_20260107143259_0005/DJI_20260107143259_0005_refined_visible_roi_resized_to_thermal_grid.png`
 - Review contact sheet: `outputs/part_c/surface_cover_review/DJI_20260107143259_0005/DJI_20260107143259_0005_part_c_review_contact_sheet.png`
+- Surface-cover class review sheet: `outputs/part_c/surface_cover_review/DJI_20260107143259_0005/DJI_20260107143259_0005_surface_cover_class_review_sheet.png`
 - Segmentation contact sheet: `outputs/part_c/superpixels/DJI_20260107143259_0005/DJI_20260107143259_0005_segmentation_contact_sheet.png`
 - Segment ID full map: `outputs/part_c/superpixels/DJI_20260107143259_0005/DJI_20260107143259_0005_segment_id_labels_full.png`
 - Segment ID quadrant map: `outputs/part_c/superpixels/DJI_20260107143259_0005/DJI_20260107143259_0005_segment_id_labels_quadrants.png`
@@ -48,6 +49,7 @@ No thermal temperature extraction, supervised model training, manual annotation 
 - Refined ROI: `outputs/part_c/surface_cover_review/DJI_20260107143320_0007/DJI_20260107143320_0007_refined_visible_roi.png`
 - Thermal-grid ROI: `outputs/part_c/surface_cover_review/DJI_20260107143320_0007/DJI_20260107143320_0007_refined_visible_roi_resized_to_thermal_grid.png`
 - Review contact sheet: `outputs/part_c/surface_cover_review/DJI_20260107143320_0007/DJI_20260107143320_0007_part_c_review_contact_sheet.png`
+- Surface-cover class review sheet: `outputs/part_c/surface_cover_review/DJI_20260107143320_0007/DJI_20260107143320_0007_surface_cover_class_review_sheet.png`
 - Segmentation contact sheet: `outputs/part_c/superpixels/DJI_20260107143320_0007/DJI_20260107143320_0007_segmentation_contact_sheet.png`
 - Segment ID full map: `outputs/part_c/superpixels/DJI_20260107143320_0007/DJI_20260107143320_0007_segment_id_labels_full.png`
 - Segment ID quadrant map: `outputs/part_c/superpixels/DJI_20260107143320_0007/DJI_20260107143320_0007_segment_id_labels_quadrants.png`
@@ -61,6 +63,7 @@ No thermal temperature extraction, supervised model training, manual annotation 
 - Refined ROI: `outputs/part_c/surface_cover_review/DJI_20260107143328_0008/DJI_20260107143328_0008_refined_visible_roi.png`
 - Thermal-grid ROI: `outputs/part_c/surface_cover_review/DJI_20260107143328_0008/DJI_20260107143328_0008_refined_visible_roi_resized_to_thermal_grid.png`
 - Review contact sheet: `outputs/part_c/surface_cover_review/DJI_20260107143328_0008/DJI_20260107143328_0008_part_c_review_contact_sheet.png`
+- Surface-cover class review sheet: `outputs/part_c/surface_cover_review/DJI_20260107143328_0008/DJI_20260107143328_0008_surface_cover_class_review_sheet.png`
 - Segmentation contact sheet: `outputs/part_c/superpixels/DJI_20260107143328_0008/DJI_20260107143328_0008_segmentation_contact_sheet.png`
 - Segment ID full map: `outputs/part_c/superpixels/DJI_20260107143328_0008/DJI_20260107143328_0008_segment_id_labels_full.png`
 - Segment ID quadrant map: `outputs/part_c/superpixels/DJI_20260107143328_0008/DJI_20260107143328_0008_segment_id_labels_quadrants.png`
@@ -74,6 +77,7 @@ No thermal temperature extraction, supervised model training, manual annotation 
 - Refined ROI: `outputs/part_c/surface_cover_review/DJI_20260107143344_0009/DJI_20260107143344_0009_refined_visible_roi.png`
 - Thermal-grid ROI: `outputs/part_c/surface_cover_review/DJI_20260107143344_0009/DJI_20260107143344_0009_refined_visible_roi_resized_to_thermal_grid.png`
 - Review contact sheet: `outputs/part_c/surface_cover_review/DJI_20260107143344_0009/DJI_20260107143344_0009_part_c_review_contact_sheet.png`
+- Surface-cover class review sheet: `outputs/part_c/surface_cover_review/DJI_20260107143344_0009/DJI_20260107143344_0009_surface_cover_class_review_sheet.png`
 - Segmentation contact sheet: `outputs/part_c/superpixels/DJI_20260107143344_0009/DJI_20260107143344_0009_segmentation_contact_sheet.png`
 - Segment ID full map: `outputs/part_c/superpixels/DJI_20260107143344_0009/DJI_20260107143344_0009_segment_id_labels_full.png`
 - Segment ID quadrant map: `outputs/part_c/superpixels/DJI_20260107143344_0009/DJI_20260107143344_0009_segment_id_labels_quadrants.png`
@@ -87,6 +91,7 @@ No thermal temperature extraction, supervised model training, manual annotation 
 - Refined ROI: `outputs/part_c/surface_cover_review/DJI_20260107143401_0011/DJI_20260107143401_0011_refined_visible_roi.png`
 - Thermal-grid ROI: `outputs/part_c/surface_cover_review/DJI_20260107143401_0011/DJI_20260107143401_0011_refined_visible_roi_resized_to_thermal_grid.png`
 - Review contact sheet: `outputs/part_c/surface_cover_review/DJI_20260107143401_0011/DJI_20260107143401_0011_part_c_review_contact_sheet.png`
+- Surface-cover class review sheet: `outputs/part_c/surface_cover_review/DJI_20260107143401_0011/DJI_20260107143401_0011_surface_cover_class_review_sheet.png`
 - Segmentation contact sheet: `outputs/part_c/superpixels/DJI_20260107143401_0011/DJI_20260107143401_0011_segmentation_contact_sheet.png`
 - Segment ID full map: `outputs/part_c/superpixels/DJI_20260107143401_0011/DJI_20260107143401_0011_segment_id_labels_full.png`
 - Segment ID quadrant map: `outputs/part_c/superpixels/DJI_20260107143401_0011/DJI_20260107143401_0011_segment_id_labels_quadrants.png`
@@ -97,8 +102,9 @@ No thermal temperature extraction, supervised model training, manual annotation 
 
 - Main annotation file: `data/annotations/part_c/part_c_surface_cover_annotations.csv`
 - Approved class list: `data/annotations/part_c/surface_cover_classes.csv`
+- Surface-cover class overlay manifest: `outputs/part_c/summaries/part_c_surface_cover_review_overlays.csv`
 
-Use the segment ID label maps to locate each `segment_id`, then fill `manual_class` during review. Suggested classes are low-confidence heuristics, not final labels.
+Use the segment ID label maps to locate each `segment_id`, then edit `manual_class` during review. Leave `suggested_class` as the current baseline candidate. Use `review_status = Yes` only after a row has been checked; otherwise use `Not yet`.
 
 ## Parked Draft Assets
 
@@ -117,4 +123,4 @@ Those early assets were generated before Part B refined alignment acceptance fro
 
 ## Next Manual Task
 
-Review the contact sheets, then fill `manual_class` in `data/annotations/part_c/part_c_surface_cover_annotations.csv` or the per-pair annotation CSVs.
+Review the contact sheets, then edit `manual_class` in `data/annotations/part_c/part_c_surface_cover_annotations.csv`.

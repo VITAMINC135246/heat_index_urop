@@ -30,7 +30,7 @@ Surface-cover review is prepared from the accepted refined visible ROI, not from
 1. Crops the refined visible ROI using the Part B Round 1.1 bounding box.
 2. Resizes the refined ROI to the thermal image grid.
 3. Runs SLIC superpixels on the thermal-grid-resized visible ROI.
-4. Writes boundary overlays, average-color superpixel overlays, segment ID maps, numbered segment ID label maps, segment summary CSVs, and annotation templates.
+4. Writes boundary overlays, average-color superpixel overlays, segment ID maps, numbered segment ID label maps, segment summary CSVs, annotation tables, and per-image class review sheets with legends.
 
 The current SLIC settings are recorded in `outputs/part_c/summaries/part_c_round1_summary.md`.
 
@@ -40,14 +40,13 @@ Thermal images shown in Part C contact sheets are grayscale contrast previews on
 
 ## Manual Review Requirement
 
-The generated `suggested_class` values are low-confidence, auditable color heuristics. They are not ground truth and are not final labels.
+The `suggested_class` values store the current baseline surface-cover candidates. The `manual_class` values start as a copy of `suggested_class` so reviewers only need to edit rows where they disagree.
 
-Use the numbered segment ID maps in `outputs/part_c/superpixels/<image_id>/` to locate each `segment_id` before filling annotation CSVs. The quadrant label maps are the easiest view when the full label map is crowded.
+Use the numbered segment ID maps in `outputs/part_c/superpixels/<image_id>/` to locate each `segment_id` before editing annotation CSVs. The quadrant label maps are the easiest view when the full label map is crowded.
 
-Manual reviewers should fill `manual_class` in:
+Use the class review sheets in `outputs/part_c/surface_cover_review/<image_id>/` to see the current per-segment surface-cover classification overlay and legend for each image.
 
-- `data/annotations/part_c/part_c_surface_cover_annotations.csv`
-- or the per-pair CSVs in `data/annotations/part_c/`
+Manual reviewers should edit `manual_class` in `data/annotations/part_c/part_c_surface_cover_annotations.csv`. Set `review_status` to `Yes` only after checking a row; otherwise leave `Not yet`.
 
 Allowed classes are listed in `data/annotations/part_c/surface_cover_classes.csv`.
 
@@ -59,6 +58,7 @@ Part C prepares review assets for later Part D and Part E work:
 - Segment ID maps on the thermal grid
 - Numbered segment ID maps for manual review
 - Segment summaries and annotation templates
+- Per-image surface-cover class review sheets and legends
 - Approximate LUHK context summaries
 
 Part C does not create final masks. Final masks should only be generated after manual labels are reviewed and accepted.
