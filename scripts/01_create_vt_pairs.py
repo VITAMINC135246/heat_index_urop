@@ -1,19 +1,20 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Create a stable inventory of visible/thermal image pairs."""
 
 from __future__ import annotations
 
-import csv
 import re
 import sys
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
+from table_io import write_rows
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_DATA_ROOT = PROJECT_ROOT / "data" / "raw" / "HKUST"
-OUTPUT_CSV = PROJECT_ROOT / "data" / "metadata" / "vt_pairs.csv"
+OUTPUT_XLSX = PROJECT_ROOT / "data" / "metadata" / "vt_pairs.xlsx"
 
 # Set this to one generated pair_id after selecting a single pilot record.
 PILOT_PAIR_ID: str | None = None
@@ -305,7 +306,7 @@ def print_summary(records: list[dict[str, str]], jpg_count: int, ignored: int) -
         methods[record["match_method"]] += 1
 
     print(f"Raw data root: {RAW_DATA_ROOT}")
-    print(f"Output CSV: {OUTPUT_CSV}")
+    print(f"Output XLSX: {OUTPUT_XLSX}")
     print(f"JPG/JPEG files inspected: {jpg_count}")
     print(f"Non-V/T JPG/JPEG files ignored: {ignored}")
     print(f"Total pair records: {len(records)}")
@@ -331,11 +332,7 @@ def main() -> int:
         )
         return 1
 
-    OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)
-    with OUTPUT_CSV.open("w", encoding="utf-8-sig", newline="") as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=COLUMNS, lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(records)
+    write_rows(OUTPUT_XLSX, records, COLUMNS)
 
     print_summary(records, jpg_count, ignored_jpg_count)
     return 0

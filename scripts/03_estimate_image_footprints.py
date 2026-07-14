@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Estimate separate first-pass footprints for DJI visible and thermal images."""
 
 from __future__ import annotations
 
-import csv
 import importlib.util
 import json
 import math
@@ -13,22 +12,23 @@ from statistics import median
 from typing import Any
 
 from camera_profiles import resolve_camera_parameters
+from table_io import read_table, write_table
 
 
-VT_PAIRS_CSV_NAME = Path("data") / "metadata" / "vt_pairs.csv"
-METADATA_CSV_NAME = Path("data") / "metadata" / "dji_image_metadata.csv"
-OUTPUT_CSV_NAME = Path("data") / "processed" / "footprints" / "image_footprints.csv"
+VT_PAIRS_XLSX_NAME = Path("data") / "metadata" / "vt_pairs.xlsx"
+METADATA_XLSX_NAME = Path("data") / "metadata" / "dji_image_metadata.xlsx"
+OUTPUT_XLSX_NAME = Path("data") / "processed" / "footprints" / "image_footprints.xlsx"
 OUTPUT_GEOJSON_NAME = Path("outputs") / "geodata" / "image_footprints.geojson"
 SUMMARY_TXT_NAME = Path("outputs") / "reports" / "03_estimate_image_footprints_summary.txt"
 PREVIEW_FIGURE_NAME = Path("outputs") / "figures" / "image_footprint_preview.png"
 
 # Compatibility outputs for older thermal-only notebooks/scripts.
-THERMAL_COMPAT_CSV_NAME = Path("data") / "processed" / "footprints" / "thermal_image_footprints.csv"
+THERMAL_COMPAT_XLSX_NAME = Path("data") / "processed" / "footprints" / "thermal_image_footprints.xlsx"
 THERMAL_COMPAT_GEOJSON_NAME = Path("outputs") / "geodata" / "thermal_image_footprints.geojson"
 
 REQUIRED_PACKAGES = ["pandas", "pyproj", "PIL", "matplotlib"]
 
-CSV_COLUMNS = [
+TABLE_COLUMNS = [
     "pair_id",
     "image_type",
     "image_path",
@@ -164,14 +164,14 @@ def read_actual_image_size(image_path_text: str) -> tuple[int, int] | None:
         return displayed.size
 
 
-def load_inputs(vt_pairs_csv: Path, metadata_csv: Path) -> tuple[Any, Any]:
+def load_inputs(vt_pairs_xlsx: Path, metadata_xlsx: Path) -> tuple[Any, Any]:
     import pandas as pd
 
-    if not vt_pairs_csv.is_file():
-        raise FileNotFoundError(vt_pairs_csv)
-    if not metadata_csv.is_file():
-        raise FileNotFoundError(metadata_csv)
-    return pd.read_csv(vt_pairs_csv), pd.read_csv(metadata_csv)
+    if not vt_pairs_xlsx.is_file():
+        raise FileNotFoundError(vt_pairs_xlsx)
+    if not metadata_xlsx.is_file():
+        raise FileNotFoundError(metadata_xlsx)
+    return read_table(vt_pairs_xlsx), read_table(metadata_xlsx)
 
 
 def metadata_index(metadata_df: Any) -> dict[tuple[str, str], Any]:
@@ -235,7 +235,7 @@ def incomplete_row(
 ) -> dict[str, Any]:
     image_name = Path(image_path).name
     paired_name = Path(paired_image_path).name
-    row = {column: "" for column in CSV_COLUMNS}
+    row = {column: "" for column in XLSX_COLUMNS}
     row.update(
         {
             "pair_id": str(pair.get("pair_id", "")),
@@ -245,7 +245,7 @@ def incomplete_row(
             "image_name": image_name,
             "paired_image_name": paired_name,
             "pair_status": str(pair.get("status", "")),
-            "metadata_source": relative_posix(project_root() / METADATA_CSV_NAME),
+            "metadata_source": relative_posix(project_root() / METADATA_XLSX_NAME),
             "camera_profile_used": f"{image_type}_profile",
             "fallback_used": False,
             "aperture_ignored": True,
@@ -327,7 +327,7 @@ def estimate_one_footprint(
     }
     corners_4326 = {name: transformer_to_4326.transform(x, y) for name, (x, y) in corners_2326.items()}
 
-    row = {column: "" for column in CSV_COLUMNS}
+    row = {column: "" for column in XLSX_COLUMNS}
     row.update(
         {
             "pair_id": str(pair.get("pair_id", "")),
@@ -337,7 +337,7 @@ def estimate_one_footprint(
             "image_name": str(metadata_row.get("image_name", Path(image_path).name)),
             "paired_image_name": Path(paired_image_path).name,
             "pair_status": str(pair.get("status", "")),
-            "metadata_source": relative_posix(project_root() / METADATA_CSV_NAME),
+            "metadata_source": relative_posix(project_root() / METADATA_XLSX_NAME),
             "image_width": image_width,
             "image_height": image_height,
             "gps_latitude": center_lat,
@@ -384,15 +384,15 @@ def estimate_one_footprint(
     return row
 
 
-def write_csv_rows(rows: list[dict[str, Any]], output_csv: Path) -> None:
+def write_xlsx_rows(rows: list[dict[str, Any]], output_xlsx: Path) -> None:
     import pandas as pd
 
-    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    output_xlsx.parent.mkdir(parents=True, exist_ok=True)
     df = pd.DataFrame(rows)
-    for column in CSV_COLUMNS:
+    for column in XLSX_COLUMNS:
         if column not in df.columns:
             df[column] = ""
-    df[CSV_COLUMNS].to_csv(output_csv, index=False)
+    write_table(output_xlsx, df, TABLE_COLUMNS)
 
 
 def polygon_lon_lat(row: dict[str, Any]) -> list[list[float]]:
@@ -428,7 +428,7 @@ def write_geojson(rows: list[dict[str, Any]], output_geojson: Path) -> None:
             {
                 "type": "Feature",
                 "geometry": {"type": "Polygon", "coordinates": [polygon_lon_lat(row)]},
-                "properties": {key: json_ready(value) for key, value in row.items() if key in CSV_COLUMNS},
+                "properties": {key: json_ready(value) for key, value in row.items() if key in XLSX_COLUMNS},
             }
         )
     output_geojson.write_text(
@@ -507,7 +507,7 @@ def write_summary(rows: list[dict[str, Any]], summary_txt: Path) -> None:
         f"valid ground_width_m: {number_summary([parse_float(row.get('ground_width_m')) for row in ok_rows])}",
         f"valid ground_height_m: {number_summary([parse_float(row.get('ground_height_m')) for row in ok_rows])}",
         "",
-        f"output CSV path: {relative_posix(project_root() / OUTPUT_CSV_NAME)}",
+        f"output XLSX path: {relative_posix(project_root() / OUTPUT_XLSX_NAME)}",
         f"output GeoJSON path: {relative_posix(project_root() / OUTPUT_GEOJSON_NAME)}",
         f"preview figure path: {relative_posix(project_root() / PREVIEW_FIGURE_NAME)}",
     ]
@@ -529,7 +529,7 @@ def main() -> int:
 
     root = project_root()
     try:
-        vt_pairs_df, metadata_df = load_inputs(root / VT_PAIRS_CSV_NAME, root / METADATA_CSV_NAME)
+        vt_pairs_df, metadata_df = load_inputs(root / VT_PAIRS_XLSX_NAME, root / METADATA_XLSX_NAME)
     except FileNotFoundError as exc:
         print(f"Error: required input not found: {exc}", file=sys.stderr)
         return 1
@@ -563,21 +563,21 @@ def main() -> int:
             )
         )
 
-    output_csv = root / OUTPUT_CSV_NAME
+    output_xlsx = root / OUTPUT_XLSX_NAME
     output_geojson = root / OUTPUT_GEOJSON_NAME
     preview_figure = root / PREVIEW_FIGURE_NAME
-    write_csv_rows(rows, output_csv)
+    write_xlsx_rows(rows, output_xlsx)
     write_geojson(rows, output_geojson)
     write_preview(rows, preview_figure)
     write_summary(rows, root / SUMMARY_TXT_NAME)
 
     thermal_rows = [row for row in rows if row.get("image_type") == "thermal"]
-    write_csv_rows(thermal_rows, root / THERMAL_COMPAT_CSV_NAME)
+    write_xlsx_rows(thermal_rows, root / THERMAL_COMPAT_XLSX_NAME)
     write_geojson(thermal_rows, root / THERMAL_COMPAT_GEOJSON_NAME)
 
     print(f"Footprint rows written: {len(rows)}")
     print(f"Valid footprints: {sum(row.get('status') == 'ok' for row in rows)}")
-    print(f"Output CSV path: {relative_posix(output_csv)}")
+    print(f"Output XLSX path: {relative_posix(output_xlsx)}")
     print(f"Output GeoJSON path: {relative_posix(output_geojson)}")
     print(f"Summary text path: {relative_posix(root / SUMMARY_TXT_NAME)}")
     return 0

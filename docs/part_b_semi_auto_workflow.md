@@ -1,4 +1,4 @@
-# Part B Semi-Automatic V/T ROI And Surface-Cover Workflow
+﻿# Part B Semi-Automatic V/T ROI And Surface-Cover Workflow
 
 Status: Round 1 pilot workflow
 
@@ -17,9 +17,9 @@ surface-cover labels for drone pixels or superpixels.
 
 ## Inputs
 
-- `data/metadata/vt_pairs.csv`
-- `data/metadata/dji_image_metadata.csv`
-- `data/metadata/pilot_candidate_pairs.csv`
+- `data/metadata/vt_pairs.xlsx`
+- `data/metadata/dji_image_metadata.xlsx`
+- `data/metadata/pilot_candidate_pairs.xlsx`
 - `docs/camera_parameter_assumptions.md`
 - Raw local V/T images under `data/raw/HKUST/`
 
@@ -28,7 +28,7 @@ specific reason to include it.
 
 ## Pilot Selection
 
-Round 1 uses five HKUST V/T pairs. If `data/metadata/part_b_pilot_pairs.csv`
+Round 1 uses five HKUST V/T pairs. If `data/metadata/part_b_pilot_pairs.xlsx`
 already exists, the script reuses that pilot list. Otherwise, it selects the
 first five high-priority HKUST candidates that have both local `_V.JPG` and
 `_T.JPG` files, excludes Garden Hill, and prefers rows with existing pilot grid
@@ -45,7 +45,7 @@ documented in Part A:
 - `tele_visible`: 168 mm 35mm-equivalent focal length.
 
 The summary table is written to
-`data/metadata/visible_camera_profiles.csv`.
+`data/metadata/visible_camera_profiles.xlsx`.
 
 ## ROI Estimate
 
@@ -81,16 +81,19 @@ Allowed Round 1 classes:
 - `grass_low_vegetation`
 - `bare_soil`
 - `water`
-- `shadow`
 - `vehicle_temporary_object`
 - `unclear_ignore`
 
+Shadow is recorded separately as `shadow_status`, where `1` means shadowed
+and `0` means not shadowed. Do not use `shadow` as a mutually exclusive
+surface-cover class.
+
 ## Outputs
 
-- `data/metadata/part_b_pilot_pairs.csv`
-- `data/annotations/surface_cover_classes.csv`
-- `data/annotations/part_b_round1_segment_annotations.csv`
-- `data/annotations/part_b_round1/*_segment_annotation_template.csv`
+- `data/metadata/part_b_pilot_pairs.xlsx`
+- `data/annotations/surface_cover_classes.xlsx`
+- `data/annotations/part_b_round1_segment_annotations.xlsx`
+- `data/annotations/part_b_round1/*_segment_annotation_template.xlsx`
 - `outputs/part_b/review_packages/<image_id>/`
 - `outputs/part_b/overlays/`
 - `outputs/part_b/superpixels/`

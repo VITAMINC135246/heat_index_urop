@@ -1,4 +1,4 @@
-# Part A Inventory And Spatial Foundation Summary
+﻿# Part A Inventory And Spatial Foundation Summary
 
 Date: 2026-07-07
 
@@ -27,18 +27,18 @@ Part B progress notes remain research history only.
 
 ## Files Created Or Updated
 
-- `data/metadata/vt_inventory_validation_summary.csv`
-- `data/metadata/pilot_candidate_pairs.csv`
+- `data/metadata/vt_inventory_validation_summary.xlsx`
+- `data/metadata/pilot_candidate_pairs.xlsx`
 - `docs/part_a_inventory_spatial_foundation_summary.md`
 - `docs/revised_project_overview.md`
 - `docs/camera_parameter_assumptions.md`
 
 ## V/T Inventory Validation
 
-Existing file validated: `data/metadata/vt_pairs.csv`.
+Existing file validated: `data/metadata/vt_pairs.xlsx`.
 
-The existing CSV was compared with the in-memory output of
-`scripts/01_create_vt_pairs.py`; it matches, so the CSV was not regenerated.
+The existing XLSX was compared with the in-memory output of
+`scripts/01_create_vt_pairs.py`; it matches, so the XLSX was not regenerated.
 
 Inventory statistics:
 
@@ -54,7 +54,7 @@ Inventory statistics:
 - Exact base-name matches: 745
 - Session sample-number fallback matches: 164
 - Unmatched records: 1
-- Pilot records marked in `vt_pairs.csv`: 0
+- Pilot records marked in `vt_pairs.xlsx`: 0
 
 The pairing logic scans JPG/JPEG files recursively below `data/raw/HKUST/`,
 matches visible `_V` and thermal `_T` images within the same parent folder, and
@@ -63,7 +63,7 @@ image files, and 0 viewer/tool image files.
 
 ## HKUST And Garden Hill Status
 
-HKUST and Garden Hill are distinguishable in `vt_pairs.csv` through the
+HKUST and Garden Hill are distinguishable in `vt_pairs.xlsx` through the
 `location` and `dataset_folder` fields. HKUST is the current priority for the
 pilot workflow. Garden Hill remains preserved in the inventory and research
 history, but it is deprioritized because it is less suitable for the
@@ -71,7 +71,7 @@ HKUST-focused pilot.
 
 ## Metadata Readiness
 
-Existing metadata file validated: `data/metadata/dji_image_metadata.csv`.
+Existing metadata file validated: `data/metadata/dji_image_metadata.xlsx`.
 
 Metadata status:
 
@@ -101,11 +101,11 @@ LUHK files checked:
 
 - `data/luhk/LUMHK_RasterGrid_2024.tif`
 - `data/luhk/LUMHK_RasterGrid_2024.tif.aux.xml`
-- `data/LUHK2024_SC.csv`
+- `data/LUHK2024_SC.xlsx`
 
 The LUHK GeoTIFF is present. A lightweight TIFF tag check confirms a raster
 size of 6375 by 4800 pixels, 10 m pixel size, and EPSG:2326 / Hong Kong 1980
-Grid metadata. `data/LUHK2024_SC.csv` is present as the category reference.
+Grid metadata. `data/LUHK2024_SC.xlsx` is present as the category reference.
 After the environment repair, `rasterio` also opens the raster successfully and
 confirms EPSG:2326, 10 m pixel size, and nodata value -128.
 
@@ -146,7 +146,7 @@ No claim is made that images are accurately orthorectified at this stage.
 
 ## Pilot Readiness
 
-Created candidate list: `data/metadata/pilot_candidate_pairs.csv`.
+Created candidate list: `data/metadata/pilot_candidate_pairs.xlsx`.
 
 This list is candidate-only and was produced from existing inventory, metadata,
 and footprint status. No manual visual QA or alignment was performed.

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Prepare Part B Round 1 V/T ROI and surface-cover review packages.
 
 This script is intentionally semi-automatic. It estimates a visible-image ROI
@@ -10,7 +10,6 @@ does not train a prediction model.
 from __future__ import annotations
 
 import argparse
-import csv
 import importlib.util
 import math
 import re
@@ -33,21 +32,22 @@ from camera_profiles import (  # noqa: E402
     classify_matrice_4t_camera,
     resolve_camera_parameters,
 )
+from table_io import read_table, write_rows  # noqa: E402
 
 
-CANDIDATE_PAIRS_CSV = PROJECT_ROOT / "data" / "metadata" / "pilot_candidate_pairs.csv"
-DJI_METADATA_CSV = PROJECT_ROOT / "data" / "metadata" / "dji_image_metadata.csv"
-VISIBLE_CAMERA_PROFILES_CSV = PROJECT_ROOT / "data" / "metadata" / "visible_camera_profiles.csv"
-PART_B_PILOT_PAIRS_CSV = PROJECT_ROOT / "data" / "metadata" / "part_b_pilot_pairs.csv"
+CANDIDATE_PAIRS_XLSX = PROJECT_ROOT / "data" / "metadata" / "pilot_candidate_pairs.xlsx"
+DJI_METADATA_XLSX = PROJECT_ROOT / "data" / "metadata" / "dji_image_metadata.xlsx"
+VISIBLE_CAMERA_PROFILES_XLSX = PROJECT_ROOT / "data" / "metadata" / "visible_camera_profiles.xlsx"
+PART_B_PILOT_PAIRS_XLSX = PROJECT_ROOT / "data" / "metadata" / "part_b_pilot_pairs.xlsx"
 ANNOTATION_DIR = PROJECT_ROOT / "data" / "annotations" / "part_b_round1"
-COMBINED_ANNOTATION_CSV = PROJECT_ROOT / "data" / "annotations" / "part_b_round1_segment_annotations.csv"
-SURFACE_CLASSES_CSV = PROJECT_ROOT / "data" / "annotations" / "surface_cover_classes.csv"
+COMBINED_ANNOTATION_XLSX = PROJECT_ROOT / "data" / "annotations" / "part_b_round1_segment_annotations.xlsx"
+SURFACE_CLASSES_XLSX = PROJECT_ROOT / "data" / "annotations" / "surface_cover_classes.xlsx"
 REVIEW_DIR = PROJECT_ROOT / "outputs" / "part_b" / "review_packages"
 OVERLAY_DIR = PROJECT_ROOT / "outputs" / "part_b" / "overlays"
 SUPERPIXEL_DIR = PROJECT_ROOT / "outputs" / "part_b" / "superpixels"
 SUMMARY_DIR = PROJECT_ROOT / "outputs" / "part_b" / "summaries"
-ROI_SUMMARY_CSV = SUMMARY_DIR / "part_b_round1_roi_estimates.csv"
-SEGMENT_SUMMARY_CSV = SUMMARY_DIR / "part_b_round1_segments.csv"
+ROI_SUMMARY_XLSX = SUMMARY_DIR / "part_b_round1_roi_estimates.xlsx"
+SEGMENT_SUMMARY_XLSX = SUMMARY_DIR / "part_b_round1_segments.xlsx"
 SUMMARY_MD = SUMMARY_DIR / "part_b_round1_summary.md"
 
 PILOT_COUNT = 5
@@ -118,8 +118,8 @@ def as_float(value: Any) -> float | None:
 
 def ensure_directories() -> None:
     for directory in [
-        VISIBLE_CAMERA_PROFILES_CSV.parent,
-        PART_B_PILOT_PAIRS_CSV.parent,
+        VISIBLE_CAMERA_PROFILES_XLSX.parent,
+        PART_B_PILOT_PAIRS_XLSX.parent,
         ANNOTATION_DIR,
         REVIEW_DIR,
         OVERLAY_DIR,
@@ -130,15 +130,15 @@ def ensure_directories() -> None:
 
 
 def check_inputs() -> None:
-    missing = [path for path in [CANDIDATE_PAIRS_CSV, DJI_METADATA_CSV] if not path.exists()]
+    missing = [path for path in [CANDIDATE_PAIRS_XLSX, DJI_METADATA_XLSX] if not path.exists()]
     if missing:
         names = ", ".join(relative_posix(path) for path in missing)
         raise FileNotFoundError(f"Missing required Part A metadata input(s): {names}")
 
 
 def load_metadata() -> tuple[pd.DataFrame, pd.DataFrame]:
-    candidates = pd.read_csv(CANDIDATE_PAIRS_CSV, dtype=str).fillna("")
-    metadata = pd.read_csv(DJI_METADATA_CSV, dtype=str).fillna("")
+    candidates = read_table(CANDIDATE_PAIRS_XLSX, dtype=str).fillna("")
+    metadata = read_table(DJI_METADATA_XLSX, dtype=str).fillna("")
     return candidates, metadata
 
 
@@ -148,15 +148,15 @@ def path_exists_from_row(row: pd.Series, key: str) -> bool:
 
 
 def select_pilot_pairs(candidates: pd.DataFrame) -> tuple[pd.DataFrame, str]:
-    if PART_B_PILOT_PAIRS_CSV.exists():
-        existing = pd.read_csv(PART_B_PILOT_PAIRS_CSV, dtype=str).fillna("")
+    if PART_B_PILOT_PAIRS_XLSX.exists():
+        existing = read_table(PART_B_PILOT_PAIRS_XLSX, dtype=str).fillna("")
         existing_ids = [pid for pid in existing.get("pair_id", []) if pid]
         selected = candidates.loc[candidates["pair_id"].isin(existing_ids)].copy()
         order = {pair_id: index for index, pair_id in enumerate(existing_ids)}
         selected["part_b_existing_order"] = selected["pair_id"].map(order)
         selected = selected.sort_values("part_b_existing_order")
         if len(selected) == len(existing_ids):
-            return selected.head(PILOT_COUNT), "existing part_b_pilot_pairs.csv"
+            return selected.head(PILOT_COUNT), "existing part_b_pilot_pairs.xlsx"
 
     work = candidates.copy()
     work["site_group_norm"] = work.get("site_group", "").astype(str).str.casefold()
@@ -180,7 +180,7 @@ def select_pilot_pairs(candidates: pd.DataFrame) -> tuple[pd.DataFrame, str]:
     )
     if len(filtered) < PILOT_COUNT:
         raise ValueError(f"Only {len(filtered)} usable HKUST local V/T pairs found; need {PILOT_COUNT}.")
-    return filtered.head(PILOT_COUNT), "selected from pilot_candidate_pairs.csv"
+    return filtered.head(PILOT_COUNT), "selected from pilot_candidate_pairs.xlsx"
 
 
 def metadata_row(metadata: pd.DataFrame, pair_id: str, image_type: str) -> pd.Series:
@@ -245,14 +245,8 @@ def build_visible_camera_profiles(metadata: pd.DataFrame) -> list[dict[str, Any]
     return rows
 
 
-def write_rows_csv(path: Path, rows: list[dict[str, Any]], columns: list[str] | None = None) -> None:
-    if columns is None:
-        columns = sorted({key for row in rows for key in row})
-    with path.open("w", newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(file, fieldnames=columns, extrasaction="ignore")
-        writer.writeheader()
-        for row in rows:
-            writer.writerow(row)
+def write_rows_xlsx(path: Path, rows: list[dict[str, Any]], columns: list[str] | None = None) -> None:
+    write_rows(path, rows, columns)
 
 
 def write_surface_classes() -> None:
@@ -260,7 +254,7 @@ def write_surface_classes() -> None:
         {"class_name": name, "notes": notes, "part_b_round1_allowed": "yes"}
         for name, notes in SURFACE_CLASSES
     ]
-    write_rows_csv(SURFACE_CLASSES_CSV, rows, ["class_name", "notes", "part_b_round1_allowed"])
+    write_rows_xlsx(SURFACE_CLASSES_XLSX, rows, ["class_name", "notes", "part_b_round1_allowed"])
 
 
 def positive_fov(params: dict[str, Any]) -> bool:
@@ -626,8 +620,8 @@ def save_superpixel_outputs(
         "superpixel_overlay_path": relative_posix(SUPERPIXEL_DIR / f"{base}_superpixel_overlay.png"),
         "segment_id_map_path": relative_posix(SUPERPIXEL_DIR / f"{base}_segment_id_map.png"),
         "segment_boundary_overlay_path": relative_posix(SUPERPIXEL_DIR / f"{base}_segment_boundary_overlay.png"),
-        "segment_summary_path": relative_posix(SUPERPIXEL_DIR / f"{base}_segment_summary.csv"),
-        "annotation_template_path": relative_posix(ANNOTATION_DIR / f"{base}_segment_annotation_template.csv"),
+        "segment_summary_path": relative_posix(SUPERPIXEL_DIR / f"{base}_segment_summary.xlsx"),
+        "annotation_template_path": relative_posix(ANNOTATION_DIR / f"{base}_segment_annotation_template.xlsx"),
     }
     overlay.save(PROJECT_ROOT / paths["superpixel_overlay_path"])
     label_map.save(PROJECT_ROOT / paths["segment_id_map_path"])
@@ -670,7 +664,7 @@ def save_superpixel_outputs(
             }
         )
 
-    write_rows_csv(
+    write_rows_xlsx(
         PROJECT_ROOT / paths["segment_summary_path"],
         rows,
         [
@@ -689,7 +683,7 @@ def save_superpixel_outputs(
             "bbox_y_max",
         ],
     )
-    write_rows_csv(
+    write_rows_xlsx(
         PROJECT_ROOT / paths["annotation_template_path"],
         annotation_rows,
         ["pair_id", "segment_id", "suggested_class", "manual_class", "confidence", "review_status", "notes"],
@@ -782,16 +776,16 @@ def write_summary_report(
     lines.append("")
     lines.append("## Files Created")
     lines.append("")
-    lines.append("- data/metadata/visible_camera_profiles.csv")
-    lines.append("- data/metadata/part_b_pilot_pairs.csv")
-    lines.append("- data/annotations/surface_cover_classes.csv")
-    lines.append("- data/annotations/part_b_round1_segment_annotations.csv")
-    lines.append("- data/annotations/part_b_round1/*_segment_annotation_template.csv")
+    lines.append("- data/metadata/visible_camera_profiles.xlsx")
+    lines.append("- data/metadata/part_b_pilot_pairs.xlsx")
+    lines.append("- data/annotations/surface_cover_classes.xlsx")
+    lines.append("- data/annotations/part_b_round1_segment_annotations.xlsx")
+    lines.append("- data/annotations/part_b_round1/*_segment_annotation_template.xlsx")
     lines.append("- outputs/part_b/review_packages/<image_id>/")
     lines.append("- outputs/part_b/overlays/")
     lines.append("- outputs/part_b/superpixels/")
-    lines.append("- outputs/part_b/summaries/part_b_round1_roi_estimates.csv")
-    lines.append("- outputs/part_b/summaries/part_b_round1_segments.csv")
+    lines.append("- outputs/part_b/summaries/part_b_round1_roi_estimates.xlsx")
+    lines.append("- outputs/part_b/summaries/part_b_round1_segments.xlsx")
     lines.append("")
     lines.append("## Pilot Selection")
     lines.append("")
@@ -831,7 +825,7 @@ def write_summary_report(
     lines.append("- Inspect each contact sheet under outputs/part_b/review_packages/<image_id>/07_contact_sheet.png.")
     lines.append("- Check whether the red visible ROI rectangle plausibly matches the thermal image coverage.")
     lines.append("- Inspect outputs/part_b/superpixels/*_segment_boundary_overlay.png for over- or under-segmentation.")
-    lines.append("- Fill manual_class, confidence, review_status, and notes in the annotation CSV templates.")
+    lines.append("- Fill manual_class, confidence, review_status, and notes in the annotation XLSX templates.")
     lines.append("")
     lines.append("## Known Limitations")
     lines.append("")
@@ -848,7 +842,7 @@ def main() -> int:
     parser.add_argument(
         "--refresh-pilot-selection",
         action="store_true",
-        help="Ignore an existing part_b_pilot_pairs.csv and reselect from pilot_candidate_pairs.csv.",
+        help="Ignore an existing part_b_pilot_pairs.xlsx and reselect from pilot_candidate_pairs.xlsx.",
     )
     args = parser.parse_args()
 
@@ -856,14 +850,14 @@ def main() -> int:
     check_inputs()
     candidates, metadata = load_metadata()
 
-    existing_pilot_file = PART_B_PILOT_PAIRS_CSV.exists() and not args.refresh_pilot_selection
-    if args.refresh_pilot_selection and PART_B_PILOT_PAIRS_CSV.exists():
-        PART_B_PILOT_PAIRS_CSV.unlink()
+    existing_pilot_file = PART_B_PILOT_PAIRS_XLSX.exists() and not args.refresh_pilot_selection
+    if args.refresh_pilot_selection and PART_B_PILOT_PAIRS_XLSX.exists():
+        PART_B_PILOT_PAIRS_XLSX.unlink()
     selected, selection_source = select_pilot_pairs(candidates)
 
     profile_rows = build_visible_camera_profiles(metadata)
-    write_rows_csv(
-        VISIBLE_CAMERA_PROFILES_CSV,
+    write_rows_xlsx(
+        VISIBLE_CAMERA_PROFILES_XLSX,
         profile_rows,
         [
             "profile_key",
@@ -986,10 +980,10 @@ def main() -> int:
         "annotation_template_path",
         "notes",
     ]
-    write_rows_csv(PART_B_PILOT_PAIRS_CSV, pilot_rows, pilot_columns)
-    write_rows_csv(ROI_SUMMARY_CSV, roi_rows)
-    write_rows_csv(
-        SEGMENT_SUMMARY_CSV,
+    write_rows_xlsx(PART_B_PILOT_PAIRS_XLSX, pilot_rows, pilot_columns)
+    write_rows_xlsx(ROI_SUMMARY_XLSX, roi_rows)
+    write_rows_xlsx(
+        SEGMENT_SUMMARY_XLSX,
         combined_segment_rows,
         [
             "pair_id",
@@ -1007,16 +1001,16 @@ def main() -> int:
             "bbox_y_max",
         ],
     )
-    write_rows_csv(
-        COMBINED_ANNOTATION_CSV,
+    write_rows_xlsx(
+        COMBINED_ANNOTATION_XLSX,
         combined_annotation_rows,
         ["pair_id", "segment_id", "suggested_class", "manual_class", "confidence", "review_status", "notes"],
     )
     write_summary_report(pilot_rows, profile_rows, selection_source, existing_pilot_file)
 
-    print(f"Wrote {relative_posix(PART_B_PILOT_PAIRS_CSV)}")
+    print(f"Wrote {relative_posix(PART_B_PILOT_PAIRS_XLSX)}")
     print(f"Wrote {len(pilot_rows)} review packages under {relative_posix(REVIEW_DIR)}")
-    print(f"Wrote combined annotation template {relative_posix(COMBINED_ANNOTATION_CSV)}")
+    print(f"Wrote combined annotation template {relative_posix(COMBINED_ANNOTATION_XLSX)}")
     print(f"Wrote summary {relative_posix(SUMMARY_MD)}")
     return 0
 

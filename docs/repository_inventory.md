@@ -1,11 +1,11 @@
-# Repository Inventory After Workflow Revision
+﻿# Repository Inventory After Workflow Revision
 
 This inventory was prepared before reorganizing files for the revised workflow.
 
 ## Current
 
 - `scripts/01_create_vt_pairs.py`: builds the V/T image-pair inventory.
-- `scripts/02_extract_dji_metadata.py`: extracts DJI metadata into a small CSV.
+- `scripts/02_extract_dji_metadata.py`: extracts DJI metadata into a small XLSX.
 - `scripts/03_estimate_image_footprints.py`: estimates visible and thermal image
   footprints using the revised V/T geometry assumptions.
 - `scripts/04_create_10m_grids_pilot.py`: creates LUHK-aligned 10 m context
@@ -16,19 +16,19 @@ This inventory was prepared before reorganizing files for the revised workflow.
   assumptions used by footprint scripts.
 - `scripts/inspect_camera_metadata.py`: summarizes existing DJI metadata and
   applies the preliminary Matrice 4T camera-identification rule.
-- `data/LUHK2024_SC.csv`: small LUHK class mapping metadata.
-- `data/metadata/vt_pairs.csv` and `data/metadata/dji_image_metadata.csv`:
+- `data/LUHK2024_SC.xlsx`: small LUHK class mapping metadata.
+- `data/metadata/vt_pairs.xlsx` and `data/metadata/dji_image_metadata.xlsx`:
   small metadata tables kept under version control.
-- `data/metadata/vt_inventory_validation_summary.csv`,
-  `data/metadata/pilot_candidate_pairs.csv`, and
-  `data/metadata/camera_metadata_validation_summary.csv`: Part A closure
+- `data/metadata/vt_inventory_validation_summary.xlsx`,
+  `data/metadata/pilot_candidate_pairs.xlsx`, and
+  `data/metadata/camera_metadata_validation_summary.xlsx`: Part A closure
   validation outputs.
 - `docs/`: project notes, assumptions, progress records, and the method change
   log.
 
 ## Generated But Kept For Progress History
 
-- `data/processed/**/*.csv`: small generated pilot tables that support
+- `data/processed/**/*.xlsx`: small generated pilot tables that support
   progress reporting and are useful for reproducibility.
 - `outputs/reports/*.txt`: script run summaries.
 - `outputs/geodata/*.geojson`: generated geospatial outputs used in the pilot

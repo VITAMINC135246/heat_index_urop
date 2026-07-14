@@ -1,4 +1,4 @@
-# Camera Parameter Assumptions For V/T ROI And Spatial Preparation
+﻿# Camera Parameter Assumptions For V/T ROI And Spatial Preparation
 
 This note documents the revised pilot workflow for DJI visible `_V.JPG` and
 thermal `_T.JPG` images. The previous thermal-first logic was correct for
@@ -68,7 +68,7 @@ Important correction: do not assume that all `_V.JPG` files use the wide-angle
 camera. Later footprint estimation and V/T ROI alignment must first identify
 which visible camera produced each `_V.JPG`.
 
-Existing metadata in `data/metadata/dji_image_metadata.csv` provides a
+Existing metadata in `data/metadata/dji_image_metadata.xlsx` provides a
 preliminary camera rule:
 
 - `image_type = visible` and `focal_length_35mm = 24`: wide visible camera.
@@ -155,9 +155,9 @@ not imply that the visible and thermal images have the same image geometry.
 
 The current generated outputs include:
 
-- `data/processed/footprints/image_footprints.csv`
+- `data/processed/footprints/image_footprints.xlsx`
 - `outputs/geodata/image_footprints.geojson`
-- `data/processed/grids/pilot_luhk_aligned_10m_grid_cells.csv`
+- `data/processed/grids/pilot_luhk_aligned_10m_grid_cells.xlsx`
 - `outputs/geodata/pilot_luhk_aligned_10m_grid_cells.geojson`
 - `outputs/figures/pilot_landuse_overlays/`
 

@@ -1,4 +1,4 @@
-# Part B Round 1 Outputs Status
+﻿# Part B Round 1 Outputs Status
 
 Status: preserved, not accepted as final Part B alignment
 
@@ -8,16 +8,16 @@ Part B Round 1 generated useful review material for five HKUST pilot V/T pairs:
 - `outputs/part_b/overlays/`
 - `outputs/part_b/superpixels/`
 - `outputs/part_b/summaries/part_b_round1_summary.md`
-- `outputs/part_b/summaries/part_b_round1_roi_estimates.csv`
-- `outputs/part_b/summaries/part_b_round1_segments.csv`
-- `data/metadata/part_b_pilot_pairs.csv`
-- `data/metadata/visible_camera_profiles.csv`
-- `data/annotations/surface_cover_classes.csv`
-- `data/annotations/part_b_round1_segment_annotations.csv`
-- `data/annotations/part_b_round1/*_segment_annotation_template.csv`
+- `outputs/part_b/summaries/part_b_round1_roi_estimates.xlsx`
+- `outputs/part_b/summaries/part_b_round1_segments.xlsx`
+- `data/metadata/part_b_pilot_pairs.xlsx`
+- `data/metadata/visible_camera_profiles.xlsx`
+- `data/annotations/surface_cover_classes.xlsx`
+- `data/annotations/part_b_round1_segment_annotations.xlsx`
+- `data/annotations/part_b_round1/*_segment_annotation_template.xlsx`
 
 The review packages are preserved because they are useful visual diagnostics.
-The superpixel outputs and annotation CSV templates were generated early. They
+The superpixel outputs and annotation XLSX templates were generated early. They
 are preserved for future Part C preparation, but they should not be treated as
 accepted Part B deliverables.
 

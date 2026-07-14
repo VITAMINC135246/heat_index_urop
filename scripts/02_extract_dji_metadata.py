@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Extract DJI image metadata for visible/thermal image pairs."""
 
 from __future__ import annotations
 
-import csv
 import json
 import re
 import subprocess
@@ -11,11 +10,13 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from table_io import read_table, write_rows
+
 
 BATCH_SIZE = 100
 
-INPUT_CSV_NAME = Path("data") / "metadata" / "vt_pairs.csv"
-OUTPUT_CSV_NAME = Path("data") / "metadata" / "dji_image_metadata.csv"
+INPUT_XLSX_NAME = Path("data") / "metadata" / "vt_pairs.xlsx"
+OUTPUT_XLSX_NAME = Path("data") / "metadata" / "dji_image_metadata.xlsx"
 SUMMARY_TXT_NAME = (
     Path("outputs") / "reports" / "02_extract_dji_metadata_summary.txt"
 )
@@ -349,17 +350,16 @@ def relative_posix(path: Path) -> str:
         return path.resolve().as_posix()
 
 
-def load_vt_pairs(input_csv: Path) -> list[dict[str, str]]:
+def load_vt_pairs(input_xlsx: Path) -> list[dict[str, str]]:
     """Load the visible/thermal pair table."""
-    if not input_csv.is_file():
-        raise FileNotFoundError(f"Input pair table does not exist: {input_csv}")
+    if not input_xlsx.is_file():
+        raise FileNotFoundError(f"Input pair table does not exist: {input_xlsx}")
 
-    with input_csv.open("r", encoding="utf-8-sig", newline="") as csv_file:
-        reader = csv.DictReader(csv_file)
-        rows = list(reader)
+    df = read_table(input_xlsx, dtype=str).fillna("")
+    rows = df.to_dict("records")
 
     required_columns = {"pair_id", "v_path", "t_path", "status"}
-    missing_columns = required_columns.difference(reader.fieldnames or [])
+    missing_columns = required_columns.difference(df.columns)
     if missing_columns:
         missing = ", ".join(sorted(missing_columns))
         raise ValueError(f"Input pair table is missing required columns: {missing}")
@@ -368,7 +368,7 @@ def load_vt_pairs(input_csv: Path) -> list[dict[str, str]]:
 
 
 def resolve_listed_path(path_text: str) -> Path:
-    """Resolve a path from vt_pairs.csv relative to the project root."""
+    """Resolve a path from vt_pairs.xlsx relative to the project root."""
     path = Path(path_text.strip())
     if path.is_absolute():
         return path
@@ -823,7 +823,7 @@ def build_summary_lines(
     metadata_rows: list[dict[str, Any]],
     failed_files: dict[str, str],
     missing_paths: list[str],
-    output_csv: Path,
+    output_xlsx: Path,
 ) -> list[str]:
     """Build a plain-text extraction summary."""
     gps_count = sum(
@@ -840,7 +840,7 @@ def build_summary_lines(
     lines = [
         "DJI image metadata extraction summary",
         "",
-        f"total rows in vt_pairs.csv: {total_pair_rows}",
+        f"total rows in vt_pairs.xlsx: {total_pair_rows}",
         f"number of unique image files found: {len(image_records)}",
         f"number of metadata rows successfully extracted: {len(metadata_rows)}",
         f"number of failed files: {len(failed_files)}",
@@ -850,7 +850,7 @@ def build_summary_lines(
             f"{count_present(metadata_rows, 'relative_altitude')}"
         ),
         f"number of images with gimbal pitch/yaw: {gimbal_pitch_yaw_count}",
-        f"output CSV path: {relative_posix(output_csv)}",
+        f"output XLSX path: {relative_posix(output_xlsx)}",
     ]
 
     if missing_paths:
@@ -873,8 +873,8 @@ def build_summary_lines(
     return lines
 
 
-def csv_ready_row(row: dict[str, Any]) -> dict[str, Any]:
-    """Convert None values to blanks before CSV writing."""
+def xlsx_ready_row(row: dict[str, Any]) -> dict[str, Any]:
+    """Convert None values to blanks before XLSX writing."""
     ready: dict[str, Any] = {}
     for column in OUTPUT_COLUMNS:
         value = row.get(column)
@@ -885,17 +885,14 @@ def csv_ready_row(row: dict[str, Any]) -> dict[str, Any]:
 def write_outputs(
     metadata_rows: list[dict[str, Any]],
     summary_lines: list[str],
-    output_csv: Path,
+    output_xlsx: Path,
     summary_txt: Path,
 ) -> None:
-    """Write the metadata CSV and summary report."""
-    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    """Write the metadata XLSX and summary report."""
+    output_xlsx.parent.mkdir(parents=True, exist_ok=True)
     summary_txt.parent.mkdir(parents=True, exist_ok=True)
 
-    with output_csv.open("w", encoding="utf-8-sig", newline="") as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=OUTPUT_COLUMNS, lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(csv_ready_row(row) for row in metadata_rows)
+    write_rows(output_xlsx, [xlsx_ready_row(row) for row in metadata_rows], OUTPUT_COLUMNS)
 
     summary_txt.write_text("\n".join(summary_lines) + "\n", encoding="utf-8")
 
@@ -917,13 +914,13 @@ def print_next_command() -> None:
 
 def main() -> int:
     root = project_root()
-    input_csv = root / INPUT_CSV_NAME
-    output_csv = root / OUTPUT_CSV_NAME
+    input_xlsx = root / INPUT_XLSX_NAME
+    output_xlsx = root / OUTPUT_XLSX_NAME
     summary_txt = root / SUMMARY_TXT_NAME
 
-    print(f"Input pair table: {relative_posix(input_csv)}")
+    print(f"Input pair table: {relative_posix(input_xlsx)}")
     try:
-        pair_rows = load_vt_pairs(input_csv)
+        pair_rows = load_vt_pairs(input_xlsx)
     except (FileNotFoundError, ValueError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
@@ -955,9 +952,9 @@ def main() -> int:
         metadata_rows=metadata_rows,
         failed_files=failed_files,
         missing_paths=missing_paths,
-        output_csv=output_csv,
+        output_xlsx=output_xlsx,
     )
-    write_outputs(metadata_rows, summary_lines, output_csv, summary_txt)
+    write_outputs(metadata_rows, summary_lines, output_xlsx, summary_txt)
 
     print()
     for line in summary_lines:

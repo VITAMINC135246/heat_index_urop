@@ -1,6 +1,7 @@
 # Core data, GIS, raster, and plotting dependencies for the project scripts.
 numpy
 pandas
+openpyxl
 matplotlib
 pyproj
 rasterio

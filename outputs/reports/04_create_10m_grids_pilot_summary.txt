@@ -1,4 +1,4 @@
-Pilot LUHK-aligned 10m grid construction summary
+﻿Pilot LUHK-aligned 10m grid construction summary
 
 selected V/T pilot pairs: 5
 selected pair_ids: 20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143259_0005, 20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143320_0007, 20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143328_0008, 20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143344_0009, 20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011
@@ -19,6 +19,6 @@ per-pair summary:
 - 20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011: total=2655, visible=2655, thermal=594, common=594
 
 min / median / max cells per pair: min=2552, median=2596, max=2655
-output CSV path: data/processed/grids/pilot_luhk_aligned_10m_grid_cells.csv
+output XLSX path: data/processed/grids/pilot_luhk_aligned_10m_grid_cells.xlsx
 output GeoJSON path: outputs/geodata/pilot_luhk_aligned_10m_grid_cells.geojson
 preview figure path: outputs/figures/pilot_grid_overlays/pilot_luhk_aligned_grid_preview.png

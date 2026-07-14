@@ -1,10 +1,10 @@
-DJI image metadata extraction summary
+﻿DJI image metadata extraction summary
 
-total rows in vt_pairs.csv: 910
+total rows in vt_pairs.xlsx: 910
 number of unique image files found: 1819
 number of metadata rows successfully extracted: 1819
 number of failed files: 0
 number of images with GPS coordinates: 1819
 number of images with relative altitude: 1817
 number of images with gimbal pitch/yaw: 1817
-output CSV path: data/metadata/dji_image_metadata.csv
+output XLSX path: data/metadata/dji_image_metadata.xlsx

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Create visible, thermal, common-cell, and map overlays for pilot V/T pairs."""
 
 from __future__ import annotations
@@ -11,9 +11,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from table_io import read_table
 
-GRID_CSV_NAME = Path("data") / "processed" / "grids" / "pilot_luhk_aligned_10m_grid_cells.csv"
-FOOTPRINTS_CSV_NAME = Path("data") / "processed" / "footprints" / "image_footprints.csv"
+
+GRID_XLSX_NAME = Path("data") / "processed" / "grids" / "pilot_luhk_aligned_10m_grid_cells.xlsx"
+FOOTPRINTS_XLSX_NAME = Path("data") / "processed" / "footprints" / "image_footprints.xlsx"
 OUTPUT_DIR_NAME = Path("outputs") / "figures" / "pilot_landuse_overlays"
 OUTPUT_SUMMARY_NAME = Path("outputs") / "reports" / "05_assign_luhk_landuse_pilot_overlays_summary.txt"
 OUTPUT_GEOJSON_NAME = Path("outputs") / "geodata" / "pilot_luhk_landuse_overlay_cells.geojson"
@@ -356,21 +358,19 @@ def write_geojson(grid_df: Any, output_geojson: Path) -> None:
 def main() -> int:
     if not check_dependencies():
         return 1
-    import pandas as pd
-
     root = project_root()
-    grid_csv = root / GRID_CSV_NAME
-    footprints_csv = root / FOOTPRINTS_CSV_NAME
-    if not grid_csv.is_file():
-        print(f"Error: grid CSV not found: {relative_posix(grid_csv)}", file=sys.stderr)
+    grid_xlsx = root / GRID_XLSX_NAME
+    footprints_xlsx = root / FOOTPRINTS_XLSX_NAME
+    if not grid_xlsx.is_file():
+        print(f"Error: grid XLSX not found: {relative_posix(grid_xlsx)}", file=sys.stderr)
         print("Run scripts/04_create_10m_grids_pilot.py first.", file=sys.stderr)
         return 1
-    if not footprints_csv.is_file():
-        print(f"Error: footprint CSV not found: {relative_posix(footprints_csv)}", file=sys.stderr)
+    if not footprints_xlsx.is_file():
+        print(f"Error: footprint XLSX not found: {relative_posix(footprints_xlsx)}", file=sys.stderr)
         return 1
 
-    grid_df = pd.read_csv(grid_csv)
-    footprints_df = pd.read_csv(footprints_csv)
+    grid_df = read_table(grid_xlsx)
+    footprints_df = read_table(footprints_xlsx)
     output_dir = root / OUTPUT_DIR_NAME
     generated: list[Path] = []
     summary_lines = [

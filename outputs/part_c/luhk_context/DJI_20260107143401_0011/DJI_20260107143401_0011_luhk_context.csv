@@ -1,3 +1,0 @@
-pair_id,luhk_category_code,luhk_category_name,area_m2_weighted_by_thermal_overlap,proportion,spatial_uncertainty_note
-20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,3.0,GIC / open space,54158.9373,0.998364,Approximate context only: LUHK is summarized from Part A approximate north-up drone thermal footprints; Part B refined alignment is image-space only.
-20260107_Thermal_HKUST/DCIM/DJI_202601071424_001::DJI_20260107143401_0011,7.0,Woodland / shrubland / grassland / wetland,88.7487,0.001636,Approximate context only: LUHK is summarized from Part A approximate north-up drone thermal footprints; Part B refined alignment is image-space only.

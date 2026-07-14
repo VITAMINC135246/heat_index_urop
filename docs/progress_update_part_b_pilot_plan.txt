@@ -1,4 +1,4 @@
-Heat Index UROP - Part B Pilot Progress Summary
+﻿Heat Index UROP - Part B Pilot Progress Summary
 Date: 2026-06-16
 
 July 2026 supersession note
@@ -48,26 +48,26 @@ E. Reporting, visualization, and optional exploratory modeling
 Historical project workflow (superseded)
 ----------------------------------------
 A. Data extraction
-   Extract 640 × 512 temperature matrices from DJI thermal R-JPEGs when a
+   Extract 640 脳 512 temperature matrices from DJI thermal R-JPEGs when a
    Windows/DJI environment is available.
 
 B. Land-use and surface-cover alignment
    Pair V/T images, retain LUHK broad land-use context, annotate visible-image
-   surface cover, register V→T, and transfer masks to the thermal grid.
+   surface cover, register V鈫扵, and transfer masks to the thermal grid.
 
-C. ΔT spectrum / statistical analysis
-   Compare temperature or ΔT by surface cover and broad land use, including
+C. 螖T spectrum / statistical analysis
+   Compare temperature or 螖T by surface cover and broad land use, including
    effects from shadow and mixed surface composition.
 
 D. Prediction model building
-   Begin with a simple point-level or window-level ΔT prediction model using
+   Begin with a simple point-level or window-level 螖T prediction model using
    land-use/surface-cover features and extracted temperature matrices.
 
 Completed progress
 ------------------
 - Raw DJI data remains unchanged under data/raw/HKUST/.
 - Created scripts/01_create_vt_pairs.py.
-- Generated data/metadata/vt_pairs.csv.
+- Generated data/metadata/vt_pairs.xlsx.
 - Improved pairing from strict complete-base-name matching to a two-stage rule:
   exact match first, then same session + same sample number.
 - Current inventory: 910 records, 909 paired, one missing thermal counterpart.
@@ -88,8 +88,8 @@ Residential; Commercial; Industrial; GIC / open space; Transport; Other urban /
 built-up land; Agriculture; Woodland / shrubland / grassland / wetland; Barren
 land; Water bodies.
 
-LUHK is a broad-brush 10 m context dataset. A 10 m × 10 m cell is approximately
-100 m² and must not be used as drone pixel-level surface-cover ground truth.
+LUHK is a broad-brush 10 m context dataset. A 10 m 脳 10 m cell is approximately
+100 m虏 and must not be used as drone pixel-level surface-cover ground truth.
 
 Pilot visible-image surface-cover classes:
 0 Unknown / excluded
@@ -107,9 +107,9 @@ Shadow is a separate binary mask:
 
 Registration requirement
 ------------------------
-V and T images have different resolutions. One verified pair has a 4032 × 3024
-visible image and a 1280 × 1024 thermal JPG, while the target temperature grid
-is 640 × 512. Different field of view, sensor position, rotation, scale, and
+V and T images have different resolutions. One verified pair has a 4032 脳 3024
+visible image and a 1280 脳 1024 thermal JPG, while the target temperature grid
+is 640 脳 512. Different field of view, sensor position, rotation, scale, and
 perspective also mean that simple resizing is not sufficient.
 
 The current LUHK pilot does not assume V and T have identical footprints. It
@@ -117,15 +117,15 @@ uses shared LUHK 10 m global_cell_id values to identify cells covered by the
 visible footprint, the thermal footprint, or both.
 
 Target mapping:
-visible image coordinate → thermal image 640 × 512 coordinate
+visible image coordinate 鈫?thermal image 640 脳 512 coordinate
 
 Pilot registration plan
 -----------------------
-- Select and freeze one unique 0016_V/T pilot pair from vt_pairs.csv.
+- Select and freeze one unique 0016_V/T pilot pair from vt_pairs.xlsx.
 - Inspect overlap and manually choose control points.
 - Compare affine transformation and homography.
 - Use RANSAC to reject incorrect points.
-- Warp the visible image to the thermal 640 × 512 grid.
+- Warp the visible image to the thermal 640 脳 512 grid.
 - Generate overlay, checkerboard, and edge-overlay diagnostics.
 - Calculate reprojection error and select the most stable transform.
 - Transfer the visible categorical mask with nearest-neighbour interpolation.
@@ -133,8 +133,8 @@ Pilot registration plan
 Next-week plan
 --------------
 - Validate and freeze the updated V/T inventory.
-- Confirm the first pilot pair and create pilot_pairs.csv.
-- Complete the first V→T registration and diagnostics.
+- Confirm the first pilot pair and create pilot_pairs.xlsx.
+- Complete the first V鈫扵 registration and diagnostics.
 - Start or complete pilot surface-cover annotation.
 - If Windows access becomes available, I will start testing temperature matrix
   extraction using DJI TDT 3 or DJI Thermal SDK.

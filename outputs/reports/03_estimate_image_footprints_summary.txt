@@ -1,4 +1,4 @@
-Image footprint estimation summary
+﻿Image footprint estimation summary
 
 total footprint rows written: 1646
 valid footprints: 1641
@@ -16,7 +16,7 @@ camera rule:
 valid ground_width_m: min=60.994, median=323.905, max=785.733
 valid ground_height_m: min=45.745, median=259.124, max=541.658
 
-output CSV path: data/processed/footprints/image_footprints.csv
+output XLSX path: data/processed/footprints/image_footprints.xlsx
 output GeoJSON path: outputs/geodata/image_footprints.geojson
 preview figure path: outputs/figures/image_footprint_preview.png
 

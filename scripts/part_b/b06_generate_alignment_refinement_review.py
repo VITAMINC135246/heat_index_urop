@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Generate Part B Round 1.1 V/T alignment refinement review figures."""
 
 from __future__ import annotations
 
 import argparse
-import csv
 import math
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -13,8 +13,14 @@ import numpy as np
 import pandas as pd
 from PIL import Image, ImageDraw, ImageOps
 
+SCRIPTS_DIR = Path(__file__).resolve().parents[1]
+if str(SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS_DIR))
+
+from table_io import read_table, write_rows
+
 from b05_refine_vt_alignment import (
-    ALIGNMENT_SUMMARY_CSV,
+    ALIGNMENT_SUMMARY_XLSX,
     PROJECT_ROOT,
     as_float,
     as_int,
@@ -26,19 +32,14 @@ from b05_refine_vt_alignment import (
 
 
 SUMMARY_MD = PROJECT_ROOT / "outputs" / "part_b" / "summaries" / "part_b_round1_1_alignment_summary.md"
-ROUND1_PILOT_CSV = PROJECT_ROOT / "data" / "metadata" / "part_b_pilot_pairs.csv"
-ROUND1_LOCAL_OUTPUTS_MANIFEST_CSV = (
-    PROJECT_ROOT / "outputs" / "part_b" / "summaries" / "part_b_round1_local_outputs_manifest.csv"
+ROUND1_PILOT_XLSX = PROJECT_ROOT / "data" / "metadata" / "part_b_pilot_pairs.xlsx"
+ROUND1_LOCAL_OUTPUTS_MANIFEST_XLSX = (
+    PROJECT_ROOT / "outputs" / "part_b" / "summaries" / "part_b_round1_local_outputs_manifest.xlsx"
 )
 
 
-def write_rows_csv(path: Path, rows: list[dict[str, Any]], columns: list[str]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(file, fieldnames=columns, extrasaction="ignore")
-        writer.writeheader()
-        for row in rows:
-            writer.writerow(row)
+def write_rows_xlsx(path: Path, rows: list[dict[str, Any]], columns: list[str]) -> None:
+    write_rows(path, rows, columns)
 
 
 def load_rgb(path: Path) -> Image.Image:
@@ -235,7 +236,7 @@ def write_summary_md(rows: pd.DataFrame, generated: list[dict[str, Any]]) -> Non
     lines.append("## Stage Boundary")
     lines.append("")
     lines.append("- Part B is currently V/T alignment and thermal ROI acceptance only.")
-    lines.append("- Existing Round 1 superpixel and annotation CSV outputs are parked for future Part C preparation.")
+    lines.append("- Existing Round 1 superpixel and annotation XLSX outputs are parked for future Part C preparation.")
     lines.append("- Automatic cross-modal scores are diagnostics; visual/manual acceptance is still required.")
     lines.append("")
     lines.append("## Pilot Pair Results")
@@ -262,18 +263,18 @@ def write_summary_md(rows: pd.DataFrame, generated: list[dict[str, Any]]) -> Non
     lines.append("")
     lines.append("## Alignment Data")
     lines.append("")
-    lines.append("- `outputs/part_b/summaries/part_b_round1_1_alignment_summary.csv`")
-    lines.append("- `outputs/part_b/summaries/part_b_round1_1_alignment_attempts.csv`")
-    lines.append("- `outputs/part_b/summaries/part_b_round1_local_outputs_manifest.csv`")
-    lines.append("- `outputs/part_b/alignment_refinement/<image_id>/top_alignment_candidates.csv`")
-    lines.append("- `outputs/part_b/alignment_refinement/<image_id>/manual_gcp_template.csv`")
+    lines.append("- `outputs/part_b/summaries/part_b_round1_1_alignment_summary.xlsx`")
+    lines.append("- `outputs/part_b/summaries/part_b_round1_1_alignment_attempts.xlsx`")
+    lines.append("- `outputs/part_b/summaries/part_b_round1_local_outputs_manifest.xlsx`")
+    lines.append("- `outputs/part_b/alignment_refinement/<image_id>/top_alignment_candidates.xlsx`")
+    lines.append("- `outputs/part_b/alignment_refinement/<image_id>/manual_gcp_template.xlsx`")
     lines.append("")
     lines.append("## Known Limitations")
     lines.append("")
     if rows.get("opencv_available", pd.Series(dtype=str)).astype(str).str.casefold().eq("yes").any():
-        lines.append("- OpenCV was available for this run; phase correlation, ECC, and ORB attempts are recorded in the attempts CSV.")
+        lines.append("- OpenCV was available for this run; phase correlation, ECC, and ORB attempts are recorded in the attempts XLSX.")
     else:
-        lines.append("- OpenCV was unavailable for this run; OpenCV methods are recorded as skipped in the attempts CSV.")
+        lines.append("- OpenCV was unavailable for this run; OpenCV methods are recorded as skipped in the attempts XLSX.")
     lines.append("- Edge and gradient scores can improve for the wrong reason across thermal-visible imagery.")
     lines.append("- Refined crop/rotation candidates still require visual acceptance before Part B is closed.")
     lines.append("- Manual GCP residuals are blank until included control points are filled.")
@@ -282,9 +283,9 @@ def write_summary_md(rows: pd.DataFrame, generated: list[dict[str, Any]]) -> Non
 
 
 def write_round1_local_outputs_manifest(alignment_rows: pd.DataFrame) -> None:
-    if not ROUND1_PILOT_CSV.exists():
+    if not ROUND1_PILOT_XLSX.exists():
         return
-    pilot_rows = pd.read_csv(ROUND1_PILOT_CSV, dtype=str).fillna("")
+    pilot_rows = read_table(ROUND1_PILOT_XLSX, dtype=str).fillna("")
     alignment_by_image = {
         str(row["image_id"]): row
         for _, row in alignment_rows.iterrows()
@@ -307,13 +308,13 @@ def write_round1_local_outputs_manifest(alignment_rows: pd.DataFrame) -> None:
                 "round1_1_alignment_review_dir": alignment.get("alignment_review_dir", ""),
                 "round1_1_alignment_contact_sheet_path": alignment.get("contact_sheet_path", ""),
                 "git_tracking_note": (
-                    "PNG review artifacts are local ignored outputs; CSV/MD manifests are small "
+                    "PNG review artifacts are local ignored outputs; XLSX/MD manifests are small "
                     "project records that can be tracked."
                 ),
             }
         )
-    write_rows_csv(
-        ROUND1_LOCAL_OUTPUTS_MANIFEST_CSV,
+    write_rows_xlsx(
+        ROUND1_LOCAL_OUTPUTS_MANIFEST_XLSX,
         manifest_rows,
         [
             "image_id",
@@ -336,12 +337,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.parse_args()
 
-    if not ALIGNMENT_SUMMARY_CSV.exists():
+    if not ALIGNMENT_SUMMARY_XLSX.exists():
         raise FileNotFoundError(
-            f"Missing {relative_posix(ALIGNMENT_SUMMARY_CSV)}; run scripts/part_b/b05_refine_vt_alignment.py first."
+            f"Missing {relative_posix(ALIGNMENT_SUMMARY_XLSX)}; run scripts/part_b/b05_refine_vt_alignment.py first."
         )
 
-    rows = pd.read_csv(ALIGNMENT_SUMMARY_CSV, dtype=str).fillna("")
+    rows = read_table(ALIGNMENT_SUMMARY_XLSX, dtype=str).fillna("")
     generated: list[dict[str, Any]] = []
     for _, row in rows.iterrows():
         result = generate_pair_review(row)
@@ -350,7 +351,7 @@ def main() -> int:
 
     write_round1_local_outputs_manifest(rows)
     write_summary_md(rows, generated)
-    print(f"Wrote {relative_posix(ROUND1_LOCAL_OUTPUTS_MANIFEST_CSV)}")
+    print(f"Wrote {relative_posix(ROUND1_LOCAL_OUTPUTS_MANIFEST_XLSX)}")
     print(f"Wrote {relative_posix(SUMMARY_MD)}")
     return 0
 

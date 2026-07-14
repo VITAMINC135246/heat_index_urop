@@ -1,4 +1,4 @@
-# Part B V/T Alignment And Thermal ROI
+﻿# Part B V/T Alignment And Thermal ROI
 
 Status: Round 1.1 alignment refinement
 
@@ -14,7 +14,7 @@ until Part B alignment is accepted.
 
 - Part A is complete and should not be modified or redone.
 - Part B Round 1 review packages are preserved.
-- Round 1 superpixel images and annotation CSVs already exist, but they are
+- Round 1 superpixel images and annotation XLSXs already exist, but they are
   parked as early Part C preparation.
 - Round 1 alignment is not accepted because the V/T overlay shows slight
   misalignment.
@@ -45,8 +45,8 @@ road intersections, sharp pavement boundaries, or other fixed large objects.
 - `scripts/part_b/b05_refine_vt_alignment.py`
 - `scripts/part_b/b06_generate_alignment_refinement_review.py`
 - `outputs/part_b/alignment_refinement/<image_id>/`
-- `outputs/part_b/summaries/part_b_round1_1_alignment_summary.csv`
-- `outputs/part_b/summaries/part_b_round1_1_alignment_attempts.csv`
+- `outputs/part_b/summaries/part_b_round1_1_alignment_summary.xlsx`
+- `outputs/part_b/summaries/part_b_round1_1_alignment_attempts.xlsx`
 - `outputs/part_b/summaries/part_b_round1_1_alignment_summary.md`
 
 OpenCV-based phase correlation, ECC, and feature matching are attempted only
@@ -58,7 +58,7 @@ search plus manual GCP templates.
 
 Each pair has a manual GCP template:
 
-`outputs/part_b/alignment_refinement/<image_id>/manual_gcp_template.csv`
+`outputs/part_b/alignment_refinement/<image_id>/manual_gcp_template.xlsx`
 
 Columns:
 
@@ -78,7 +78,7 @@ translation, affine, or homography transforms and report residual errors.
 
 ## Do Not Do Yet
 
-- Do not ingest annotation CSVs.
+- Do not ingest annotation XLSXs.
 - Do not convert superpixels to masks.
 - Do not extract thermal temperature values.
 - Do not treat LUHK as pixel-level surface cover.

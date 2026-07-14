@@ -1,4 +1,4 @@
-# Revised Project Overview
+﻿# Revised Project Overview
 
 Prepared for: HEAT INDEX UROP progress planning
 Status: Current pilot-stage direction
@@ -67,12 +67,12 @@ Main work:
   nadir view, image top as north, GPS as approximate image center, altitude
   from metadata, and unknown terrain elevation.
 
-Tools and techniques: Python, pandas, ExifTool, rasterio, geopandas, CSV
+Tools and techniques: Python, pandas, ExifTool, rasterio, geopandas, XLSX
 metadata tables, Git, and GitHub.
 
 Expected outputs:
 
-- V/T pair CSV.
+- V/T pair XLSX.
 - Metadata summary.
 - LUHK category reference.
 - Camera and georeferencing assumption notes.
@@ -220,7 +220,7 @@ Current status: Not started. This depends on Parts B-D.
 
 - The project folder has already been organized.
 - V/T image pairing has been implemented in first-pass form.
-- The project has generated a V/T pair inventory CSV.
+- The project has generated a V/T pair inventory XLSX.
 - HKUST and Garden Hill image groups have been distinguished.
 - Garden Hill images are currently deprioritized because they are lower quality
   and less suitable for the HKUST-focused workflow.

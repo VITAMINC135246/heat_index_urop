@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Create LUHK-aligned 10m grid cells for selected pilot V/T pairs."""
 
 from __future__ import annotations
@@ -14,16 +14,18 @@ from pathlib import Path
 from statistics import median
 from typing import Any
 
+from table_io import read_table, write_table
 
-IMAGE_FOOTPRINTS_CSV_NAME = Path("data") / "processed" / "footprints" / "image_footprints.csv"
+
+IMAGE_FOOTPRINTS_XLSX_NAME = Path("data") / "processed" / "footprints" / "image_footprints.xlsx"
 LUHK_EXTRACT_DIR_NAME = Path("data") / "LUHK2024_extracted"
-OUTPUT_GRID_CSV_NAME = Path("data") / "processed" / "grids" / "pilot_luhk_aligned_10m_grid_cells.csv"
+OUTPUT_GRID_XLSX_NAME = Path("data") / "processed" / "grids" / "pilot_luhk_aligned_10m_grid_cells.xlsx"
 OUTPUT_GEOJSON_NAME = Path("outputs") / "geodata" / "pilot_luhk_aligned_10m_grid_cells.geojson"
 OUTPUT_FIGURE_DIR_NAME = Path("outputs") / "figures" / "pilot_grid_overlays"
 SUMMARY_TXT_NAME = Path("outputs") / "reports" / "04_create_10m_grids_pilot_summary.txt"
 
 # Compatibility path used by older follow-up scripts.
-COMPAT_GRID_CSV_NAME = Path("data") / "processed" / "grids" / "pilot_10m_grid_cells.csv"
+COMPAT_GRID_XLSX_NAME = Path("data") / "processed" / "grids" / "pilot_10m_grid_cells.xlsx"
 COMPAT_GEOJSON_NAME = Path("outputs") / "geodata" / "pilot_10m_grid_cells.geojson"
 
 REQUIRED_PACKAGES = ["pandas", "rasterio", "numpy", "matplotlib", "pyproj"]
@@ -291,15 +293,15 @@ def build_pair_grid_rows(pair_id: str, visible: Any, thermal: Any, src: Any, dat
     return grid_rows
 
 
-def write_csv(rows: list[dict[str, Any]], output_csv: Path) -> None:
+def write_xlsx(rows: list[dict[str, Any]], output_xlsx: Path) -> None:
     import pandas as pd
 
-    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    output_xlsx.parent.mkdir(parents=True, exist_ok=True)
     df = pd.DataFrame(rows)
     for column in GRID_COLUMNS:
         if column not in df.columns:
             df[column] = ""
-    df[GRID_COLUMNS].to_csv(output_csv, index=False)
+    write_table(output_xlsx, df, GRID_COLUMNS)
 
 
 def json_ready(value: Any) -> Any:
@@ -367,7 +369,7 @@ def summary_number(values: list[int]) -> str:
     return f"min={min(values)}, median={median(values)}, max={max(values)}"
 
 
-def write_summary(selected_pair_ids: list[str], rows: list[dict[str, Any]], raster_path: Path, output_csv: Path, output_geojson: Path, preview: Path) -> None:
+def write_summary(selected_pair_ids: list[str], rows: list[dict[str, Any]], raster_path: Path, output_xlsx: Path, output_geojson: Path, preview: Path) -> None:
     SUMMARY_TXT_NAME.parent
     counts = []
     lines = [
@@ -399,7 +401,7 @@ def write_summary(selected_pair_ids: list[str], rows: list[dict[str, Any]], rast
         [
             "",
             f"min / median / max cells per pair: {summary_number(counts)}",
-            f"output CSV path: {relative_posix(output_csv)}",
+            f"output XLSX path: {relative_posix(output_xlsx)}",
             f"output GeoJSON path: {relative_posix(output_geojson)}",
             f"preview figure path: {relative_posix(preview)}",
         ]
@@ -418,12 +420,12 @@ def main(argv: list[str] | None = None) -> int:
     from pyproj import Transformer
 
     root = project_root()
-    footprints_csv = root / IMAGE_FOOTPRINTS_CSV_NAME
-    if not footprints_csv.is_file():
-        print(f"Error: footprint CSV not found: {relative_posix(footprints_csv)}", file=sys.stderr)
+    footprints_xlsx = root / IMAGE_FOOTPRINTS_XLSX_NAME
+    if not footprints_xlsx.is_file():
+        print(f"Error: footprint XLSX not found: {relative_posix(footprints_xlsx)}", file=sys.stderr)
         print("Run scripts/03_estimate_image_footprints.py first.", file=sys.stderr)
         return 1
-    footprints_df = pd.read_csv(footprints_csv)
+    footprints_df = read_table(footprints_xlsx)
     selected_pair_ids = select_pilot_pairs(footprints_df, args)
     if not selected_pair_ids:
         print("Error: no valid pilot V/T pairs selected.", file=sys.stderr)
@@ -460,19 +462,19 @@ def main(argv: list[str] | None = None) -> int:
                 )
             )
 
-    output_csv = root / OUTPUT_GRID_CSV_NAME
+    output_xlsx = root / OUTPUT_GRID_XLSX_NAME
     output_geojson = root / OUTPUT_GEOJSON_NAME
     preview = root / OUTPUT_FIGURE_DIR_NAME / "pilot_luhk_aligned_grid_preview.png"
-    write_csv(all_rows, output_csv)
+    write_xlsx(all_rows, output_xlsx)
     write_geojson(all_rows, output_geojson, transformer_to_4326)
-    write_csv(all_rows, root / COMPAT_GRID_CSV_NAME)
+    write_xlsx(all_rows, root / COMPAT_GRID_XLSX_NAME)
     write_geojson(all_rows, root / COMPAT_GEOJSON_NAME, transformer_to_4326)
     write_preview(all_rows, preview)
-    write_summary(selected_pair_ids, all_rows, raster_path, output_csv, output_geojson, preview)
+    write_summary(selected_pair_ids, all_rows, raster_path, output_xlsx, output_geojson, preview)
 
     print(f"Selected V/T pairs: {len(selected_pair_ids)}")
     print(f"LUHK-aligned cells written: {len(all_rows)}")
-    print(f"Output CSV path: {relative_posix(output_csv)}")
+    print(f"Output XLSX path: {relative_posix(output_xlsx)}")
     print(f"Output GeoJSON path: {relative_posix(output_geojson)}")
     print(f"Summary text path: {relative_posix(root / SUMMARY_TXT_NAME)}")
     return 0

@@ -1,4 +1,4 @@
-Compatibility note for old thermal-only footprint report
+﻿Compatibility note for old thermal-only footprint report
 
 The active Step 03 workflow has been renamed/refactored to:
 scripts/03_estimate_image_footprints.py
@@ -7,8 +7,8 @@ The revised workflow estimates separate visible and thermal footprints for each
 valid HKUST V/T pair. The current full report is:
 outputs/reports/03_estimate_image_footprints_summary.txt
 
-The compatibility thermal CSV and GeoJSON are still written for older scripts:
-data/processed/footprints/thermal_image_footprints.csv
+The compatibility thermal XLSX and GeoJSON are still written for older scripts:
+data/processed/footprints/thermal_image_footprints.xlsx
 outputs/geodata/thermal_image_footprints.geojson
 
 Do not interpret this old report filename as the active workflow.

@@ -1,26 +1,25 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Summarize DJI Matrice 4T camera metadata for Part A validation."""
 
 from __future__ import annotations
 
-import csv
 from collections import Counter
 from pathlib import Path
 
 from camera_profiles import classify_matrice_4t_camera
+from table_io import read_table, write_rows
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-METADATA_CSV = PROJECT_ROOT / "data" / "metadata" / "dji_image_metadata.csv"
-OUTPUT_CSV = PROJECT_ROOT / "data" / "metadata" / "camera_metadata_validation_summary.csv"
+METADATA_XLSX = PROJECT_ROOT / "data" / "metadata" / "dji_image_metadata.xlsx"
+OUTPUT_XLSX = PROJECT_ROOT / "data" / "metadata" / "camera_metadata_validation_summary.xlsx"
 
 
 def main() -> int:
-    if not METADATA_CSV.is_file():
-        raise FileNotFoundError(f"Missing metadata CSV: {METADATA_CSV}")
+    if not METADATA_XLSX.is_file():
+        raise FileNotFoundError(f"Missing metadata XLSX: {METADATA_XLSX}")
 
-    with METADATA_CSV.open("r", encoding="utf-8-sig", newline="") as csv_file:
-        rows = list(csv.DictReader(csv_file))
+    rows = read_table(METADATA_XLSX, dtype=str).fillna("").to_dict("records")
 
     image_types = Counter(row.get("image_type", "") for row in rows)
     camera_keys = Counter()
@@ -49,7 +48,7 @@ def main() -> int:
 
     summary_rows: list[tuple[str, str]] = [
         ("validated_on", "2026-07-07"),
-        ("metadata_csv", "data/metadata/dji_image_metadata.csv"),
+        ("metadata_xlsx", "data/metadata/dji_image_metadata.xlsx"),
         ("total_metadata_rows", str(len(rows))),
         ("visible_rows", str(image_types.get("visible", 0))),
         ("thermal_rows", str(image_types.get("thermal", 0))),
@@ -75,13 +74,13 @@ def main() -> int:
         image_type, focal, focal_35mm, width, height = combo
         summary_rows.append((f"combo_{image_type}_{focal}_{focal_35mm}_{width}x{height}", str(count)))
 
-    OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)
-    with OUTPUT_CSV.open("w", encoding="utf-8", newline="") as csv_file:
-        writer = csv.writer(csv_file, lineterminator="\n")
-        writer.writerow(["metric", "value"])
-        writer.writerows(summary_rows)
+    write_rows(
+        OUTPUT_XLSX,
+        [{"metric": metric, "value": value} for metric, value in summary_rows],
+        ["metric", "value"],
+    )
 
-    print(f"Wrote {OUTPUT_CSV.relative_to(PROJECT_ROOT).as_posix()}")
+    print(f"Wrote {OUTPUT_XLSX.relative_to(PROJECT_ROOT).as_posix()}")
     return 0
 
 

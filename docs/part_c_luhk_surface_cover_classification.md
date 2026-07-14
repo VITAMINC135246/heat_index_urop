@@ -1,79 +1,154 @@
 # Part C LUHK and Surface-Cover Classification
 
-Part C prepares a reviewable pilot package for LUHK context and semi-automatic surface-cover classification. It starts from the accepted Part B Round 1.1 refined visible ROI and keeps the thermal image grid as the target grid for later temperature analysis.
+Part C prepares manually reviewed physical surface-cover masks and separate shadow masks for the five accepted pilot visible/thermal pairs. It uses the accepted Part B Round 1.1 refined visible ROI as the spatial source and keeps the thermal image grid as the target grid for later Part D temperature analysis.
+
+Part C does not extract thermal temperature values, calculate temperature differences, or train a supervised model.
+
+## Current Stage
+
+Round 1 generated LUHK context, refined ROI review images, SLIC superpixels, segment ID maps, annotation workbooks, and surface-cover review sheets.
+
+Round 1.1 ingests the manually reviewed annotation workbook:
+
+`data/annotations/part_c/part_c_surface_cover_annotations.xlsx`
+
+The reviewed labels are converted into final thermal-grid-aligned physical surface-cover masks and separate binary shadow masks. The current final-mask manifest is:
+
+`outputs/part_c/summaries/part_c_final_mask_manifest.xlsx`
 
 ## Inputs
 
-- Accepted Part B alignment summary: `outputs/part_b/summaries/part_b_round1_1_alignment_summary.csv`
-- Accepted refined visible ROI bounding boxes and transform matrices from Part B Round 1.1
-- Pilot pair metadata: `data/metadata/part_b_pilot_pairs.csv`
-- Visible camera profiles: `data/metadata/visible_camera_profiles.csv`
-- DJI image metadata and approximate Part A footprint/grid outputs
+- Accepted Part B alignment summary: `outputs/part_b/summaries/part_b_round1_1_alignment_summary.xlsx`
+- Part C Round 1 summary: `outputs/part_c/summaries/part_c_round1_summary.xlsx`
+- Pilot pair metadata: `data/metadata/part_b_pilot_pairs.xlsx`
+- Manual annotation workbook: `data/annotations/part_c/part_c_surface_cover_annotations.xlsx`
+- LUHK context summary: `outputs/part_c/summaries/part_c_luhk_context_summary.xlsx`
 
-## LUHK Context Method
+## LUHK Context
 
-LUHK is broad land-use context only. It is summarized from existing Part A approximate drone footprint/grid products using the thermal footprint cells in `data/processed/grids/pilot_luhk_aligned_10m_grid_cells.csv`.
+LUHK is broad land-use context only. It is summarized from existing Part A approximate drone footprint/grid products using the thermal footprint cells in:
 
-The LUHK proportions are weighted by each grid cell's thermal overlap ratio. These summaries are approximate because the underlying drone footprints are metadata-based north-up rectangles, and Part B refined alignment is an image-space V/T alignment rather than a full georeferenced correction.
+`data/processed/grids/pilot_luhk_aligned_10m_grid_cells.xlsx`
 
-For visual review, Part C also writes LUHK overlays on:
+LUHK proportions are weighted by each grid cell's thermal overlap ratio. These summaries remain approximate because the underlying drone footprints are metadata-based north-up rectangles, while Part B refined alignment is an image-space visible/thermal correction rather than a full georeferenced correction.
 
-- the thermal preview image
-- the refined visible ROI resized to the thermal grid
+LUHK outputs should not be treated as physical surface cover. They provide context for interpreting the manually reviewed surface-cover masks.
 
-These overlays are meant to show likely spatial mismatch or footprint uncertainty. They are not corrected georegistration products.
+## Physical Surface-Cover Classes
 
-## Surface-Cover Method
+Allowed physical classes are stored in:
 
-Surface-cover review is prepared from the accepted refined visible ROI, not from LUHK. For each accepted pilot pair, the workflow:
+- `data/annotations/part_c/surface_cover_classes.xlsx`
+- `data/annotations/part_c/surface_cover_class_mapping.xlsx`
 
-1. Crops the refined visible ROI using the Part B Round 1.1 bounding box.
-2. Resizes the refined ROI to the thermal image grid.
-3. Runs SLIC superpixels on the thermal-grid-resized visible ROI.
-4. Writes boundary overlays, average-color superpixel overlays, segment ID maps, numbered segment ID label maps, segment summary CSVs, annotation tables, and per-image class review sheets with legends.
+Current final class IDs are:
 
-The current SLIC settings are recorded in `outputs/part_c/summaries/part_c_round1_summary.md`.
+| class_id | class_name |
+| --- | --- |
+| 0 | no_data_unreviewed |
+| 1 | roof |
+| 2 | concrete_pavement |
+| 3 | asphalt_road |
+| 4 | vegetation_tree |
+| 5 | grass_low_vegetation |
+| 6 | bare_soil |
+| 7 | water |
+| 8 | vehicle_temporary_object |
+| 9 | unclear_ignore |
 
-The refined visible ROI and the thermal-grid-resized ROI should look visually similar. The difference is pixel grid: the first is the accepted visible-image crop, while the second is resampled to the thermal grid, usually `640x512`, for later per-thermal-pixel analysis.
+`shadow` is not a physical surface-cover class. If an area is shaded but the physical cover is still interpretable, keep the physical cover in `manual_class` and set `shadow_status` to `1`.
 
-Thermal images shown in Part C contact sheets are grayscale contrast previews only. The original thermal JPG files are not modified, and no thermal temperature values are extracted.
+## Shadow Status
 
-## Manual Review Requirement
+Shadow is stored separately as a binary flag:
 
-The `suggested_class` values store the current baseline surface-cover candidates. The `manual_class` values start as a copy of `suggested_class` so reviewers only need to edit rows where they disagree.
+- `0`: no_shadow
+- `1`: shadow_present
 
-Use the numbered segment ID maps in `outputs/part_c/superpixels/<image_id>/` to locate each `segment_id` before editing annotation CSVs. The quadrant label maps are the easiest view when the full label map is crowded.
+The mapping is stored in:
 
-Use the class review sheets in `outputs/part_c/surface_cover_review/<image_id>/` to see the current per-segment surface-cover classification overlay and legend for each image.
+`data/annotations/part_c/shadow_flag_mapping.xlsx`
 
-Manual reviewers should edit `manual_class` in `data/annotations/part_c/part_c_surface_cover_annotations.csv`. Set `review_status` to `Yes` only after checking a row; otherwise leave `Not yet`.
+Final shadow masks are generated separately from physical surface-cover masks, so later analysis can compare physical cover with and without shadow filtering.
 
-Allowed classes are listed in `data/annotations/part_c/surface_cover_classes.csv`.
+## Manual Annotation Rules
 
-## Outputs For Later Parts
+The main reviewed table is:
 
-Part C prepares review assets for later Part D and Part E work:
+`data/annotations/part_c/part_c_surface_cover_annotations.xlsx`
 
-- Refined visible ROI images aligned to the thermal grid
-- Segment ID maps on the thermal grid
-- Numbered segment ID maps for manual review
-- Segment summaries and annotation templates
-- Per-image surface-cover class review sheets and legends
-- Approximate LUHK context summaries
+Required columns are:
 
-Part C does not create final masks. Final masks should only be generated after manual labels are reviewed and accepted.
+- `pair_id`
+- `segment_id`
+- `suggested_class`
+- `manual_class`
+- `shadow_status`
+- `confidence`
+- `review_status`
+- `notes`
 
-## Restrictions
+For current reviewed outputs, `manual_class` is the authoritative physical class. `suggested_class` is retained as the baseline candidate label. `review_status` is restricted to `Not yet` and `Yes`; current final masks should only be used when the relevant rows have been reviewed.
 
-- Do not extract thermal temperature in Part C.
-- Do not train CNN, U-Net, or any supervised model.
-- Do not treat LUHK as surface cover.
-- Do not treat superpixels as final labels.
-- Do not ingest manual annotations yet.
-- Do not generate final masks before manual review.
+## Final Mask Outputs
 
-## Run
+Final masks are written under:
+
+`outputs/part_c/masks/<image_id>/`
+
+Each image directory contains:
+
+- thermal-grid physical class ID masks as PNG and NPY
+- visible-ROI-resampled physical class ID masks as PNG and NPY
+- physical class color previews
+- overlays on thermal preview, refined visible ROI, and refined visible ROI resized to the thermal grid
+- thermal-grid and visible-ROI shadow flag masks as PNG and NPY
+- shadow previews and overlays
+- a class legend
+- one final contact sheet for manual review
+
+The best first image to inspect per pair is:
+
+`outputs/part_c/masks/<image_id>/<image_id>_final_mask_contact_sheet.png`
+
+## Summary Outputs
+
+- `outputs/part_c/summaries/part_c_manual_annotation_validation.xlsx`: validation checks for the reviewed annotation workbook
+- `outputs/part_c/summaries/part_c_manual_annotation_validation.md`: compact validation report
+- `outputs/part_c/summaries/part_c_final_mask_manifest.xlsx`: one row per pilot pair with all final mask paths
+- `outputs/part_c/summaries/part_c_surface_cover_summary.xlsx`: per-image physical surface-cover area summaries
+- `outputs/part_c/summaries/part_c_shadow_flag_summary.xlsx`: per-image shadow flag summaries
+- `outputs/part_c/summaries/part_c_luhk_surface_cover_combined_summary.xlsx`: combined LUHK, surface-cover, and shadow summary
+- `outputs/part_c/summaries/part_c_round3_final_mask_generation_summary.md`: run report for the latest final-mask generation
+- `outputs/part_c/summaries/part_c_round1_1_method_update.md`: short method update
+
+## Scripts
+
+Round 1 review package:
 
 ```bash
 python scripts/part_c/01_prepare_round1_review.py
 ```
+
+Baseline prefill and per-segment review overlays:
+
+```bash
+python scripts/part_c/02_prefill_surface_cover_annotations.py
+```
+
+Final validation, mask generation, and summaries after manual review:
+
+```bash
+python scripts/part_c/03_generate_final_masks_and_summaries.py
+```
+
+Do not rerun Round 1 scripts after manual review unless the annotation workbooks have been backed up and the intent is to rebuild the review package.
+
+## Restrictions
+
+- Do not redo Part A or Part B for this step.
+- Do not redo Part C Round 1 segmentation unless an input is missing or intentionally replaced.
+- Do not treat LUHK as physical surface cover.
+- Do not use `shadow` as a physical surface-cover label.
+- Do not extract thermal temperature or calculate delta T in Part C.
+- Do not train CNN, U-Net, or other supervised models in Part C.

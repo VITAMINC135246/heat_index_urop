@@ -1,4 +1,4 @@
-# Heat Index UROP
+﻿# Heat Index UROP
 
 Pilot workflow for linking UAV thermal imagery, visible-image surface-cover
 information, and official LUHK 2024 land-use data. The current objective is to
@@ -17,7 +17,7 @@ model.
   visible-image surface-cover classification reference.
 - `scripts/`: reproducible inventory, metadata, footprint, grid, and LUHK
   overlay scripts.
-- `data/metadata/`: generated V/T and metadata CSV tables kept under version
+- `data/metadata/`: generated V/T and metadata XLSX tables kept under version
   control.
 - `outputs/`: generated reports, geodata, and progress figures.
 
@@ -105,7 +105,7 @@ directory whose complete base names match. Remaining files may pair by their
 final sample number, such as `0071`, only within the same parent/session.
 Timestamp differences are allowed and recorded. The script never pairs across
 sessions, and multiple candidates are marked ambiguous instead of being chosen
-arbitrarily. It writes the stable inventory to `data/metadata/vt_pairs.csv`.
+arbitrarily. It writes the stable inventory to `data/metadata/vt_pairs.xlsx`.
 
 Run it from the project root:
 
@@ -184,7 +184,7 @@ python3 scripts/05_assign_luhk_landuse_pilot_overlays.py
 ```
 
 Step 03 writes one footprint row per image to
-`data/processed/footprints/image_footprints.csv`. Step 04 selects five valid
+`data/processed/footprints/image_footprints.xlsx`. Step 04 selects five valid
 HKUST V/T pairs and creates 10 m cells aligned to the official LUHK raster
 row/column grid, not to each image footprint origin. Step 05 draws separate
 visible, thermal, common-cell, and EPSG:2326 map overlays for each pilot pair.
@@ -196,5 +196,5 @@ remaining limitations are documented in `docs/camera_parameter_assumptions.md`.
 
 Treat `data/raw/` as read-only source data. Do not move, rename, overwrite, or
 write generated data into the original DJI folders. Raw data is not uploaded to
-GitHub. Generated inventories such as `data/metadata/vt_pairs.csv` store only
+GitHub. Generated inventories such as `data/metadata/vt_pairs.xlsx` store only
 paths relative to the project root.

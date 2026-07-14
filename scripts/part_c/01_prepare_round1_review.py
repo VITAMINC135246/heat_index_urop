@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Prepare Part C Round 1 LUHK and surface-cover review outputs.
 
 Part C uses the manually accepted Part B Round 1.1 refined visible ROI as the
@@ -11,7 +11,6 @@ annotations, or create final masks.
 
 from __future__ import annotations
 
-import csv
 import json
 import math
 import os
@@ -21,6 +20,9 @@ from pathlib import Path
 from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SCRIPTS_DIR = PROJECT_ROOT / "scripts"
+if str(SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS_DIR))
 os.environ.setdefault("MPLCONFIGDIR", str(PROJECT_ROOT / ".matplotlib-cache"))
 
 import numpy as np
@@ -28,17 +30,19 @@ import pandas as pd
 from PIL import Image, ImageColor, ImageDraw, ImageOps
 from skimage import color, segmentation
 
+from table_io import read_table, write_rows
 
-PART_B_ALIGNMENT_SUMMARY_CSV = (
-    PROJECT_ROOT / "outputs" / "part_b" / "summaries" / "part_b_round1_1_alignment_summary.csv"
+
+PART_B_ALIGNMENT_SUMMARY_XLSX = (
+    PROJECT_ROOT / "outputs" / "part_b" / "summaries" / "part_b_round1_1_alignment_summary.xlsx"
 )
-PART_B_LOCAL_MANIFEST_CSV = (
-    PROJECT_ROOT / "outputs" / "part_b" / "summaries" / "part_b_round1_local_outputs_manifest.csv"
+PART_B_LOCAL_MANIFEST_XLSX = (
+    PROJECT_ROOT / "outputs" / "part_b" / "summaries" / "part_b_round1_local_outputs_manifest.xlsx"
 )
-GRID_CSV = PROJECT_ROOT / "data" / "processed" / "grids" / "pilot_luhk_aligned_10m_grid_cells.csv"
-FOOTPRINTS_CSV = PROJECT_ROOT / "data" / "processed" / "footprints" / "image_footprints.csv"
-VISIBLE_CAMERA_PROFILES_CSV = PROJECT_ROOT / "data" / "metadata" / "visible_camera_profiles.csv"
-THERMAL_METADATA_CSV = PROJECT_ROOT / "data" / "metadata" / "dji_image_metadata.csv"
+GRID_XLSX = PROJECT_ROOT / "data" / "processed" / "grids" / "pilot_luhk_aligned_10m_grid_cells.xlsx"
+FOOTPRINTS_XLSX = PROJECT_ROOT / "data" / "processed" / "footprints" / "image_footprints.xlsx"
+VISIBLE_CAMERA_PROFILES_XLSX = PROJECT_ROOT / "data" / "metadata" / "visible_camera_profiles.xlsx"
+THERMAL_METADATA_XLSX = PROJECT_ROOT / "data" / "metadata" / "dji_image_metadata.xlsx"
 
 ANNOTATION_DIR = PROJECT_ROOT / "data" / "annotations" / "part_c"
 PART_C_OUTPUT_DIR = PROJECT_ROOT / "outputs" / "part_c"
@@ -48,14 +52,14 @@ SUPERPIXEL_DIR = PART_C_OUTPUT_DIR / "superpixels"
 SUMMARY_DIR = PART_C_OUTPUT_DIR / "summaries"
 MASK_DIR = PART_C_OUTPUT_DIR / "masks"
 
-SURFACE_CLASSES_CSV = ANNOTATION_DIR / "surface_cover_classes.csv"
-MAIN_ANNOTATION_CSV = ANNOTATION_DIR / "part_c_surface_cover_annotations.csv"
-LUHK_SUMMARY_CSV = SUMMARY_DIR / "part_c_luhk_context_summary.csv"
-ROUND1_SUMMARY_CSV = SUMMARY_DIR / "part_c_round1_summary.csv"
+SURFACE_CLASSES_XLSX = ANNOTATION_DIR / "surface_cover_classes.xlsx"
+MAIN_ANNOTATION_XLSX = ANNOTATION_DIR / "part_c_surface_cover_annotations.xlsx"
+LUHK_SUMMARY_XLSX = SUMMARY_DIR / "part_c_luhk_context_summary.xlsx"
+ROUND1_SUMMARY_XLSX = SUMMARY_DIR / "part_c_round1_summary.xlsx"
 ROUND1_SUMMARY_MD = SUMMARY_DIR / "part_c_round1_summary.md"
 MANUAL_REVIEW_GUIDE_MD = SUMMARY_DIR / "part_c_manual_review_guide.md"
-CLASS_OVERLAY_MANIFEST_CSV = SUMMARY_DIR / "part_c_surface_cover_review_overlays.csv"
-EARLY_DRAFT_MANIFEST_CSV = SUPERPIXEL_DIR / "early_part_b_draft_superpixels_manifest.csv"
+CLASS_OVERLAY_MANIFEST_XLSX = SUMMARY_DIR / "part_c_surface_cover_review_overlays.xlsx"
+EARLY_DRAFT_MANIFEST_XLSX = SUPERPIXEL_DIR / "early_part_b_draft_superpixels_manifest.xlsx"
 MASK_README = MASK_DIR / "README.md"
 
 SLIC_PARAMS = {
@@ -76,7 +80,6 @@ SURFACE_CLASSES = [
     ("grass_low_vegetation", "Grass, planted ground cover, and low vegetation."),
     ("bare_soil", "Exposed soil or unsealed ground."),
     ("water", "Water surfaces."),
-    ("shadow", "Cast shadow or deeply shaded image regions."),
     ("vehicle_temporary_object", "Vehicles, movable equipment, or temporary objects."),
     ("unclear_ignore", "Ambiguous or out-of-scope segments to exclude from final masks."),
 ]
@@ -143,13 +146,8 @@ def bool_value(value: Any) -> bool:
     return text in {"true", "1", "yes", "y"}
 
 
-def write_rows_csv(path: Path, rows: list[dict[str, Any]], columns: list[str]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(file, fieldnames=columns, extrasaction="ignore")
-        writer.writeheader()
-        for row in rows:
-            writer.writerow(row)
+def write_rows_xlsx(path: Path, rows: list[dict[str, Any]], columns: list[str]) -> None:
+    write_rows(path, rows, columns)
 
 
 def load_rgb(path: Path) -> Image.Image:
@@ -250,24 +248,24 @@ def write_label_png(path: Path, labels: np.ndarray) -> str:
     return relative_posix(path)
 
 
-def classify_segment(mean_rgb: np.ndarray, mean_hsv: np.ndarray, area_fraction: float) -> tuple[str, str, str]:
+def classify_segment(mean_rgb: np.ndarray, mean_hsv: np.ndarray, area_fraction: float) -> tuple[str, str, str, int]:
     r, g, b = [float(value) for value in mean_rgb]
     hue, saturation, value = [float(value) for value in mean_hsv]
     green_excess = g - max(r, b)
 
     if value < 0.18:
-        return "shadow", "medium", "low brightness heuristic; manual review required"
+        return "unclear_ignore", "medium", "low brightness heuristic; set shadow_status=1 and review physical surface", 1
     if saturation > 0.18 and green_excess > 0.06:
         if value < 0.50 or area_fraction > 0.01:
-            return "vegetation_tree", "low", "green-dominant segment; tree/low vegetation must be reviewed"
-        return "grass_low_vegetation", "low", "green-dominant bright segment; review required"
+            return "vegetation_tree", "low", "green-dominant segment; tree/low vegetation must be reviewed", 0
+        return "grass_low_vegetation", "low", "green-dominant bright segment; review required", 0
     if 0.48 <= hue <= 0.66 and saturation > 0.25 and value > 0.20:
-        return "water", "low", "blue/cyan heuristic; review required"
+        return "water", "low", "blue/cyan heuristic; review required", 0
     if saturation < 0.12 and value > 0.58:
-        return "concrete_pavement", "low", "bright low-saturation hardscape heuristic"
+        return "concrete_pavement", "low", "bright low-saturation hardscape heuristic", 0
     if saturation < 0.16 and 0.20 <= value <= 0.46:
-        return "asphalt_road", "low", "dark low-saturation hardscape heuristic"
-    return "unclear_ignore", "low", "heuristic could not assign a reliable surface-cover suggestion"
+        return "asphalt_road", "low", "dark low-saturation hardscape heuristic", 0
+    return "unclear_ignore", "low", "heuristic could not assign a reliable surface-cover suggestion", 0
 
 
 def summarize_segments(
@@ -288,7 +286,7 @@ def summarize_segments(
         mean_hsv = hsv[mask].mean(axis=0)
         area_px = int(mask.sum())
         area_fraction = area_px / float(total_pixels)
-        suggested, confidence, note = classify_segment(mean_rgb, mean_hsv, area_fraction)
+        suggested, confidence, note, shadow_status = classify_segment(mean_rgb, mean_hsv, area_fraction)
         rows.append(
             {
                 "pair_id": pair_id,
@@ -309,6 +307,7 @@ def summarize_segments(
                 "mean_s": round(float(mean_hsv[1]), 6),
                 "mean_v": round(float(mean_hsv[2]), 6),
                 "suggested_class": suggested,
+                "shadow_status": shadow_status,
                 "suggestion_confidence": confidence,
                 "review_status": STATUS_NOT_YET,
                 "notes": note,
@@ -326,6 +325,7 @@ def annotation_rows(segment_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "segment_id": row["segment_id"],
                 "suggested_class": row["suggested_class"],
                 "manual_class": "",
+                "shadow_status": row["shadow_status"],
                 "confidence": row["suggestion_confidence"],
                 "review_status": STATUS_NOT_YET,
                 "notes": row["notes"],
@@ -629,8 +629,8 @@ def write_surface_classes() -> None:
         }
         for class_name, description in SURFACE_CLASSES
     ]
-    write_rows_csv(
-        SURFACE_CLASSES_CSV,
+    write_rows_xlsx(
+        SURFACE_CLASSES_XLSX,
         rows,
         ["class_name", "description", "part_c_review_rule"],
     )
@@ -696,13 +696,13 @@ def park_early_part_b_superpixels(
                     "old_superpixel_overlay_path": f"outputs/part_b/superpixels/{image_id}_superpixel_overlay.png",
                     "old_segment_boundary_overlay_path": f"outputs/part_b/superpixels/{image_id}_segment_boundary_overlay.png",
                     "old_segment_id_map_path": f"outputs/part_b/superpixels/{image_id}_segment_id_map.png",
-                    "old_segment_summary_path": f"outputs/part_b/superpixels/{image_id}_segment_summary.csv",
-                    "old_annotation_template_path": f"data/annotations/part_b_round1/{image_id}_segment_annotation_template.csv",
+                    "old_segment_summary_path": f"outputs/part_b/superpixels/{image_id}_segment_summary.xlsx",
+                    "old_annotation_template_path": f"data/annotations/part_b_round1/{image_id}_segment_annotation_template.xlsx",
                     "new_part_c_superpixel_dir": relative_posix(SUPERPIXEL_DIR / image_id),
                 }
             )
-    write_rows_csv(
-        EARLY_DRAFT_MANIFEST_CSV,
+    write_rows_xlsx(
+        EARLY_DRAFT_MANIFEST_XLSX,
         rows,
         [
             "image_id",
@@ -722,10 +722,10 @@ def park_early_part_b_superpixels(
     )
 
 
-def load_optional_csv(path: Path) -> pd.DataFrame | None:
+def load_optional_xlsx(path: Path) -> pd.DataFrame | None:
     if not path.is_file():
         return None
-    return pd.read_csv(path)
+    return read_table(path)
 
 
 def process_pair(
@@ -775,8 +775,8 @@ def process_pair(
         pair_superpixel_dir / f"{image_id}_segment_id_labels_quadrants.png",
     )
 
-    segment_summary_path = pair_superpixel_dir / f"{image_id}_segment_summary.csv"
-    write_rows_csv(
+    segment_summary_path = pair_superpixel_dir / f"{image_id}_segment_summary.xlsx"
+    write_rows_xlsx(
         segment_summary_path,
         segment_rows,
         [
@@ -798,23 +798,24 @@ def process_pair(
             "mean_s",
             "mean_v",
             "suggested_class",
+            "shadow_status",
             "suggestion_confidence",
             "review_status",
             "notes",
         ],
     )
 
-    pair_annotation_path = ANNOTATION_DIR / f"{image_id}_surface_cover_annotations.csv"
+    pair_annotation_path = ANNOTATION_DIR / f"{image_id}_surface_cover_annotations.xlsx"
     pair_annotation_rows = annotation_rows(segment_rows)
-    write_rows_csv(
+    write_rows_xlsx(
         pair_annotation_path,
         pair_annotation_rows,
-        ["pair_id", "segment_id", "suggested_class", "manual_class", "confidence", "review_status", "notes"],
+        ["pair_id", "segment_id", "suggested_class", "manual_class", "shadow_status", "confidence", "review_status", "notes"],
     )
 
     thermal_rows, luhk_rows = luhk_context_for_pair(grid_df, pair_id)
-    luhk_context_path = pair_luhk_dir / f"{image_id}_luhk_context.csv"
-    write_rows_csv(
+    luhk_context_path = pair_luhk_dir / f"{image_id}_luhk_context.xlsx"
+    write_rows_xlsx(
         luhk_context_path,
         luhk_rows,
         [
@@ -899,7 +900,7 @@ def process_pair(
         "refined_visible_roi_resized_to_thermal_grid_path": resized_roi_path,
         "visible_roi_preview_path": bbox_preview_path,
         "thermal_preview_path": thermal_preview_path,
-        "luhk_context_csv_path": relative_posix(luhk_context_path),
+        "luhk_context_xlsx_path": relative_posix(luhk_context_path),
         "luhk_context_preview_path": luhk_preview_path,
         "luhk_overlay_on_thermal_preview_path": luhk_overlay_on_thermal_path,
         "luhk_overlay_on_refined_visible_roi_path": luhk_overlay_on_visible_roi_path,
@@ -921,7 +922,7 @@ def process_pair(
         "segment_id_labels_full_path": segment_id_labels_full_path,
         "segment_id_labels_quadrants_path": segment_id_labels_quadrants_path,
         "segment_summary_path": relative_posix(segment_summary_path),
-        "pair_annotation_csv_path": relative_posix(pair_annotation_path),
+        "pair_annotation_xlsx_path": relative_posix(pair_annotation_path),
         "pair_review_contact_sheet_path": pair_contact_sheet_path,
         "segmentation_contact_sheet_path": segmentation_contact_sheet_path,
         "limitations": (
@@ -942,10 +943,10 @@ def write_round1_summary_md(summary_rows: list[dict[str, Any]]) -> None:
         "",
         "## Inputs From Accepted Part B",
         "",
-        f"- Alignment summary: `{relative_posix(PART_B_ALIGNMENT_SUMMARY_CSV)}`",
+        f"- Alignment summary: `{relative_posix(PART_B_ALIGNMENT_SUMMARY_XLSX)}`",
         f"- Accepted refined ROI columns: `refined_roi_*`, `final_transform_matrix_json`",
-        f"- Visible camera profiles: `{relative_posix(VISIBLE_CAMERA_PROFILES_CSV)}`",
-        f"- Thermal metadata table: `{relative_posix(THERMAL_METADATA_CSV)}`",
+        f"- Visible camera profiles: `{relative_posix(VISIBLE_CAMERA_PROFILES_XLSX)}`",
+        f"- Thermal metadata table: `{relative_posix(THERMAL_METADATA_XLSX)}`",
         "",
         "## Segmentation Parameters",
         "",
@@ -980,7 +981,7 @@ def write_round1_summary_md(summary_rows: list[dict[str, Any]]) -> None:
                 f"- Segment ID full map: `{row['segment_id_labels_full_path']}`",
                 f"- Segment ID quadrant map: `{row['segment_id_labels_quadrants_path']}`",
                 f"- Segment summary: `{row['segment_summary_path']}`",
-                f"- Annotation CSV to fill: `{row['pair_annotation_csv_path']}`",
+                f"- Annotation XLSX to fill: `{row['pair_annotation_xlsx_path']}`",
                 "",
             ]
         )
@@ -988,15 +989,15 @@ def write_round1_summary_md(summary_rows: list[dict[str, Any]]) -> None:
         [
             "## Annotation Files",
             "",
-            f"- Main annotation file: `{relative_posix(MAIN_ANNOTATION_CSV)}`",
-            f"- Approved class list: `{relative_posix(SURFACE_CLASSES_CSV)}`",
-            f"- Surface-cover class overlay manifest: `{relative_posix(CLASS_OVERLAY_MANIFEST_CSV)}`",
+            f"- Main annotation file: `{relative_posix(MAIN_ANNOTATION_XLSX)}`",
+            f"- Approved class list: `{relative_posix(SURFACE_CLASSES_XLSX)}`",
+            f"- Surface-cover class overlay manifest: `{relative_posix(CLASS_OVERLAY_MANIFEST_XLSX)}`",
             "",
-            "Use the segment ID label maps to locate each `segment_id`, then edit `manual_class` during review. Leave `suggested_class` as the current baseline candidate. Use `review_status = Yes` only after a row has been checked; otherwise use `Not yet`.",
+            "Use the segment ID label maps to locate each `segment_id`, then edit `manual_class` during review. Keep shadow as `shadow_status` (`1` = shadowed, `0` = not shadowed), not as a surface-cover class. Leave `suggested_class` as the current baseline candidate. Use `review_status = Yes` only after a row has been checked; otherwise use `Not yet`.",
             "",
             "## Parked Draft Assets",
             "",
-            f"- Early Part B superpixel manifest: `{relative_posix(EARLY_DRAFT_MANIFEST_CSV)}`",
+            f"- Early Part B superpixel manifest: `{relative_posix(EARLY_DRAFT_MANIFEST_XLSX)}`",
             "",
             "Those early assets were generated before Part B refined alignment acceptance from the old center-crop ROI and are reference only.",
             "",
@@ -1011,7 +1012,7 @@ def write_round1_summary_md(summary_rows: list[dict[str, Any]]) -> None:
             "",
             "## Next Manual Task",
             "",
-            f"Review the contact sheets, then edit `manual_class` in `{relative_posix(MAIN_ANNOTATION_CSV)}`.",
+            f"Review the contact sheets, then edit `manual_class` in `{relative_posix(MAIN_ANNOTATION_XLSX)}`.",
             "",
         ]
     )
@@ -1030,26 +1031,28 @@ def write_manual_review_guide(summary_rows: list[dict[str, Any]]) -> None:
         "1. Open the LUHK overlay contact sheet for a pair and judge whether the approximate LUHK footprint looks spatially plausible.",
         "2. Open the Part C review contact sheet and confirm the refined visible ROI covers the accepted thermal target area.",
         "3. Open the segment ID quadrant map to locate segment IDs.",
-        "4. Edit `manual_class` in the main annotation CSV when your decision differs from `suggested_class`.",
+        "4. Edit `manual_class` in the main annotation XLSX when your decision differs from `suggested_class`.",
         "5. Update `review_status` to `Yes` only after the segment has been checked; otherwise leave `Not yet`.",
         "",
         "## Segment ID Lookup",
         "",
-        "The annotation CSV uses `segment_id`. To find a segment:",
+        "The annotation XLSX uses `segment_id`. To find a segment:",
         "",
         "- use `segment_id_labels_quadrants.png` first, because it is zoomed and less crowded",
         "- use `segment_id_labels_full.png` for whole-image orientation",
-        "- use `segment_summary.csv` if you need centroid or bounding-box coordinates",
+        "- use `segment_summary.xlsx` if you need centroid or bounding-box coordinates",
         "",
         "## Labeling Rules",
         "",
         "- Label surface cover from the visible ROI, not from LUHK.",
         "- Use LUHK only as broad land-use context and uncertainty evidence.",
         "- If a segment is mixed, label the dominant visible surface when one class clearly dominates.",
-        "- If a segment is too mixed, shadowed, or ambiguous, use `unclear_ignore`.",
+        "- If a segment is too mixed or ambiguous, use `unclear_ignore`.",
+        "- Record illumination separately in `shadow_status`: `1` means shadowed, `0` means not shadowed.",
+        "- If the physical surface is still visible under shadow, keep the physical `manual_class` and set `shadow_status=1`.",
         "- Keep `suggested_class` as-is; put your final review decision in `manual_class`.",
-        "- Use only classes listed in `data/annotations/part_c/surface_cover_classes.csv`.",
-        "- Edit the main CSV first; the per-pair CSVs are mirrors for browsing and can be regenerated.",
+        "- Use only classes listed in `data/annotations/part_c/surface_cover_classes.xlsx`.",
+        "- Edit the main XLSX first; the per-pair XLSXs are mirrors for browsing and can be regenerated.",
         "- Confidence can stay low/medium/high according to your certainty.",
         "",
         "## Per-Pair Files",
@@ -1065,7 +1068,7 @@ def write_manual_review_guide(summary_rows: list[dict[str, Any]]) -> None:
                 f"- Surface-cover class review sheet: `outputs/part_c/surface_cover_review/{row['image_id']}/{row['image_id']}_surface_cover_class_review_sheet.png`",
                 f"- Segment ID quadrants: `{row['segment_id_labels_quadrants_path']}`",
                 f"- Segment summary: `{row['segment_summary_path']}`",
-                f"- Annotation CSV: `{row['pair_annotation_csv_path']}`",
+                f"- Annotation XLSX: `{row['pair_annotation_xlsx_path']}`",
                 "",
             ]
         )
@@ -1090,7 +1093,7 @@ def ensure_structure() -> None:
 
 def main() -> int:
     ensure_structure()
-    required = [PART_B_ALIGNMENT_SUMMARY_CSV, GRID_CSV, FOOTPRINTS_CSV]
+    required = [PART_B_ALIGNMENT_SUMMARY_XLSX, GRID_XLSX, FOOTPRINTS_XLSX]
     missing = [relative_posix(path) for path in required if not path.is_file()]
     if missing:
         print("Missing required Part C inputs:", file=sys.stderr)
@@ -1098,10 +1101,10 @@ def main() -> int:
             print(f"- {path}", file=sys.stderr)
         return 1
 
-    alignment_df = pd.read_csv(PART_B_ALIGNMENT_SUMMARY_CSV)
-    grid_df = pd.read_csv(GRID_CSV)
-    footprints_df = pd.read_csv(FOOTPRINTS_CSV)
-    manifest_df = load_optional_csv(PART_B_LOCAL_MANIFEST_CSV)
+    alignment_df = read_table(PART_B_ALIGNMENT_SUMMARY_XLSX)
+    grid_df = read_table(GRID_XLSX)
+    footprints_df = read_table(FOOTPRINTS_XLSX)
+    manifest_df = load_optional_xlsx(PART_B_LOCAL_MANIFEST_XLSX)
 
     accepted_df = alignment_df.copy()
     if "alignment_quality" in accepted_df.columns:
@@ -1124,8 +1127,8 @@ def main() -> int:
         all_luhk_rows.extend(luhk_rows)
         all_annotation_rows.extend(pair_annotation_rows)
 
-    write_rows_csv(
-        LUHK_SUMMARY_CSV,
+    write_rows_xlsx(
+        LUHK_SUMMARY_XLSX,
         all_luhk_rows,
         [
             "pair_id",
@@ -1136,13 +1139,13 @@ def main() -> int:
             "spatial_uncertainty_note",
         ],
     )
-    write_rows_csv(
-        MAIN_ANNOTATION_CSV,
+    write_rows_xlsx(
+        MAIN_ANNOTATION_XLSX,
         all_annotation_rows,
-        ["pair_id", "segment_id", "suggested_class", "manual_class", "confidence", "review_status", "notes"],
+        ["pair_id", "segment_id", "suggested_class", "manual_class", "shadow_status", "confidence", "review_status", "notes"],
     )
-    write_rows_csv(
-        ROUND1_SUMMARY_CSV,
+    write_rows_xlsx(
+        ROUND1_SUMMARY_XLSX,
         summary_rows,
         [
             "pair_id",
@@ -1154,7 +1157,7 @@ def main() -> int:
             "refined_visible_roi_resized_to_thermal_grid_path",
             "visible_roi_preview_path",
             "thermal_preview_path",
-            "luhk_context_csv_path",
+            "luhk_context_xlsx_path",
             "luhk_context_preview_path",
             "luhk_overlay_on_thermal_preview_path",
             "luhk_overlay_on_refined_visible_roi_path",
@@ -1176,7 +1179,7 @@ def main() -> int:
             "segment_id_labels_full_path",
             "segment_id_labels_quadrants_path",
             "segment_summary_path",
-            "pair_annotation_csv_path",
+            "pair_annotation_xlsx_path",
             "pair_review_contact_sheet_path",
             "segmentation_contact_sheet_path",
             "limitations",
@@ -1187,7 +1190,7 @@ def main() -> int:
 
     print(f"Part C pilot pairs processed: {len(summary_rows)}")
     print(f"Total annotation rows: {len(all_annotation_rows)}")
-    print(f"Main annotation CSV: {relative_posix(MAIN_ANNOTATION_CSV)}")
+    print(f"Main annotation XLSX: {relative_posix(MAIN_ANNOTATION_XLSX)}")
     print(f"Round 1 summary: {relative_posix(ROUND1_SUMMARY_MD)}")
     return 0
 

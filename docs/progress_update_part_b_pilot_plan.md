@@ -1,4 +1,4 @@
-# Heat Index UROP Progress Update: Part B Pilot Plan
+﻿# Heat Index UROP Progress Update: Part B Pilot Plan
 
 **Prepared for:** Professor progress discussion
 **Date:** 2026-06-16
@@ -102,7 +102,7 @@ Current status: Not started. This depends on Parts B-D.
 - Garden Hill and HKUST use different directory depths, but their original
   structures have been retained.
 - Original DJI files are not modified, renamed, or moved.
-- The generated V/T inventory is stored at `data/metadata/vt_pairs.csv`.
+- The generated V/T inventory is stored at `data/metadata/vt_pairs.xlsx`.
 
 ## V/T Pairing Progress
 
@@ -115,7 +115,7 @@ scripts/01_create_vt_pairs.py
 It recursively scans JPG/JPEG files ending in `_V` and `_T` and generates:
 
 ```text
-data/metadata/vt_pairs.csv
+data/metadata/vt_pairs.xlsx
 ```
 
 The initial strict rule paired files only when they had the same parent
@@ -161,7 +161,7 @@ The original LUHK classes are retained:
 10. Water bodies
 
 LUHK is an official broad-brush land-use representation with a 10 m raster
-resolution. One `10 m × 10 m` cell represents approximately `100 m²` and may
+resolution. One `10 m 脳 10 m` cell represents approximately `100 m虏` and may
 contain several visible physical surfaces. LUHK is therefore appropriate as
 broad land-use context, but not as drone pixel-level surface-cover ground
 truth. Original LUHK categories should be retained; grouped classes can be
@@ -198,8 +198,8 @@ mask:
 ## Why Registration Is Needed
 
 The `_V.JPG` and `_T.JPG` images do not share the same resolution. In one
-verified pair, the visible image is `4032 × 3024` and the thermal JPG is
-`1280 × 1024`; the intended extracted temperature-matrix grid is `640 × 512`.
+verified pair, the visible image is `4032 脳 3024` and the thermal JPG is
+`1280 脳 1024`; the intended extracted temperature-matrix grid is `640 脳 512`.
 The sensors may also differ in field of view, physical position, rotation,
 scale, and perspective.
 
@@ -207,21 +207,21 @@ Consequently, simply resizing the visible image would not provide reliable
 pixel correspondence. The required mapping is:
 
 ```text
-visible image coordinate → thermal image 640 × 512 coordinate
+visible image coordinate 鈫?thermal image 640 脳 512 coordinate
 ```
 
 ## Proposed Registration Approach
 
 1. Select one `0016_V/T` pair as the first pilot.
-2. Lock the unique pilot pair from `vt_pairs.csv`.
+2. Lock the unique pilot pair from `vt_pairs.xlsx`.
 3. Inspect image quality, overlap, and visible landmarks.
 4. Manually select control points.
 5. Compare affine transformation and homography.
 6. Use RANSAC to reject incorrect control-point matches.
-7. Warp the visible image to the thermal `640 × 512` grid.
+7. Warp the visible image to the thermal `640 脳 512` grid.
 8. Generate overlay, checkerboard, and edge-overlay diagnostics.
 9. Calculate reprojection error.
-10. Select the most stable V→T transformation.
+10. Select the most stable V鈫扵 transformation.
 11. Apply the same transformation to the visible surface-cover mask.
 
 Categorical masks must use **nearest-neighbour interpolation** during
@@ -264,8 +264,8 @@ selection rule has been validated.
 - Confirm and freeze the first unique pilot pair.
 - Validate per-image Matrice 4T camera selection before treating footprint or
   cover outputs as final.
-- Create `pilot_pairs.csv`.
-- Complete the first V→T registration.
+- Create `pilot_pairs.xlsx`.
+- Complete the first V鈫扵 registration.
 - Generate registration diagnostics and review reprojection error.
 - Start or complete the pilot visible-image surface-cover annotation.
 - If Windows access becomes available, I will start testing temperature matrix

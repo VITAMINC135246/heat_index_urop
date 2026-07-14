@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Refine Part B Round 1 V/T alignment for the existing pilot pairs.
 
 This script preserves the Round 1 outputs and creates a Round 1.1 alignment
@@ -10,16 +10,22 @@ created so uncertain pairs can be corrected without rerunning Part A.
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import math
 import re
+import sys
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps
+
+SCRIPTS_DIR = Path(__file__).resolve().parents[1]
+if str(SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS_DIR))
+
+from table_io import read_table, write_rows
 
 try:
     from scipy import ndimage
@@ -32,11 +38,11 @@ except Exception as exc:  # pragma: no cover - dependency guard for user envs
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-PILOT_CSV = PROJECT_ROOT / "data" / "metadata" / "part_b_pilot_pairs.csv"
+PILOT_XLSX = PROJECT_ROOT / "data" / "metadata" / "part_b_pilot_pairs.xlsx"
 ALIGNMENT_DIR = PROJECT_ROOT / "outputs" / "part_b" / "alignment_refinement"
 SUMMARY_DIR = PROJECT_ROOT / "outputs" / "part_b" / "summaries"
-ALIGNMENT_SUMMARY_CSV = SUMMARY_DIR / "part_b_round1_1_alignment_summary.csv"
-ALIGNMENT_ATTEMPTS_CSV = SUMMARY_DIR / "part_b_round1_1_alignment_attempts.csv"
+ALIGNMENT_SUMMARY_XLSX = SUMMARY_DIR / "part_b_round1_1_alignment_summary.xlsx"
+ALIGNMENT_ATTEMPTS_XLSX = SUMMARY_DIR / "part_b_round1_1_alignment_attempts.xlsx"
 
 SCORE_SIZE = (160, 128)
 MANUAL_GCP_COLUMNS = [
@@ -93,13 +99,8 @@ def as_int(value: Any) -> int:
     return int(round(number))
 
 
-def write_rows_csv(path: Path, rows: list[dict[str, Any]], columns: list[str]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(file, fieldnames=columns, extrasaction="ignore")
-        writer.writeheader()
-        for row in rows:
-            writer.writerow(row)
+def write_rows_xlsx(path: Path, rows: list[dict[str, Any]], columns: list[str]) -> None:
+    write_rows(path, rows, columns)
 
 
 def load_rgb(path: Path) -> Image.Image:
@@ -271,7 +272,7 @@ def blank_gcp_template(pair_id: str) -> list[dict[str, Any]]:
 def read_gcp_points(path: Path, pair_id: str) -> list[tuple[float, float, float, float]]:
     if not path.exists():
         return []
-    rows = pd.read_csv(path, dtype=str).fillna("")
+    rows = read_table(path, dtype=str).fillna("")
     if "pair_id" in rows.columns:
         rows = rows.loc[rows["pair_id"].astype(str).eq(pair_id)]
     if "include" in rows.columns:
@@ -751,13 +752,13 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    if not PILOT_CSV.exists():
-        raise FileNotFoundError(f"Missing {relative_posix(PILOT_CSV)}; run Part B Round 1 first.")
+    if not PILOT_XLSX.exists():
+        raise FileNotFoundError(f"Missing {relative_posix(PILOT_XLSX)}; run Part B Round 1 first.")
 
     ALIGNMENT_DIR.mkdir(parents=True, exist_ok=True)
     SUMMARY_DIR.mkdir(parents=True, exist_ok=True)
 
-    pilot_rows = pd.read_csv(PILOT_CSV, dtype=str).fillna("")
+    pilot_rows = read_table(PILOT_XLSX, dtype=str).fillna("")
     summary_rows: list[dict[str, Any]] = []
     attempt_rows: list[dict[str, Any]] = []
 
@@ -776,9 +777,9 @@ def main() -> int:
             as_int(row["roi_y_max_px"]),
         )
 
-        gcp_template_path = pair_dir / "manual_gcp_template.csv"
+        gcp_template_path = pair_dir / "manual_gcp_template.xlsx"
         if not gcp_template_path.exists():
-            write_rows_csv(gcp_template_path, blank_gcp_template(pair_id), MANUAL_GCP_COLUMNS)
+            write_rows_xlsx(gcp_template_path, blank_gcp_template(pair_id), MANUAL_GCP_COLUMNS)
         gcp_points = read_gcp_points(gcp_template_path, pair_id)
 
         best, top_candidates, opencv_attempts, opencv_available = search_alignment(visible, thermal, old_bbox)
@@ -935,8 +936,8 @@ def main() -> int:
                 }
             )
 
-        write_rows_csv(
-            pair_dir / "top_alignment_candidates.csv",
+        write_rows_xlsx(
+            pair_dir / "top_alignment_candidates.xlsx",
             [
                 {
                     "rank": rank,
@@ -1048,10 +1049,10 @@ def main() -> int:
         "transform_matrix_json",
         "reason",
     ]
-    write_rows_csv(ALIGNMENT_SUMMARY_CSV, summary_rows, summary_columns)
-    write_rows_csv(ALIGNMENT_ATTEMPTS_CSV, attempt_rows, attempt_columns)
-    print(f"Wrote {relative_posix(ALIGNMENT_SUMMARY_CSV)}")
-    print(f"Wrote {relative_posix(ALIGNMENT_ATTEMPTS_CSV)}")
+    write_rows_xlsx(ALIGNMENT_SUMMARY_XLSX, summary_rows, summary_columns)
+    write_rows_xlsx(ALIGNMENT_ATTEMPTS_XLSX, attempt_rows, attempt_columns)
+    print(f"Wrote {relative_posix(ALIGNMENT_SUMMARY_XLSX)}")
+    print(f"Wrote {relative_posix(ALIGNMENT_ATTEMPTS_XLSX)}")
     return 0
 
 
