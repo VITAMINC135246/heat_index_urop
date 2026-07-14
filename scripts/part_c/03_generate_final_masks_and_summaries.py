@@ -350,6 +350,14 @@ def validate_annotations(
         add_validation(rows, "annotations", "confidence_present", "pass", "info", "All confidence values are present.")
     else:
         add_validation(rows, "annotations", "confidence_present", "warn", "warning", f"{len(blank_confidence)} rows have blank confidence.")
+    reviewed_not_high = annotations.loc[
+        annotations["review_status"].astype(str).str.strip().str.casefold().eq("yes")
+        & ~annotations["confidence"].astype(str).str.strip().str.casefold().eq("high")
+    ]
+    if reviewed_not_high.empty:
+        add_validation(rows, "annotations", "reviewed_confidence_high", "pass", "info", "All reviewed rows have high confidence.")
+    else:
+        add_validation(rows, "annotations", "reviewed_confidence_high", "warn", "warning", f"{len(reviewed_not_high)} reviewed rows do not have high confidence.")
     if blank_status.empty:
         add_validation(rows, "annotations", "review_status_present", "pass", "info", "All review_status values are present.")
     else:

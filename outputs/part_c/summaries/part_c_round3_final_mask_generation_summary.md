@@ -27,13 +27,13 @@
 ## Manual Work Protection
 
 - Annotation backups created: 7
-  - `data/annotations/part_c/backups/part_c_surface_cover_annotations_manual_backup_20260715_012038.xlsx`
-  - `data/annotations/part_c/backups/surface_cover_classes_manual_backup_20260715_012038.xlsx`
-  - `data/annotations/part_c/backups/DJI_20260107143259_0005_surface_cover_annotations_manual_backup_20260715_012038.xlsx`
-  - `data/annotations/part_c/backups/DJI_20260107143320_0007_surface_cover_annotations_manual_backup_20260715_012038.xlsx`
-  - `data/annotations/part_c/backups/DJI_20260107143328_0008_surface_cover_annotations_manual_backup_20260715_012038.xlsx`
-  - `data/annotations/part_c/backups/DJI_20260107143344_0009_surface_cover_annotations_manual_backup_20260715_012038.xlsx`
-  - `data/annotations/part_c/backups/DJI_20260107143401_0011_surface_cover_annotations_manual_backup_20260715_012038.xlsx`
+  - `data/annotations/part_c/backups/part_c_surface_cover_annotations_manual_backup_20260715_015252.xlsx`
+  - `data/annotations/part_c/backups/surface_cover_classes_manual_backup_20260715_015252.xlsx`
+  - `data/annotations/part_c/backups/DJI_20260107143259_0005_surface_cover_annotations_manual_backup_20260715_015252.xlsx`
+  - `data/annotations/part_c/backups/DJI_20260107143320_0007_surface_cover_annotations_manual_backup_20260715_015252.xlsx`
+  - `data/annotations/part_c/backups/DJI_20260107143328_0008_surface_cover_annotations_manual_backup_20260715_015252.xlsx`
+  - `data/annotations/part_c/backups/DJI_20260107143344_0009_surface_cover_annotations_manual_backup_20260715_015252.xlsx`
+  - `data/annotations/part_c/backups/DJI_20260107143401_0011_surface_cover_annotations_manual_backup_20260715_015252.xlsx`
 
 ## Part D Readiness
 
