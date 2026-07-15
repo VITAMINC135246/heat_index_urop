@@ -89,3 +89,9 @@ scripts/**/*.py[cod]
 data/processed/part_d/temperature_matrices/*.csv
 data/processed/part_d/temperature_matrices/*.npy
 data/processed/part_d/temperature_matrices/*_temperature_metadata.json
+
+# Part E is still exploratory. Keep reusable code, configuration, and the blank
+# input template under version control, but keep run-specific inputs and all
+# generated analysis products local until the workflow is formally validated.
+data/metadata/part_e_pilot_ambient_temperature_manifest.csv
+outputs/part_e/

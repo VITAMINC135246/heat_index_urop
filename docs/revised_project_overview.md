@@ -23,7 +23,8 @@ surface-cover ground truth.
 
 Prediction modeling is a later optional extension. It should only be attempted
 after reliable V/T ROI alignment, reviewed visible-image surface-cover labels,
-temperature extraction, and analysis tables are available.
+temperature extraction, ambient-temperature matching, and Part E descriptive
+analysis tables are available.
 
 ## Why The Method Changed
 
@@ -121,82 +122,104 @@ Expected outputs:
 Current status: The revised method has been decided, but a stable pilot
 alignment and surface-cover review workflow still needs to be completed.
 
-## C. Temperature Extraction And Delta-T Table Construction
+## C. Pilot LUHK, Physical Surface-Cover, And Shadow Masks
 
-Goal: Extract thermal temperature values from DJI thermal images and combine
-them with the reviewed Part B spatial and classification outputs.
-
-Main work:
-
-- Confirm DJI R-JPEG thermal files are usable.
-- Extract pixel-level or region-level temperature values.
-- Obtain or define ambient temperature source.
-- Calculate delta-T.
-- Join temperature, LUHK land use, surface cover, image metadata, and QA
-  information into one analysis-ready table.
-
-Tools and techniques: DJI Thermal Analysis Tool 3, DJI Thermal SDK if batch
-extraction is possible, Python, pandas, and heatmap or histogram QA plots.
-
-Expected outputs:
-
-- Temperature matrix or region-level temperature values.
-- Delta-T table.
-- Joined dataset with temperature, LUHK, surface cover, and metadata.
-- QA figures.
-
-Current status: Not yet fully started because temperature extraction depends on
-Windows, DJI Thermal Analysis Tool 3, or DJI Thermal SDK access. Earlier project
-work should prepare the spatial and classification layers so the temperature
-matrix can be joined later.
-
-## D. Statistical Analysis By Land-Use Context And Surface Cover
-
-Goal: Analyze how temperature or delta-T varies across official LUHK land-use
-categories and visible-image surface-cover categories.
+Goal: Use reviewed visible ROI annotations and LUHK context to produce
+thermal-grid physical surface-cover masks, separate shadow masks, and
+LUHK-aligned 10 m cell context for the pilot images.
 
 Main work:
 
-- Compare delta-T distributions by LUHK land use.
-- Compare delta-T distributions by surface cover.
-- Analyze differences within broad LUHK categories, especially GIC areas at
-  HKUST.
-- Generate summary tables and figures.
+- Keep LUHK official land-use context separate from physical surface-cover
+  labels.
+- Generate thermal-grid physical surface-cover class masks from reviewed
+  visible-image annotations.
+- Store shadow as a separate binary state, not as a physical surface-cover
+  class.
+- Preserve Part C QA status, class mappings, mask manifests, and review notes.
 
-Tools and techniques: pandas, scipy, statsmodels, matplotlib, QGIS, and
-geopandas.
+Tools and techniques: Python, pandas, reviewed annotation workbooks, SLIC
+segment review outputs, NumPy masks, and visual QA contact sheets.
 
 Expected outputs:
 
-- Delta-T summary statistics.
-- Boxplots, histograms, and maps.
-- Comparison between LUHK-only and LUHK plus surface-cover analysis.
+- LUHK context summaries.
+- Thermal-grid physical surface-cover masks.
+- Separate binary shadow masks.
+- Mask manifests, class mappings, QA summaries, and contact sheets.
 
-Current status: Not started yet. This stage depends on successful temperature
-extraction and reliable spatial and classification alignment.
+Current status: Completed for the five pilot images in reviewed pilot form.
+The physical surface-cover masks and shadow masks are ready for temperature
+matrix joins.
 
-## E. Reporting, Visualization, And Optional Exploratory Modeling
+## D. Temperature Extraction And Radiometric QA
 
-Goal: Communicate the pilot workflow and results, and optionally test simple
-exploratory prediction only after enough reliable data exists.
+Goal: Extract thermal temperature matrices from the DJI thermal images and
+validate the extraction before using the temperatures for delta-T analysis.
 
 Main work:
 
-- Prepare final pilot workflow report and figures.
-- Summarize assumptions, QA outcomes, and limitations.
-- Visualize representative ROI, surface-cover, LUHK, temperature, and delta-T
-  outputs.
-- Optionally test simple exploratory models, such as regression, Random Forest,
-  or XGBoost, only after reliable labels and temperature tables are available.
+- Extract `512 x 640` temperature matrices from the five pilot thermal images.
+- Confirm matrix shape and compatibility with Part C masks.
+- Quantify non-finite and sub-zero pixels.
+- Preserve sub-zero pixels unless a documented sensitivity rule is explicitly
+  configured.
+- Complete radiometric parameter validation in Part D Round 2 before final
+  scientific interpretation.
+
+Tools and techniques: DJI Thermal SDK, Python, NumPy, pandas, matplotlib, and
+spatial QA plots.
 
 Expected outputs:
 
-- Final pilot workflow report.
-- Publication or presentation figures.
-- Reproducibility notes.
-- Optional exploratory model results clearly marked as non-final.
+- Temperature matrices.
+- Temperature extraction manifest.
+- Structural QA summaries.
+- Sub-zero spatial QA outputs.
+- Later Round 2 radiometric validation notes.
 
-Current status: Not started. This depends on Parts B-D.
+Current status: Round 1 extraction and Round 1.1 sub-zero spatial QA are
+completed for the five pilot images. Round 2 radiometric validation is not yet
+completed.
+
+## E. Statistical Analysis And Visualization Of Delta-T Distributions
+
+Part E is: statistical analysis and visualization of delta-T distributions,
+with prediction as an optional later extension.
+
+Goal: Calculate provisional delta-T observations after LUHK-cell or
+cell-by-surface-cover aggregation, then describe and visualize their
+distributions by LUHK context, physical surface cover, image, and QA state.
+Prediction is an optional later extension and is not part of current Part E
+Round 1.
+
+Main work:
+
+- Assign exactly one documented ambient-temperature value to each thermal image.
+- Aggregate valid thermal pixels into existing LUHK-aligned 10 m cells.
+- Aggregate valid thermal pixels by physical surface-cover class within each
+  cell.
+- Calculate delta-T after aggregation, not at independent pixel level.
+- Compare provisional delta-T distributions by LUHK class, physical
+  surface-cover class, image, flight, and acquisition time.
+- Keep all finite temperatures in the primary analysis and support explicit
+  sensitivity analysis for configured thresholds.
+- Document the current shadow limitation: shadow masks exist, but the five
+  pilot masks contain no `shadow_flag = 1` pixels.
+
+Expected outputs:
+
+- Cell-level provisional delta-T observations.
+- Cell-by-physical-surface-cover provisional delta-T observations.
+- Descriptive summary tables and exploratory statistical-test tables.
+- Publication-style pilot figures and spatial cell maps.
+- Part E summary report with provisional interpretation, reproducibility
+  commands, and unresolved limitations.
+
+Current status: Part E scripts and ambient-temperature templates have been
+prepared. Numeric delta-T outputs are pending documented ambient-temperature
+values for the five pilot images. All results must be labeled provisional until
+Part D Round 2 radiometric validation is completed.
 
 ## Feasibility Assessment
 
@@ -210,8 +233,8 @@ Current status: Not started. This depends on Parts B-D.
   labeled data.
 - Temperature extraction: medium feasibility, dependent on successful use of
   DJI Thermal Analysis Tool 3 or DJI Thermal SDK.
-- Statistical analysis: medium to high feasibility once temperature extraction
-  succeeds.
+- Statistical analysis and visualization: medium to high feasibility once
+  temperature extraction and ambient-temperature matching are complete.
 - Reporting and visualization: high feasibility after pilot outputs exist.
 - Full Hong Kong heat index prediction: low feasibility at the current stage
   and should not be presented as the immediate goal.
@@ -230,12 +253,11 @@ Current status: Not started. This depends on Parts B-D.
   images have different size and coverage.
 - The revised method now focuses on the thermal ROI instead of the whole visible
   image.
-- Temperature extraction is still pending because it requires Windows, DJI
-  Thermal Analysis Tool 3, or DJI Thermal SDK access.
-- The next major work should be a pilot workflow using several high-quality
-  HKUST V/T pairs: validate per-image camera assumptions, align visible images
-  to thermal images, label surface cover inside the thermal ROI, keep LUHK as
-  separate context, and prepare for later temperature extraction.
+- Temperature extraction Round 1 and sub-zero spatial QA are complete for five
+  pilot images, but full radiometric parameter validation is deferred to Part D
+  Round 2.
+- The next major input needed for Part E is a documented image-level ambient
+  temperature value for each of the five pilot thermal images.
 
 ## Related Documents
 
@@ -244,5 +266,8 @@ Current status: Not started. This depends on Parts B-D.
   assumptions used by the current pilot scripts.
 - `docs/part_b_land_use_surface_cover_scheme.txt`: classification scheme for
   LUHK context and visible-image surface cover.
-- `docs/progress_update_part_b_pilot_plan.md`: historical June 2026 progress
-  update, now superseded by the revised A-E structure for planning purposes.
+- `docs/part_e_delta_t_statistical_analysis.md`: current Part E delta-T
+  analysis method and provisional-result requirements.
+- `docs/archive/deprecated/progress_update_part_b_pilot_plan.md`: historical
+  June 2026 progress update, now superseded by the current A-E structure for
+  planning purposes.

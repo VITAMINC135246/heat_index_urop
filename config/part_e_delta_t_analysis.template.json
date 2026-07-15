@@ -1,0 +1,11 @@
+{
+  "minimum_cell_valid_temperature_coverage_fraction": 0.5,
+  "minimum_surface_cover_valid_temperature_pixels": 30,
+  "minimum_surface_cover_class_fraction": 0.01,
+  "sensitivity_exclude_below_temperature_c": null,
+  "notes": [
+    "Part E results are provisional pilot results until Part D Round 2 radiometric validation is complete.",
+    "Delta-T is calculated only after thermal pixels are aggregated to LUHK-aligned 10 m cells or cell-by-surface-cover observations.",
+    "Leave sensitivity_exclude_below_temperature_c as null unless an explicit sensitivity threshold has been approved for a run."
+  ]
+}

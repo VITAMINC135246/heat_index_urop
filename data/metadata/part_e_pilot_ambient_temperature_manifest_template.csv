@@ -1,0 +1,6 @@
+image_id,acquisition_datetime,ambient_temperature_c,ambient_source,ambient_source_id,ambient_observation_datetime,ambient_time_difference_minutes,ambient_matching_method,ambient_qa_status,ambient_notes
+DJI_20260107143259_0005,2026-01-07 14:32:59,,,,,,not_selected_missing_source,missing_external_record,Fill from a documented external or recorded ambient-temperature source. Do not infer from the thermal matrix.
+DJI_20260107143320_0007,2026-01-07 14:33:20,,,,,,not_selected_missing_source,missing_external_record,Fill from a documented external or recorded ambient-temperature source. Do not infer from the thermal matrix.
+DJI_20260107143328_0008,2026-01-07 14:33:28,,,,,,not_selected_missing_source,missing_external_record,Fill from a documented external or recorded ambient-temperature source. Do not infer from the thermal matrix.
+DJI_20260107143344_0009,2026-01-07 14:33:44,,,,,,not_selected_missing_source,missing_external_record,Fill from a documented external or recorded ambient-temperature source. Do not infer from the thermal matrix.
+DJI_20260107143401_0011,2026-01-07 14:34:01,,,,,,not_selected_missing_source,missing_external_record,Fill from a documented external or recorded ambient-temperature source. Do not infer from the thermal matrix.

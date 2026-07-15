@@ -15,6 +15,9 @@ model.
   the current V/T and LUHK pilot workflow.
 - `docs/part_b_land_use_surface_cover_scheme.txt`: LUHK land-use and
   visible-image surface-cover classification reference.
+- `docs/part_e_delta_t_statistical_analysis.md`: current Part E delta-T
+  analysis method, ambient-temperature requirement, and provisional-result
+  rule.
 - `scripts/`: reproducible inventory, metadata, footprint, grid, and LUHK
   overlay scripts.
 - `data/metadata/`: generated V/T and metadata XLSX tables kept under version
@@ -82,9 +85,10 @@ python3 scripts/01_create_vt_pairs.py
 python3 scripts/02_extract_dji_metadata.py
 ```
 
-The current pilot LUHK grid workflow is listed below. Temperature extraction
-from DJI thermal files is still pending Windows, DJI Thermal Analysis Tool 3, or
-DJI Thermal SDK access.
+The current pilot LUHK grid workflow is listed below. Part D Round 1
+temperature extraction has been completed locally for the five pilot thermal
+images; refreshing those matrices still depends on the external DJI Thermal SDK
+setup.
 
 Do not proceed to footprint, cover, or LUHK overlay production until per-image
 camera selection has been validated. DJI Matrice 4T visible `_V.JPG` images may
@@ -139,10 +143,12 @@ number `0016` alone does not automatically select a pilot.
 - Part A: inventory and spatial foundation.
 - Part B: V/T ROI alignment and visible-image surface-cover classification
   inside the thermal ROI.
-- Part C: thermal temperature extraction and Delta-T calculation.
-- Part D: statistical analysis by LUHK land-use context and visible-image
-  surface-cover class.
-- Part E: reporting, visualization, and optional exploratory modeling.
+- Part C: pilot LUHK context, physical surface-cover masks, and separate shadow
+  masks.
+- Part D: thermal temperature extraction and QA, including later radiometric
+  parameter validation.
+- Part E: statistical analysis and visualization of delta-T distributions, with
+  prediction as an optional later extension.
 
 Part A does not include V/T geometric alignment, visible/thermal ROI matching,
 segmentation, temperature extraction, LUHK overlay production, or model
@@ -164,8 +170,9 @@ classification definitions and annotation principles are documented in
 
 The current revised planning overview is summarized in
 `docs/revised_project_overview.md`. The older June 2026 Part B pilot progress
-note remains in `docs/progress_update_part_b_pilot_plan.md` for research
-history, but its A-D framing has been superseded by the revised A-E structure.
+note is archived at `docs/archive/deprecated/progress_update_part_b_pilot_plan.md`
+for research history, but its A-D framing has been superseded by the current
+A-E structure.
 
 ## Current V/T footprint and LUHK grid workflow
 

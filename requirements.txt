@@ -3,6 +3,7 @@ numpy
 pandas
 openpyxl
 matplotlib
+scipy
 pyproj
 rasterio
 Pillow

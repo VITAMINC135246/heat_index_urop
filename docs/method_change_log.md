@@ -1,5 +1,26 @@
 # Method Change Log
 
+## 2026-07-15 Part E delta-T analysis reframing
+
+Part E is now defined as statistical analysis and visualization of provisional
+delta-T distributions. Prediction modeling is a later optional extension and is
+not part of the current Part E Round 1 task.
+
+Key implications:
+
+- Delta-T is calculated after aggregation to LUHK-aligned 10 m cells, or to
+  cell-by-physical-surface-cover observations within those cells.
+- Individual thermal pixels are not treated as independent statistical
+  observations.
+- Each thermal image requires exactly one documented ambient-temperature value.
+- The current repository has no documented ambient-temperature values for the
+  five pilot images, so the Part E scripts create an input template and stop
+  before numeric delta-T calculation.
+- Results must be labeled provisional until Part D Round 2 radiometric
+  parameter validation is complete.
+- The old June 2026 progress note with superseded prediction-first language has
+  been archived under `docs/archive/deprecated/`.
+
 ## 2026-07-07 revised A-E project structure
 
 The project objective has been updated from an image-recognition-first framing
