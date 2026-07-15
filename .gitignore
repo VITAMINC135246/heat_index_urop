@@ -20,6 +20,7 @@ data/raw/
 data/base/
 data/luhk/
 data/qgis/
+data/local_external/
 data/TDOP_TIFF_*/
 data/True_Digital_Orthophoto_TDOP_GEOPACKAGE/
 data/*Raster*GEOTIFF*.zip

@@ -1,5 +1,25 @@
 # Method Change Log
 
+## 2026-07-15 Part D TAT3-parameter extraction baseline
+
+Part D temperature extraction now requires per-image parameters parsed from
+exported TAT3 reports before the DJI Thermal SDK is called. The old
+placeholder/default SDK measurement-parameter path is deprecated and should not
+be used for downstream delta-T analysis.
+
+Key implications:
+
+- `scripts/part_d/03_parse_tat3_ambient_temperature_reports.py` must run before
+  `scripts/part_d/01_extract_temperature_matrices.py`.
+- The canonical pilot parameter table is
+  `outputs/part_d/qa/tat3_parameter_audit/part_d_tat3_pilot_parameters.csv`.
+- Part D now uses the TAT3/embedded ambient temperature, reflected
+  temperature, emissivity, and distance values for each pilot image.
+- TAT3-derived humidity is retained for SDK reproducibility but is not
+  interpreted as reliable field humidity.
+- The previous Round 1 placeholder-parameter outputs have been removed from
+  the active checkpoint record.
+
 ## 2026-07-15 Part E delta-T analysis reframing
 
 Part E is now defined as statistical analysis and visualization of provisional
@@ -13,11 +33,10 @@ Key implications:
 - Individual thermal pixels are not treated as independent statistical
   observations.
 - Each thermal image requires exactly one documented ambient-temperature value.
-- The current repository has no documented ambient-temperature values for the
-  five pilot images, so the Part E scripts create an input template and stop
-  before numeric delta-T calculation.
-- Results must be labeled provisional until Part D Round 2 radiometric
-  parameter validation is complete.
+- The current Part D TAT3 parameter table provides documented pilot
+  ambient-temperature values that can seed the Part E ambient manifest.
+- Results must remain provisional until the remaining physical plausibility
+  review of apparent temperatures is complete.
 - The old June 2026 progress note with superseded prediction-first language has
   been archived under `docs/archive/deprecated/`.
 

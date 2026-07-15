@@ -150,7 +150,7 @@ def spectrum_facets(
     fig.text(
         0.01,
         0.01,
-        "Provisional pilot result; Part D Round 2 radiometric validation is not complete.",
+        "Provisional pilot result; apparent-temperature plausibility review remains pending.",
         fontsize=8,
         color="#555555",
     )
@@ -194,7 +194,7 @@ def spectrum_overlay(
     fig.text(
         0.01,
         0.01,
-        "Provisional pilot result; Part D Round 2 radiometric validation is not complete.",
+        "Provisional pilot result; apparent-temperature plausibility review remains pending.",
         fontsize=8,
         color="#555555",
     )

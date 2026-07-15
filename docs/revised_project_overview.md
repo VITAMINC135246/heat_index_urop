@@ -164,7 +164,7 @@ Main work:
 - Quantify non-finite and sub-zero pixels.
 - Preserve sub-zero pixels unless a documented sensitivity rule is explicitly
   configured.
-- Complete radiometric parameter validation in Part D Round 2 before final
+- Use per-image TAT3 report parameters for SDK extraction before final
   scientific interpretation.
 
 Tools and techniques: DJI Thermal SDK, Python, NumPy, pandas, matplotlib, and
@@ -176,11 +176,12 @@ Expected outputs:
 - Temperature extraction manifest.
 - Structural QA summaries.
 - Sub-zero spatial QA outputs.
-- Later Round 2 radiometric validation notes.
+- TAT3 parameter ingest and remaining physical plausibility notes.
 
-Current status: Round 1 extraction and Round 1.1 sub-zero spatial QA are
-completed for the five pilot images. Round 2 radiometric validation is not yet
-completed.
+Current status: TAT3 parameter ingest, TAT3-parameter temperature extraction,
+and sub-zero spatial QA are completed for the five pilot images. Remaining
+review is focused on physical plausibility of apparent-temperature extrema
+before delta-T analysis.
 
 ## E. Statistical Analysis And Visualization Of Delta-T Distributions
 
@@ -217,9 +218,10 @@ Expected outputs:
   commands, and unresolved limitations.
 
 Current status: Part E scripts and ambient-temperature templates have been
-prepared. Numeric delta-T outputs are pending documented ambient-temperature
-values for the five pilot images. All results must be labeled provisional until
-Part D Round 2 radiometric validation is completed.
+prepared. Numeric delta-T outputs are pending a local Part E ambient manifest
+derived from the documented TAT3 pilot parameter table or another explicitly
+approved source. All results must remain provisional until remaining
+apparent-temperature plausibility review is complete.
 
 ## Feasibility Assessment
 
@@ -253,11 +255,11 @@ Part D Round 2 radiometric validation is completed.
   images have different size and coverage.
 - The revised method now focuses on the thermal ROI instead of the whole visible
   image.
-- Temperature extraction Round 1 and sub-zero spatial QA are complete for five
-  pilot images, but full radiometric parameter validation is deferred to Part D
-  Round 2.
-- The next major input needed for Part E is a documented image-level ambient
-  temperature value for each of the five pilot thermal images.
+- TAT3 parameter ingest, TAT3-parameter temperature extraction, and sub-zero
+  spatial QA are complete for five pilot images.
+- The next major input needed for Part E is a local ambient manifest derived
+  from the documented TAT3 pilot parameter table or another explicitly approved
+  source.
 
 ## Related Documents
 

@@ -28,7 +28,13 @@ MASK_MANIFEST_XLSX = PROJECT_ROOT / "outputs" / "part_c" / "summaries" / "part_c
 PART_C_COMBINED_XLSX = PROJECT_ROOT / "outputs" / "part_c" / "summaries" / "part_c_luhk_surface_cover_combined_summary.xlsx"
 CLASS_MAPPING_XLSX = PROJECT_ROOT / "data" / "annotations" / "part_c" / "surface_cover_class_mapping.xlsx"
 SHADOW_MAPPING_XLSX = PROJECT_ROOT / "data" / "annotations" / "part_c" / "shadow_flag_mapping.xlsx"
-PART_D_SUMMARY_CSV = PROJECT_ROOT / "outputs" / "part_d" / "summaries" / "part_d_round1_temperature_extraction_summary.csv"
+PART_D_SUMMARY_CSV = (
+    PROJECT_ROOT
+    / "outputs"
+    / "part_d"
+    / "summaries"
+    / "part_d_tat3_parameter_temperature_extraction_summary.csv"
+)
 PART_D_SUBZERO_CSV = (
     PROJECT_ROOT
     / "outputs"
@@ -36,7 +42,15 @@ PART_D_SUBZERO_CSV = (
     / "qa"
     / "subzero_spatial_qa"
     / "summary"
-    / "part_d_round1_1_subzero_spatial_qa_summary.csv"
+    / "part_d_tat3_parameter_subzero_spatial_qa_summary.csv"
+)
+PART_D_TAT3_PILOT_PARAMS_CSV = (
+    PROJECT_ROOT
+    / "outputs"
+    / "part_d"
+    / "qa"
+    / "tat3_parameter_audit"
+    / "part_d_tat3_pilot_parameters.csv"
 )
 
 PART_E_ROOT = PROJECT_ROOT / "outputs" / "part_e"
@@ -49,8 +63,9 @@ AMBIENT_TEMPLATE = PROJECT_ROOT / "data" / "metadata" / "part_e_pilot_ambient_te
 
 PROVISIONAL_NOTICE = (
     "This is a provisional pilot delta-T analysis using temperature matrices "
-    "that have completed structural extraction QA but have not yet completed "
-    "full radiometric parameter validation."
+    "extracted with per-image TAT3 parameters and reviewed with structural "
+    "sub-zero QA. Apparent-temperature extrema still require physical "
+    "plausibility review."
 )
 
 EXPECTED_THERMAL_SHAPE = (512, 640)
@@ -304,8 +319,8 @@ def load_image_records() -> pd.DataFrame:
     metadata = load_thermal_metadata()
     mask_manifest = read_required_excel(MASK_MANIFEST_XLSX, "Part C final mask manifest")
     part_c = read_required_excel(PART_C_COMBINED_XLSX, "Part C combined summary")
-    part_d = read_required_csv(PART_D_SUMMARY_CSV, "Part D Round 1 temperature summary")
-    subzero = read_required_csv(PART_D_SUBZERO_CSV, "Part D Round 1.1 sub-zero summary")
+    part_d = read_required_csv(PART_D_SUMMARY_CSV, "Part D TAT3-parameter temperature summary")
+    subzero = read_required_csv(PART_D_SUBZERO_CSV, "Part D TAT3-parameter sub-zero summary")
 
     records = pairs.merge(metadata.drop(columns=["pair_id"]), on="image_id", how="left", validate="one_to_one")
     records = records.merge(mask_manifest, on=["pair_id", "image_id"], how="left", validate="one_to_one")
@@ -331,6 +346,13 @@ def load_image_records() -> pd.DataFrame:
                 "image_id",
                 "validation_status",
                 "validation_flags",
+                "ambient_temperature_c",
+                "reflected_temperature_c",
+                "emissivity",
+                "relative_humidity_percent",
+                "humidity_use_status",
+                "tat3_report_capture_datetime",
+                "tat3_parameter_source_report",
                 "npy_path",
                 "metadata_json_path",
                 "temperature_shape",

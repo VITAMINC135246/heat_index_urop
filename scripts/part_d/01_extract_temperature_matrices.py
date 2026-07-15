@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""Extract Part D pilot thermal temperature matrices with the DJI Thermal SDK.
+"""Extract Part D pilot thermal temperature matrices with TAT3 parameters.
 
 This script expects the DJI Thermal SDK to live outside the repository. It
 uses an ignored local config file, environment variables, or command line
 arguments to find the SDK command-line utility. It never copies SDK binaries
 into this project.
+
+Per-image measurement parameters are required and come from exported TAT3
+reports parsed by scripts/part_d/03_parse_tat3_ambient_temperature_reports.py.
+The old placeholder/default measurement-parameter path is intentionally not
+used for the canonical Part D extraction.
 """
 
 from __future__ import annotations
@@ -44,25 +49,21 @@ PREVIEW_DIR = PROJECT_ROOT / "outputs" / "part_d" / "previews"
 QA_DIR = PROJECT_ROOT / "outputs" / "part_d" / "qa"
 SUMMARY_DIR = PROJECT_ROOT / "outputs" / "part_d" / "summaries"
 DOC_PATH = PROJECT_ROOT / "docs" / "part_d_temperature_extraction.md"
+TAT3_PILOT_PARAMS_CSV = QA_DIR / "tat3_parameter_audit" / "part_d_tat3_pilot_parameters.csv"
 
-SUMMARY_CSV = SUMMARY_DIR / "part_d_round1_temperature_extraction_summary.csv"
-SUMMARY_MD = SUMMARY_DIR / "part_d_round1_temperature_extraction_summary.md"
-MANIFEST_CSV = SUMMARY_DIR / "part_d_round1_pilot_input_manifest.csv"
-MANIFEST_XLSX = SUMMARY_DIR / "part_d_round1_pilot_input_manifest.xlsx"
-CLASS_QA_CSV = QA_DIR / "part_d_round1_class_temperature_qa.csv"
-CLASS_QA_XLSX = QA_DIR / "part_d_round1_class_temperature_qa.xlsx"
-SHADOW_QA_CSV = QA_DIR / "part_d_round1_shadow_temperature_qa.csv"
-SHADOW_QA_XLSX = QA_DIR / "part_d_round1_shadow_temperature_qa.xlsx"
+SUMMARY_CSV = SUMMARY_DIR / "part_d_tat3_parameter_temperature_extraction_summary.csv"
+SUMMARY_MD = SUMMARY_DIR / "part_d_tat3_parameter_temperature_extraction_summary.md"
+MANIFEST_CSV = SUMMARY_DIR / "part_d_tat3_parameter_pilot_input_manifest.csv"
+MANIFEST_XLSX = SUMMARY_DIR / "part_d_tat3_parameter_pilot_input_manifest.xlsx"
+CLASS_QA_CSV = QA_DIR / "part_d_tat3_parameter_class_temperature_qa.csv"
+CLASS_QA_XLSX = QA_DIR / "part_d_tat3_parameter_class_temperature_qa.xlsx"
+SHADOW_QA_CSV = QA_DIR / "part_d_tat3_parameter_shadow_temperature_qa.csv"
+SHADOW_QA_XLSX = QA_DIR / "part_d_tat3_parameter_shadow_temperature_qa.xlsx"
 
 DEFAULT_CONFIG: dict[str, Any] = {
     "sdk_root": "",
     "dji_irp_exe": "",
     "measure_format": "float32",
-    "distance_m": 5.0,
-    "relative_humidity_percent": 70.0,
-    "emissivity": 1.0,
-    "ambient_temperature_c": 25.0,
-    "reflected_temperature_c": 23.0,
     "write_matrix_csv": True,
     "keep_sdk_raw": False,
 }
@@ -244,6 +245,70 @@ def load_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFram
     classes = read_required_table(CLASS_MAPPING_XLSX, "Part C class mapping")
     combined = read_required_table(PART_C_COMBINED_SUMMARY_XLSX, "Part C combined summary")
     return pairs, metadata, classes, combined
+
+
+def required_float(row: pd.Series, column: str, image_id: str) -> float:
+    value = clean_number(row.get(column))
+    if value is None:
+        raise ValueError(f"{image_id}: TAT3 parameter column {column!r} is missing or not numeric.")
+    return float(value)
+
+
+def load_tat3_parameters(path: Path, pairs: pd.DataFrame) -> dict[str, dict[str, Any]]:
+    if not path.is_file():
+        raise FileNotFoundError(
+            f"Missing TAT3 pilot parameter table: {relative_posix(path)}. "
+            "Run scripts/part_d/03_parse_tat3_ambient_temperature_reports.py first."
+        )
+    table = pd.read_csv(path, dtype=str).fillna("")
+    required_columns = {
+        "image_id",
+        "ambient_parse_status",
+        "ambient_temperature_c",
+        "reflected_temperature_c",
+        "distance_m",
+        "emissivity",
+        "humidity_percent",
+        "humidity_use_status",
+        "source_report",
+    }
+    missing_columns = required_columns - set(table.columns)
+    if missing_columns:
+        raise ValueError(f"TAT3 parameter table is missing columns: {sorted(missing_columns)}")
+
+    by_image: dict[str, dict[str, Any]] = {}
+    duplicate_ids: set[str] = set()
+    for _, row in table.iterrows():
+        image_id = str(row.get("image_id", "")).strip()
+        if not image_id:
+            continue
+        if image_id in by_image:
+            duplicate_ids.add(image_id)
+            continue
+        if str(row.get("ambient_parse_status", "")).strip().casefold() != "ok":
+            raise ValueError(f"{image_id}: ambient_parse_status is not ok in {relative_posix(path)}")
+        by_image[image_id] = {
+            "distance_m": required_float(row, "distance_m", image_id),
+            "relative_humidity_percent": required_float(row, "humidity_percent", image_id),
+            "emissivity": required_float(row, "emissivity", image_id),
+            "ambient_temperature_c": required_float(row, "ambient_temperature_c", image_id),
+            "reflected_temperature_c": required_float(row, "reflected_temperature_c", image_id),
+            "humidity_use_status": str(row.get("humidity_use_status", "")),
+            "source_report": str(row.get("source_report", "")),
+            "report_capture_datetime": str(row.get("report_capture_datetime", "")),
+        }
+    if duplicate_ids:
+        raise ValueError(f"TAT3 parameter table contains duplicate image_id values: {sorted(duplicate_ids)}")
+
+    expected_ids = {str(row["image_id"]) for _, row in pairs.iterrows()}
+    missing_ids = sorted(expected_ids - set(by_image))
+    if missing_ids:
+        raise ValueError(
+            "Missing TAT3 parameters for pilot image_id values: "
+            + ", ".join(missing_ids)
+            + f". Source table: {relative_posix(path)}"
+        )
+    return by_image
 
 
 def metadata_for_t_image(metadata: pd.DataFrame, t_path: str, image_id: str) -> dict[str, Any]:
@@ -558,6 +623,10 @@ def write_extraction_metadata(
         "dji_irp_exe": "dji_irp.exe from external DJI Thermal SDK" if tool.irp_exe else "",
         "local_config_path": relative_posix(LOCAL_CONFIG),
         "sdk_version_text": tool.version_text,
+        "measurement_parameter_source": "TAT3 exported report parsed by scripts/part_d/03_parse_tat3_ambient_temperature_reports.py",
+        "tat3_parameter_source_report": config.get("source_report", ""),
+        "tat3_report_capture_datetime": config.get("report_capture_datetime", ""),
+        "humidity_use_status": config.get("humidity_use_status", ""),
         "measurement_parameters": {
             "distance_m": config["distance_m"],
             "relative_humidity_percent": config["relative_humidity_percent"],
@@ -581,13 +650,15 @@ def build_summary_md(
     success_count = sum(row.get("extraction_status") == "success" for row in rows)
     align_count = sum(row.get("aligns_with_part_c_masks") == "yes" for row in rows)
     lines = [
-        "# Part D Round 1 Temperature Extraction Summary",
+        "# Part D TAT3-Parameter Temperature Extraction Summary",
         "",
         "## Scope",
         "",
-        "- Tested the five accepted pilot `_T.JPG` images.",
+        "- Extracted the five accepted pilot `_T.JPG` images.",
+        f"- Required per-image SDK measurement parameters from `{relative_posix(TAT3_PILOT_PARAMS_CSV)}`.",
         "- Used thermal temperature extraction only; no delta T modeling and no prediction modeling were run.",
         "- Treated RGB thermal previews as visualization only, never as temperature data.",
+        "- The old placeholder/default-parameter extraction path is deprecated and is not used by this run.",
         "",
         "## Tool Status",
         "",
@@ -609,14 +680,18 @@ def build_summary_md(
         "",
         "## Per Image",
         "",
-        "| image_id | status | shape | min C | max C | mean C | aligns with Part C masks | notes |",
-        "|---|---:|---:|---:|---:|---:|---:|---|",
+        "| image_id | status | ambient C | reflected C | emissivity | humidity % | shape | min C | max C | mean C | aligns | notes |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|",
     ]
     for row in rows:
         lines.append(
-            "| {image_id} | {extraction_status} | {temperature_shape} | {temperature_min_c} | {temperature_max_c} | {temperature_mean_c} | {aligns_with_part_c_masks} | {notes} |".format(
+            "| {image_id} | {extraction_status} | {ambient} | {reflected} | {emissivity} | {humidity} | {temperature_shape} | {temperature_min_c} | {temperature_max_c} | {temperature_mean_c} | {aligns_with_part_c_masks} | {notes} |".format(
                 image_id=row.get("image_id", ""),
                 extraction_status=row.get("extraction_status", ""),
+                ambient=row.get("ambient_temperature_c", ""),
+                reflected=row.get("reflected_temperature_c", ""),
+                emissivity=row.get("emissivity", ""),
+                humidity=row.get("relative_humidity_percent", ""),
                 temperature_shape=row.get("temperature_shape", ""),
                 temperature_min_c=row.get("temperature_min_c", ""),
                 temperature_max_c=row.get("temperature_max_c", ""),
@@ -630,7 +705,7 @@ def build_summary_md(
             "",
             "## QA Boundary",
             "",
-            "The class and shadow summaries are QA statistics only. They are intended to confirm extraction, shape alignment, and plausible values before any later delta T analysis.",
+            "The class and shadow summaries are QA statistics only. They are intended to confirm extraction, shape alignment, and review values before any later delta T analysis.",
             "",
             "## Unresolved Setup Issues",
             "",
@@ -648,10 +723,10 @@ def build_summary_md(
             "",
             "## Recommended Next Steps",
             "",
-            "- Review the preview PNGs and QA tables for physically implausible values.",
-            "- Confirm measurement parameters such as emissivity, distance, humidity, ambient temperature, and reflected temperature before final analysis.",
+            "- Run the Part D sub-zero spatial QA on these TAT3-parameter matrices.",
+            "- Review remaining physically implausible extrema against TAT3 previews and source imagery.",
             "- Keep the DJI SDK outside the repository and update only the ignored local config path if the SDK is moved.",
-            "- Proceed to delta T analysis only after accepting these extraction outputs.",
+            "- Proceed to delta T analysis only after accepting the TAT3-parameter extraction and QA outputs.",
             "",
         ]
     )
@@ -663,7 +738,7 @@ def update_doc(tool: SdkTool, exiftool_status: str, ran_rows: list[dict[str, Any
     lines = [
         "# Part D Temperature Extraction",
         "",
-        "Part D extracts pixel-level temperature matrices from the accepted pilot DJI thermal `_T.JPG` images and checks alignment with the Part C thermal-grid masks.",
+        "Part D extracts pixel-level temperature matrices from the accepted pilot DJI thermal `_T.JPG` images with per-image TAT3 report parameters and checks alignment with the Part C thermal-grid masks.",
         "",
         "## Dependency Rule",
         "",
@@ -683,6 +758,25 @@ def update_doc(tool: SdkTool, exiftool_status: str, ran_rows: list[dict[str, Any
         "",
         "The script also accepts `--sdk-root`, `--irp-exe`, `DJI_THERMAL_SDK_ROOT`, or `DJI_IRP_EXE`.",
         "",
+        "## TAT3 Parameter Requirement",
+        "",
+        "Before extracting temperature matrices, parse exported TAT3 reports:",
+        "",
+        "```powershell",
+        ".\\.venv\\Scripts\\python.exe scripts\\part_d\\03_parse_tat3_ambient_temperature_reports.py",
+        "```",
+        "",
+        f"The extraction script requires `{relative_posix(TAT3_PILOT_PARAMS_CSV)}` and fails before SDK extraction if any accepted pilot image lacks a corresponding TAT3 parameter row.",
+        "",
+        "Required SDK-driving fields:",
+        "",
+        "- distance_m",
+        "- emissivity",
+        "- ambient_temperature_c",
+        "- reflected_temperature_c",
+        "",
+        "`humidity_percent` is passed to the SDK for reproducibility because it is part of the TAT3/embedded parameter set, but it is not interpreted as reliable field humidity for analysis.",
+        "",
         "## Current Tool Check",
         "",
         f"- DJI Thermal SDK status: `{tool.status}`",
@@ -696,24 +790,16 @@ def update_doc(tool: SdkTool, exiftool_status: str, ran_rows: list[dict[str, Any
         ".\\.venv\\Scripts\\python.exe scripts\\part_d\\01_extract_temperature_matrices.py",
         "```",
         "",
-        "The script calls DJI `dji_irp.exe` with `-a measure --measurefmt float32`, reads the raw float32 output, reshapes it to the thermal grid from `data/metadata/part_b_pilot_pairs.xlsx`, and saves Celsius matrices.",
+        "The script calls DJI `dji_irp.exe` with `-a measure --measurefmt float32` and per-image TAT3 parameters, reads the raw float32 output, reshapes it to the thermal grid from `data/metadata/part_b_pilot_pairs.xlsx`, and saves Celsius matrices.",
         "",
-        "Default measurement parameters are explicit in the config template:",
-        "",
-        "- distance: 5.0 m",
-        "- relative humidity: 70 percent",
-        "- emissivity: 1.0",
-        "- ambient temperature: 25 C",
-        "- reflected temperature: 23 C",
-        "",
-        "These defaults should be reviewed before final analysis. Existing metadata inspection did not provide reliable per-image emissivity, object distance, reflected temperature, humidity, or temperature unit values for the pilot images.",
+        "The deprecated placeholder/default-parameter path is not used. In particular, the old `ambient_temperature_c = 25 C` and `reflected_temperature_c = 23 C` settings are no longer part of the active extraction logic.",
         "",
         "## Outputs",
         "",
         "- Temperature matrices: `data/processed/part_d/temperature_matrices/`",
         "- Preview PNGs: `outputs/part_d/previews/`",
         "- QA tables: `outputs/part_d/qa/`",
-        "- Round 1 summaries: `outputs/part_d/summaries/`",
+        "- Summaries: `outputs/part_d/summaries/`",
         "",
         "For each successful pilot image, the workflow writes `.npy`, optional matrix `.csv`, preview `.png`, and extraction metadata `.json` files.",
         "",
@@ -733,13 +819,14 @@ def update_doc(tool: SdkTool, exiftool_status: str, ran_rows: list[dict[str, Any
         f"- Successful matrices: {success_count}/{len(ran_rows)}",
         f"- Summary: `{relative_posix(SUMMARY_MD)}`",
         f"- Summary CSV: `{relative_posix(SUMMARY_CSV)}`",
+        f"- TAT3 pilot parameter table: `{relative_posix(TAT3_PILOT_PARAMS_CSV)}`",
         "",
         "## Limitations",
         "",
         "- Thermal extraction depends on DJI R-JPEG radiometric support in the external SDK.",
         "- The SDK readme for this installed version lists several supported cameras but also includes M4T sample data; pilot M4T extraction is accepted only if `dji_irp.exe` succeeds and QA values are plausible.",
-        "- Measurement parameters may materially affect temperature values and should be confirmed for final work.",
-        "- No delta T, statistical modeling, or prediction modeling is performed in Part D Round 1.",
+        "- TAT3-derived humidity is retained for SDK reproducibility but is not treated as reliable field humidity.",
+        "- No delta T, statistical modeling, or prediction modeling is performed by this extraction script.",
         "",
     ]
     DOC_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -748,6 +835,8 @@ def update_doc(tool: SdkTool, exiftool_status: str, ran_rows: list[dict[str, Any
 
 def process_pairs(config: dict[str, Any], tool: SdkTool, args: argparse.Namespace) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], str]:
     pairs, metadata, classes, combined = load_inputs()
+    tat3_parameter_path = resolve_project_path(args.tat3_params_csv)
+    tat3_parameters = load_tat3_parameters(tat3_parameter_path, pairs)
     exiftool_status = find_exiftool()
     manifest_rows = build_manifest_rows(pairs, metadata, combined, exiftool_status)
     class_names = class_lookup(classes)
@@ -768,6 +857,8 @@ def process_pairs(config: dict[str, Any], tool: SdkTool, args: argparse.Namespac
         raw_path = TEMPERATURE_DIR / "sdk_raw" / f"{image_id}_temperature_float32.raw"
         preview_path = PREVIEW_DIR / f"{image_id}_temperature_preview.png"
         metadata_path = TEMPERATURE_DIR / f"{image_id}_temperature_metadata.json"
+        parameter_config = dict(config)
+        parameter_config.update(tat3_parameters[image_id])
 
         row: dict[str, Any] = {
             "pair_id": pair_id,
@@ -775,6 +866,16 @@ def process_pairs(config: dict[str, Any], tool: SdkTool, args: argparse.Namespac
             "t_path": relative_posix(t_path),
             "extraction_method": "DJI Thermal SDK dji_irp.exe measure float32",
             "temperature_unit": "Celsius interpreted from SDK measure output",
+            "measurement_parameter_source": "TAT3 exported report",
+            "tat3_parameter_table": relative_posix(tat3_parameter_path),
+            "tat3_parameter_source_report": parameter_config.get("source_report", ""),
+            "tat3_report_capture_datetime": parameter_config.get("report_capture_datetime", ""),
+            "distance_m": parameter_config["distance_m"],
+            "relative_humidity_percent": parameter_config["relative_humidity_percent"],
+            "humidity_use_status": parameter_config.get("humidity_use_status", ""),
+            "emissivity": parameter_config["emissivity"],
+            "ambient_temperature_c": parameter_config["ambient_temperature_c"],
+            "reflected_temperature_c": parameter_config["reflected_temperature_c"],
             "extraction_status": "not_run",
             "temperature_shape": "",
             "expected_thermal_shape": f"{height}x{width}" if width and height else "",
@@ -806,7 +907,7 @@ def process_pairs(config: dict[str, Any], tool: SdkTool, args: argparse.Namespac
                 with Image.open(t_path) as image:
                     width, height = image.size
                 row["expected_thermal_shape"] = f"{height}x{width}"
-            ok, sdk_output = run_sdk_measure(tool, t_path, raw_path, config)
+            ok, sdk_output = run_sdk_measure(tool, t_path, raw_path, parameter_config)
             if not ok:
                 raise RuntimeError(sdk_output)
 
@@ -837,7 +938,7 @@ def process_pairs(config: dict[str, Any], tool: SdkTool, args: argparse.Namespac
             if bool(config.get("write_matrix_csv", True)):
                 write_matrix_csv(csv_path, temps)
             make_preview(temps, preview_path)
-            write_extraction_metadata(metadata_path, pair, tool, config, stats, sdk_output)
+            write_extraction_metadata(metadata_path, pair, tool, parameter_config, stats, sdk_output)
 
             row.update(
                 {
@@ -901,6 +1002,11 @@ def write_outputs(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", default=str(LOCAL_CONFIG), help="Ignored local config JSON path.")
+    parser.add_argument(
+        "--tat3-params-csv",
+        default=str(TAT3_PILOT_PARAMS_CSV),
+        help="Parsed TAT3 per-pilot parameter CSV created by 03_parse_tat3_ambient_temperature_reports.py.",
+    )
     parser.add_argument("--sdk-root", default="", help="External DJI Thermal SDK root.")
     parser.add_argument("--irp-exe", default="", help="Full path to external dji_irp.exe.")
     parser.add_argument("--no-matrix-csv", action="store_true", help="Skip full matrix CSV output.")
@@ -916,7 +1022,7 @@ def main() -> int:
     if args.keep_sdk_raw:
         config["keep_sdk_raw"] = True
     if str(config.get("measure_format", "")).casefold() != "float32":
-        raise ValueError("Part D Round 1 expects measure_format=float32.")
+        raise ValueError("Part D TAT3-parameter extraction expects measure_format=float32.")
 
     tool = detect_sdk(config, args)
     summary_rows, manifest_rows, class_qa_rows, shadow_qa_rows, exiftool_status = process_pairs(config, tool, args)
@@ -924,6 +1030,7 @@ def main() -> int:
 
     success_count = sum(row.get("extraction_status") == "success" for row in summary_rows)
     print(f"DJI Thermal SDK status: {tool.status}")
+    print(f"TAT3 parameter table: {relative_posix(resolve_project_path(args.tat3_params_csv))}")
     print(f"Pilot images processed: {len(summary_rows)}")
     print(f"Successful temperature matrices: {success_count}")
     print(f"Summary: {relative_posix(SUMMARY_MD)}")

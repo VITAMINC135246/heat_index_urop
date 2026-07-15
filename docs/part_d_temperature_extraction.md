@@ -1,6 +1,6 @@
 # Part D Temperature Extraction
 
-Part D extracts pixel-level temperature matrices from the accepted pilot DJI thermal `_T.JPG` images and checks alignment with the Part C thermal-grid masks.
+Part D extracts pixel-level temperature matrices from the accepted pilot DJI thermal `_T.JPG` images with per-image TAT3 report parameters and checks alignment with the Part C thermal-grid masks.
 
 ## Dependency Rule
 
@@ -20,6 +20,25 @@ config\part_d_sdk.local.json
 
 The script also accepts `--sdk-root`, `--irp-exe`, `DJI_THERMAL_SDK_ROOT`, or `DJI_IRP_EXE`.
 
+## TAT3 Parameter Requirement
+
+Before extracting temperature matrices, parse exported TAT3 reports:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\part_d\03_parse_tat3_ambient_temperature_reports.py
+```
+
+The extraction script requires `outputs/part_d/qa/tat3_parameter_audit/part_d_tat3_pilot_parameters.csv` and fails before SDK extraction if any accepted pilot image lacks a corresponding TAT3 parameter row.
+
+Required SDK-driving fields:
+
+- distance_m
+- emissivity
+- ambient_temperature_c
+- reflected_temperature_c
+
+`humidity_percent` is passed to the SDK for reproducibility because it is part of the TAT3/embedded parameter set, but it is not interpreted as reliable field humidity for analysis.
+
 ## Current Tool Check
 
 - DJI Thermal SDK status: `available`
@@ -33,24 +52,16 @@ The script also accepts `--sdk-root`, `--irp-exe`, `DJI_THERMAL_SDK_ROOT`, or `D
 .\.venv\Scripts\python.exe scripts\part_d\01_extract_temperature_matrices.py
 ```
 
-The script calls DJI `dji_irp.exe` with `-a measure --measurefmt float32`, reads the raw float32 output, reshapes it to the thermal grid from `data/metadata/part_b_pilot_pairs.xlsx`, and saves Celsius matrices.
+The script calls DJI `dji_irp.exe` with `-a measure --measurefmt float32` and per-image TAT3 parameters, reads the raw float32 output, reshapes it to the thermal grid from `data/metadata/part_b_pilot_pairs.xlsx`, and saves Celsius matrices.
 
-Default measurement parameters are explicit in the config template:
-
-- distance: 5.0 m
-- relative humidity: 70 percent
-- emissivity: 1.0
-- ambient temperature: 25 C
-- reflected temperature: 23 C
-
-These defaults should be reviewed before final analysis. Existing metadata inspection did not provide reliable per-image emissivity, object distance, reflected temperature, humidity, or temperature unit values for the pilot images.
+The deprecated placeholder/default-parameter path is not used. In particular, the old `ambient_temperature_c = 25 C` and `reflected_temperature_c = 23 C` settings are no longer part of the active extraction logic.
 
 ## Outputs
 
 - Temperature matrices: `data/processed/part_d/temperature_matrices/`
 - Preview PNGs: `outputs/part_d/previews/`
 - QA tables: `outputs/part_d/qa/`
-- Round 1 summaries: `outputs/part_d/summaries/`
+- Summaries: `outputs/part_d/summaries/`
 
 For each successful pilot image, the workflow writes `.npy`, optional matrix `.csv`, preview `.png`, and extraction metadata `.json` files.
 
@@ -68,40 +79,34 @@ The class and shadow summaries are QA statistics only. They are not final delta 
 ## Current Run
 
 - Successful matrices: 5/5
-- Summary: `outputs/part_d/summaries/part_d_round1_temperature_extraction_summary.md`
-- Summary CSV: `outputs/part_d/summaries/part_d_round1_temperature_extraction_summary.csv`
+- Summary: `outputs/part_d/summaries/part_d_tat3_parameter_temperature_extraction_summary.md`
+- Summary CSV: `outputs/part_d/summaries/part_d_tat3_parameter_temperature_extraction_summary.csv`
+- TAT3 pilot parameter table: `outputs/part_d/qa/tat3_parameter_audit/part_d_tat3_pilot_parameters.csv`
 
 ## Limitations
 
 - Thermal extraction depends on DJI R-JPEG radiometric support in the external SDK.
 - The SDK readme for this installed version lists several supported cameras but also includes M4T sample data; pilot M4T extraction is accepted only if `dji_irp.exe` succeeds and QA values are plausible.
-- Measurement parameters may materially affect temperature values and should be confirmed for final work.
-- No delta T, statistical modeling, or prediction modeling is performed in Part D Round 1.
+- TAT3-derived humidity is retained for SDK reproducibility but is not treated as reliable field humidity.
+- No delta T, statistical modeling, or prediction modeling is performed by this extraction script.
 
-<!-- PART_D_ROUND_1_1_SUBZERO_QA:START -->
-## Round 1.1 Sub-Zero Spatial QA
+<!-- PART_D_TAT3_PARAMETER_SUBZERO_QA:START -->
+## TAT3-Parameter Sub-Zero Spatial QA
 
-Round 1.1 locates and documents extracted temperature pixels below 0 deg C. It does not validate radiometric parameters and does not calculate delta T.
+This QA locates and documents extracted temperature pixels below 0 deg C after the canonical TAT3-parameter extraction. It does not calculate delta T.
 
-Confirmed in Round 1 / Round 1.1:
+Confirmed for the current TAT3-parameter matrices:
 
 - Extraction succeeded for all five pilot images.
 - Temperature matrices are `512x640` and structurally compatible with the Part C physical-cover and shadow masks.
 - Sub-zero pixels were located, quantified, and visualized.
-- QA statuses from Round 1.1: warn=5, fail=0.
-- Summary: `outputs/part_d/summaries/part_d_round1_1_subzero_spatial_qa_summary.md`
+- QA statuses: warn=5, fail=0.
+- Summary: `outputs/part_d/summaries/part_d_tat3_parameter_subzero_spatial_qa_summary.md`
 
-Not yet validated:
+Still requiring review before delta T:
 
-- emissivity
-- reflected apparent temperature
-- atmospheric temperature
-- relative humidity
-- object distance
-- SDK default versus embedded parameters
 - physical plausibility of apparent temperatures
-- whether any matrices must be re-extracted
 - suitability for final delta T analysis
 
-Full radiometric and parameter validation is deferred to Part D Round 2.
-<!-- PART_D_ROUND_1_1_SUBZERO_QA:END -->
+The old placeholder/default-parameter extraction is deprecated and should not be used for downstream analysis.
+<!-- PART_D_TAT3_PARAMETER_SUBZERO_QA:END -->

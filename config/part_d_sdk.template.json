@@ -2,11 +2,6 @@
   "sdk_root": "D:\\DJI_Thermal_SDK",
   "dji_irp_exe": "",
   "measure_format": "float32",
-  "distance_m": 5.0,
-  "relative_humidity_percent": 70.0,
-  "emissivity": 1.0,
-  "ambient_temperature_c": 25.0,
-  "reflected_temperature_c": 23.0,
   "write_matrix_csv": true,
   "keep_sdk_raw": false
 }

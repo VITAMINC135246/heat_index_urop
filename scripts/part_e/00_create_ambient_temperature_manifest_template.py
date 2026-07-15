@@ -17,6 +17,7 @@ from part_e.part_e_common import (  # noqa: E402
     AMBIENT_COLUMNS,
     AMBIENT_MANIFEST,
     AMBIENT_TEMPLATE,
+    PART_D_TAT3_PILOT_PARAMS_CSV,
     PART_E_SUMMARY_DIR,
     PART_E_TABLE_DIR,
     PROVISIONAL_NOTICE,
@@ -37,20 +38,23 @@ ROUND1_SUMMARY_MD = PART_E_SUMMARY_DIR / "part_e_round1_delta_t_analysis_summary
 def build_template(records: pd.DataFrame) -> pd.DataFrame:
     rows = []
     for _, row in records.sort_values("image_id").iterrows():
+        ambient = str(row.get("ambient_temperature_c", "")).strip()
+        has_tat3_ambient = pd.to_numeric(pd.Series([ambient]), errors="coerce").notna().iloc[0]
         rows.append(
             {
                 "image_id": row["image_id"],
                 "acquisition_datetime": row.get("acquisition_datetime", ""),
-                "ambient_temperature_c": "",
-                "ambient_source": "",
-                "ambient_source_id": "",
-                "ambient_observation_datetime": "",
-                "ambient_time_difference_minutes": "",
-                "ambient_matching_method": "not_selected_missing_source",
-                "ambient_qa_status": "missing_external_record",
+                "ambient_temperature_c": ambient if has_tat3_ambient else "",
+                "ambient_source": "tat3_exported_report_parameter" if has_tat3_ambient else "",
+                "ambient_source_id": relative_posix(PART_D_TAT3_PILOT_PARAMS_CSV) if has_tat3_ambient else "",
+                "ambient_observation_datetime": row.get("tat3_report_capture_datetime", "") if has_tat3_ambient else "",
+                "ambient_time_difference_minutes": 0 if has_tat3_ambient else "",
+                "ambient_matching_method": "same_image_tat3_parameter" if has_tat3_ambient else "not_selected_missing_source",
+                "ambient_qa_status": "tat3_parameter_ingested" if has_tat3_ambient else "missing_external_record",
                 "ambient_notes": (
-                    "Fill from a documented external or recorded ambient-temperature source. "
-                    "Do not infer from the thermal matrix."
+                    "Seeded from Part D TAT3 parameter ingest. Replace only with a documented project-approved source."
+                    if has_tat3_ambient
+                    else "Fill from a documented external or recorded ambient-temperature source. Do not infer from the thermal matrix."
                 ),
             }
         )
@@ -100,13 +104,13 @@ def write_reports(records: pd.DataFrame, template: pd.DataFrame) -> None:
         [
             "- Ambient-temperature input is ready for a provisional user-provided Part E run.",
             "- The five pilot images have one numeric image-level ambient scalar each.",
-            "- The values are still labeled `user_provided_provisional`; confirm the external sensor/source metadata before final scientific reporting.",
+            "- The values are sourced from the Part D TAT3 parameter ingest; replace only if a documented project-approved ambient source supersedes them.",
         ]
         if ready_for_provisional
         else [
             "- Ambient-temperature input is not ready for delta-T calculation.",
-            "- The five pilot acquisition metadata rows contain blank `atmospheric_temperature` values.",
-            "- No placeholder numerical ambient temperatures were written.",
+            f"- Seed values should come from `{relative_posix(PART_D_TAT3_PILOT_PARAMS_CSV)}` or another explicitly approved source.",
+            "- No placeholder numerical ambient temperatures should be written.",
         ]
     )
     readiness_lines = [
@@ -117,7 +121,7 @@ def write_reports(records: pd.DataFrame, template: pd.DataFrame) -> None:
         "## Status",
         "",
         *status_lines,
-        "- The Part D SDK `ambient_temperature_c = 25 C` setting is an extraction parameter default, not a documented per-image ambient observation selected for delta-T analysis.",
+        "- The deprecated Part D placeholder SDK setting `ambient_temperature_c = 25 C` is not used by the active extraction workflow.",
         f"- {existing_ambient_note()}",
         f"- Numeric ambient values currently present: {numeric_count}/{len(records)}.",
         "",
@@ -160,7 +164,7 @@ def write_reports(records: pd.DataFrame, template: pd.DataFrame) -> None:
         "",
         "## Current Outcome",
         "",
-        "Part E Round 1 code and input templates have been prepared, but numeric delta-T datasets and figures were not generated because documented image-level ambient temperatures are missing for all five pilot images.",
+        "Part E Round 1 code and input templates have been prepared. Numeric delta-T datasets and figures are generated only after the local ambient manifest contains one documented image-level ambient value for every pilot image.",
         "",
         "## Delta-T Formula",
         "",
@@ -172,7 +176,7 @@ def write_reports(records: pd.DataFrame, template: pd.DataFrame) -> None:
         "",
         "## Ambient Matching Source And Method",
         "",
-        "Not selected yet. The repository currently lacks a documented external or recorded ambient-temperature observation for each pilot image.",
+        f"Current seed source: `{relative_posix(PART_D_TAT3_PILOT_PARAMS_CSV)}`. Replace only if a documented project-approved ambient source supersedes the TAT3 parameter values.",
         "",
         "## Pilot Input Inventory",
         "",
@@ -191,8 +195,8 @@ def write_reports(records: pd.DataFrame, template: pd.DataFrame) -> None:
         "",
         "## Unresolved Limitations",
         "",
-        "- Part D Round 2 radiometric parameter validation remains incomplete.",
-        "- Ambient-temperature inputs are missing.",
+        "- Apparent-temperature extrema still require physical plausibility review.",
+        "- Ambient-temperature source choice should be documented before final reporting.",
         "- Shadow masks are structurally present, but the current five pilot masks contain no `shadow_flag = 1` pixels.",
         "",
         "## Reproducibility Commands",
@@ -210,7 +214,7 @@ def write_reports(records: pd.DataFrame, template: pd.DataFrame) -> None:
         "",
         "## Recommended Professor-Report Interpretation",
         "",
-        "Report that Part E has been reframed as provisional pilot delta-T statistical analysis and visualization, but that numeric delta-T findings are pending documented ambient-temperature inputs and Part D Round 2 radiometric validation.",
+        "Report that Part E has been reframed as provisional pilot delta-T statistical analysis and visualization, and that any numeric delta-T findings must cite the selected ambient-temperature source and remaining apparent-temperature plausibility limitations.",
     ]
     write_markdown(ROUND1_SUMMARY_MD, summary_lines)
 

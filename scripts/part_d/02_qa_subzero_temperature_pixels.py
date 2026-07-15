@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Focused Part D Round 1.1 spatial QA for sub-zero temperature pixels.
+"""Focused Part D spatial QA for sub-zero pixels in TAT3-parameter matrices.
 
-This script operates only on existing Part D Round 1 temperature matrices and
-Part C masks. It does not call the DJI Thermal SDK, re-extract temperatures,
-calculate delta T, or validate radiometric parameters.
+This script operates only on existing Part D temperature matrices and Part C
+masks. It does not call the DJI Thermal SDK, re-extract temperatures,
+calculate delta T, or change radiometric parameters.
 """
 
 from __future__ import annotations
@@ -44,20 +44,20 @@ PILOT_PAIRS_XLSX = PROJECT_ROOT / "data" / "metadata" / "part_b_pilot_pairs.xlsx
 CLASS_MAPPING_XLSX = PROJECT_ROOT / "data" / "annotations" / "part_c" / "surface_cover_class_mapping.xlsx"
 TEMPERATURE_DIR = PROJECT_ROOT / "data" / "processed" / "part_d" / "temperature_matrices"
 PART_C_MASK_DIR = PROJECT_ROOT / "outputs" / "part_c" / "masks"
-ROUND1_SUMMARY_MD = PROJECT_ROOT / "outputs" / "part_d" / "summaries" / "part_d_round1_temperature_extraction_summary.md"
+EXTRACTION_SUMMARY_MD = PROJECT_ROOT / "outputs" / "part_d" / "summaries" / "part_d_tat3_parameter_temperature_extraction_summary.md"
 DOC_PATH = PROJECT_ROOT / "docs" / "part_d_temperature_extraction.md"
 
 QA_ROOT = PROJECT_ROOT / "outputs" / "part_d" / "qa" / "subzero_spatial_qa"
 SUMMARY_DIR = QA_ROOT / "summary"
-ROUND11_SUMMARY_MD = PROJECT_ROOT / "outputs" / "part_d" / "summaries" / "part_d_round1_1_subzero_spatial_qa_summary.md"
-SUMMARY_CSV = SUMMARY_DIR / "part_d_round1_1_subzero_spatial_qa_summary.csv"
-SUMMARY_XLSX = SUMMARY_DIR / "part_d_round1_1_subzero_spatial_qa_summary.xlsx"
-CLASS_BREAKDOWN_CSV = SUMMARY_DIR / "part_d_round1_1_subzero_by_physical_class.csv"
-CLASS_BREAKDOWN_XLSX = SUMMARY_DIR / "part_d_round1_1_subzero_by_physical_class.xlsx"
-SHADOW_BREAKDOWN_CSV = SUMMARY_DIR / "part_d_round1_1_subzero_by_shadow_state.csv"
-SHADOW_BREAKDOWN_XLSX = SUMMARY_DIR / "part_d_round1_1_subzero_by_shadow_state.xlsx"
-RECURRING_COORDS_CSV = SUMMARY_DIR / "part_d_round1_1_recurring_subzero_coordinates.csv"
-OVERALL_CONTACT_SHEET = SUMMARY_DIR / "part_d_round1_1_subzero_overall_contact_sheet.png"
+SUBZERO_SUMMARY_MD = PROJECT_ROOT / "outputs" / "part_d" / "summaries" / "part_d_tat3_parameter_subzero_spatial_qa_summary.md"
+SUMMARY_CSV = SUMMARY_DIR / "part_d_tat3_parameter_subzero_spatial_qa_summary.csv"
+SUMMARY_XLSX = SUMMARY_DIR / "part_d_tat3_parameter_subzero_spatial_qa_summary.xlsx"
+CLASS_BREAKDOWN_CSV = SUMMARY_DIR / "part_d_tat3_parameter_subzero_by_physical_class.csv"
+CLASS_BREAKDOWN_XLSX = SUMMARY_DIR / "part_d_tat3_parameter_subzero_by_physical_class.xlsx"
+SHADOW_BREAKDOWN_CSV = SUMMARY_DIR / "part_d_tat3_parameter_subzero_by_shadow_state.csv"
+SHADOW_BREAKDOWN_XLSX = SUMMARY_DIR / "part_d_tat3_parameter_subzero_by_shadow_state.xlsx"
+RECURRING_COORDS_CSV = SUMMARY_DIR / "part_d_tat3_parameter_recurring_subzero_coordinates.csv"
+OVERALL_CONTACT_SHEET = SUMMARY_DIR / "part_d_tat3_parameter_subzero_overall_contact_sheet.png"
 
 CLASS_COLORS = {
     0: "#000000",
@@ -756,30 +756,30 @@ def write_tables(summary_rows: list[dict[str, Any]], class_rows: list[dict[str, 
 
 def checkpoint_recommendation(summary_rows: list[dict[str, Any]]) -> str:
     if not summary_rows:
-        return "do_not_checkpoint"
+        return "do_not_accept_tat3_parameter_baseline"
     blocking_status = any(row["qa_status"] == "fail" for row in summary_rows)
     if blocking_status:
-        return "do_not_checkpoint"
+        return "do_not_accept_tat3_parameter_baseline"
     required_ok = all(
         int(row["matrix_height"]) == EXPECTED_SHAPE[0]
         and int(row["matrix_width"]) == EXPECTED_SHAPE[1]
         and not str(row["structural_warnings"]).strip()
         for row in summary_rows
     )
-    return "recommend_checkpoint_round1" if required_ok else "do_not_checkpoint"
+    return "tat3_parameter_baseline_structurally_ok" if required_ok else "do_not_accept_tat3_parameter_baseline"
 
 
 def build_markdown_summary(summary_rows: list[dict[str, Any]], recurring_rows: list[dict[str, Any]]) -> str:
     recommendation = checkpoint_recommendation(summary_rows)
     lines = [
-        "# Part D Round 1.1 Sub-Zero Spatial QA Summary",
+        "# Part D TAT3-Parameter Sub-Zero Spatial QA Summary",
         "",
         "## Scope",
         "",
         "- Located and quantified valid pixels with extracted temperature below 0 deg C, below -5 deg C, and below -10 deg C.",
         "- Checked matrix, thermal JPG, physical surface-cover mask, and shadow mask shape compatibility.",
-        "- Generated spatial QA images without rerunning the DJI Thermal SDK.",
-        "- Did not run delta T analysis, radiometric parameter validation, 10 m aggregation, or modeling.",
+        "- Generated spatial QA images for the current TAT3-parameter temperature matrices.",
+        "- Did not run delta T analysis, 10 m aggregation, or modeling.",
         "",
         "## Definitions",
         "",
@@ -855,21 +855,20 @@ def build_markdown_summary(summary_rows: list[dict[str, Any]], recurring_rows: l
     lines.extend(
         [
             "",
-            "## Checkpoint Recommendation",
+            "## Baseline QA Status",
             "",
         ]
     )
-    if recommendation == "recommend_checkpoint_round1":
+    if recommendation == "tat3_parameter_baseline_structurally_ok":
         lines.extend(
             [
-                "- Recommend checkpointing Part D Round 1 after review.",
+                "- TAT3-parameter matrices are structurally acceptable for the next review step.",
                 "- Rationale: all five matrices are readable, `512x640`, structurally aligned with Part C masks, and no obvious flip, transpose, corruption, or unit-scale failure was detected.",
-                "- The sub-zero anomaly is documented and should be carried into Part D Round 2 radiometric validation.",
-                "- Suggested commit message: `Complete Part D Round 1 extraction and sub-zero spatial QA`.",
+                "- Remaining sub-zero extrema are documented for physical plausibility review before delta T analysis.",
             ]
         )
     else:
-        lines.append("- Do not checkpoint Part D Round 1 yet; one or more structural QA checks failed.")
+        lines.append("- Do not accept the TAT3-parameter baseline yet; one or more structural QA checks failed.")
 
     lines.extend(
         [
@@ -891,16 +890,9 @@ def build_markdown_summary(summary_rows: list[dict[str, Any]], recurring_rows: l
             ".\\.venv\\Scripts\\python.exe scripts\\part_d\\02_qa_subzero_temperature_pixels.py",
             "```",
             "",
-            "## Deferred To Part D Round 2",
+            "## Still Deferred",
             "",
-            "- emissivity",
-            "- reflected apparent temperature",
-            "- atmospheric temperature",
-            "- relative humidity",
-            "- object distance",
-            "- SDK default versus embedded measurement parameters",
             "- physical plausibility of apparent temperatures",
-            "- whether any image must be re-extracted",
             "- suitability for final delta T analysis",
             "",
         ]
@@ -931,52 +923,45 @@ def update_part_d_docs(summary_rows: list[dict[str, Any]]) -> None:
     fail_count = sum(row["qa_status"] == "fail" for row in summary_rows)
     section = "\n".join(
         [
-            "## Round 1.1 Sub-Zero Spatial QA",
+            "## TAT3-Parameter Sub-Zero Spatial QA",
             "",
-            "Round 1.1 locates and documents extracted temperature pixels below 0 deg C. It does not validate radiometric parameters and does not calculate delta T.",
+            "This QA locates and documents extracted temperature pixels below 0 deg C after the canonical TAT3-parameter extraction. It does not calculate delta T.",
             "",
-            "Confirmed in Round 1 / Round 1.1:",
+            "Confirmed for the current TAT3-parameter matrices:",
             "",
             "- Extraction succeeded for all five pilot images.",
             "- Temperature matrices are `512x640` and structurally compatible with the Part C physical-cover and shadow masks.",
             "- Sub-zero pixels were located, quantified, and visualized.",
-            f"- QA statuses from Round 1.1: warn={warn_count}, fail={fail_count}.",
-            f"- Summary: `{relative_posix(ROUND11_SUMMARY_MD)}`",
+            f"- QA statuses: warn={warn_count}, fail={fail_count}.",
+            f"- Summary: `{relative_posix(SUBZERO_SUMMARY_MD)}`",
             "",
-            "Not yet validated:",
+            "Still requiring review before delta T:",
             "",
-            "- emissivity",
-            "- reflected apparent temperature",
-            "- atmospheric temperature",
-            "- relative humidity",
-            "- object distance",
-            "- SDK default versus embedded parameters",
             "- physical plausibility of apparent temperatures",
-            "- whether any matrices must be re-extracted",
             "- suitability for final delta T analysis",
             "",
-            "Full radiometric and parameter validation is deferred to Part D Round 2.",
+            "The old placeholder/default-parameter extraction is deprecated and should not be used for downstream analysis.",
         ]
     )
-    replace_or_append_section(DOC_PATH, "PART_D_ROUND_1_1_SUBZERO_QA", section)
+    replace_or_append_section(DOC_PATH, "PART_D_TAT3_PARAMETER_SUBZERO_QA", section)
 
 
-def update_round1_summary(summary_rows: list[dict[str, Any]]) -> None:
+def update_extraction_summary(summary_rows: list[dict[str, Any]]) -> None:
     section = "\n".join(
         [
-            "## Round 1.1 Sub-Zero Spatial QA Addendum",
+            "## TAT3-Parameter Sub-Zero Spatial QA Addendum",
             "",
-            "Round 1.1 checked the existing extracted matrices only; the DJI Thermal SDK was not rerun.",
+            "This QA checked the current TAT3-parameter matrices only; the DJI Thermal SDK was not rerun.",
             "",
-            f"- Summary: `{relative_posix(ROUND11_SUMMARY_MD)}`",
+            f"- Summary: `{relative_posix(SUBZERO_SUMMARY_MD)}`",
             f"- Table: `{relative_posix(SUMMARY_CSV)}`",
             f"- Per-image QA image root: `{relative_posix(QA_ROOT)}`",
             "- PNG visual QA outputs are reproducible local artifacts and are not part of the default tracked checkpoint.",
             "- All five matrices remained readable and structurally aligned with Part C masks.",
-            "- Sub-zero pixels are documented as a Round 2 radiometric-validation issue, not as final physical interpretation.",
+            "- Remaining sub-zero pixels are documented for physical plausibility review, not as final physical interpretation.",
         ]
     )
-    replace_or_append_section(ROUND1_SUMMARY_MD, "PART_D_ROUND_1_1_SUBZERO_QA", section)
+    replace_or_append_section(EXTRACTION_SUMMARY_MD, "PART_D_TAT3_PARAMETER_SUBZERO_QA", section)
 
 
 def main() -> int:
@@ -1002,17 +987,17 @@ def main() -> int:
 
     recurring_rows = recurring_coordinate_rows(image_ids, below0_masks)
     write_tables(summary_rows, class_rows, shadow_rows, recurring_rows)
-    ROUND11_SUMMARY_MD.parent.mkdir(parents=True, exist_ok=True)
-    ROUND11_SUMMARY_MD.write_text(build_markdown_summary(summary_rows, recurring_rows), encoding="utf-8")
+    SUBZERO_SUMMARY_MD.parent.mkdir(parents=True, exist_ok=True)
+    SUBZERO_SUMMARY_MD.write_text(build_markdown_summary(summary_rows, recurring_rows), encoding="utf-8")
     save_contact_sheet(contact_items, OVERALL_CONTACT_SHEET, columns=2, tile_size=(520, 390))
     update_part_d_docs(summary_rows)
-    update_round1_summary(summary_rows)
+    update_extraction_summary(summary_rows)
 
     print(f"Images checked: {len(summary_rows)}")
     print(f"QA statuses: {pd.Series([row['qa_status'] for row in summary_rows]).value_counts().to_dict()}")
-    print(f"Summary: {relative_posix(ROUND11_SUMMARY_MD)}")
+    print(f"Summary: {relative_posix(SUBZERO_SUMMARY_MD)}")
     print(f"Summary CSV: {relative_posix(SUMMARY_CSV)}")
-    return 0 if checkpoint_recommendation(summary_rows) == "recommend_checkpoint_round1" else 1
+    return 0 if checkpoint_recommendation(summary_rows) == "tat3_parameter_baseline_structurally_ok" else 1
 
 
 if __name__ == "__main__":

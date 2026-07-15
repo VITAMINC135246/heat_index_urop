@@ -64,14 +64,18 @@ thermal image use that same image-level ambient temperature.
 ## Ambient-Temperature Requirement
 
 Part E cannot calculate real delta-T until every pilot image has exactly one
-documented ambient-temperature value. Acceptable sources include an existing
-project ambient table, an on-site sensor, a weather-station observation, or
-another project-approved recorded source.
+documented ambient-temperature value. The current accepted source for the five
+pilot images is the TAT3 parameter ingest table:
 
-The repository currently has no documented ambient-temperature value for the
-five pilot images. The Part D SDK `ambient_temperature_c = 25 C` setting is an
-extraction parameter default and is not treated as the selected ambient
-observation for Part E delta-T.
+```text
+outputs/part_d/qa/tat3_parameter_audit/part_d_tat3_pilot_parameters.csv
+```
+
+The older Part D placeholder SDK setting `ambient_temperature_c = 25 C` is
+deprecated and is not used by the active extraction workflow. If a later
+project-approved source, such as an on-site sensor or weather-station
+observation, supersedes the TAT3 ambient values, that replacement must be
+documented before Part E is rerun.
 
 Input template:
 
@@ -79,10 +83,10 @@ Input template:
 data/metadata/part_e_pilot_ambient_temperature_manifest_template.csv
 ```
 
-Copy the template to
+Copy or derive the TAT3 ambient values into
 `data/metadata/part_e_pilot_ambient_temperature_manifest.csv` for a local run.
-The populated working manifest and all generated `outputs/part_e/` products are
-ignored while Part E remains exploratory.
+The populated working manifest and all generated `outputs/part_e/` products
+remain ignored while Part E is exploratory.
 
 ## Current Shadow Limitation
 
