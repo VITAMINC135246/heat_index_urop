@@ -464,7 +464,7 @@ def main() -> int:
         )
     print(f"Groups requested: {len(groups)}")
     for summary in summaries:
-        print(f"{summary.group_id}: {summary.status.value} via {summary.route.value} — {summary.reason}")
+        print(f"{summary.group_id}: {summary.status.value} via {summary.route.value} - {summary.reason}")
     print(f"Run summary: {display_path(run_summary_path)}")
     failed = sum(row.status == ProcessingStatus.FAILED for row in summaries)
     incomplete = sum(row.status == ProcessingStatus.INCOMPLETE for row in summaries)

@@ -134,3 +134,7 @@ outputs/runs/
 !outputs/part_e/figures/spatial_maps/*.pdf
 !outputs/part_e/excel/
 !outputs/part_e/excel/part_e_pixel_statistical_analysis.xlsx
+
+# Version 0.1 combined Part E outputs are regenerated from canonical images.
+data/processed/part_e_v0_1/
+outputs/part_e/tables/part_e_v0_1_source_summary.csv

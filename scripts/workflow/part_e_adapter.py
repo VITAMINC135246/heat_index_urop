@@ -95,6 +95,9 @@ def aggregate_canonical_results(
             total_rows += len(frame)
             eligible = frame["analysis_eligible"].astype(bool)
             finite = frame["temperature_is_finite"].astype(bool)
+            finite_temperature = pd.to_numeric(frame.loc[finite, "temperature_c"], errors="coerce")
+            eligible_temperature = pd.to_numeric(frame.loc[finite & eligible, "temperature_c"], errors="coerce")
+            eligible_delta_t = pd.to_numeric(frame.loc[finite & eligible, "delta_t_c"], errors="coerce")
             summaries.append(
                 {
                     "image_id": manifest.image_id,
@@ -107,6 +110,10 @@ def aggregate_canonical_results(
                     "label_known_pixel_count": int(frame["label_known"].astype(bool).sum()),
                     "analysis_eligible_pixel_count": int(eligible.sum()),
                     "excluded_pixel_count": int((~eligible).sum()),
+                    "finite_temperature_mean_c": float(finite_temperature.mean()),
+                    "eligible_temperature_mean_c": float(eligible_temperature.mean()),
+                    "eligible_temperature_median_c": float(eligible_temperature.median()),
+                    "eligible_delta_t_mean_c": float(eligible_delta_t.mean()),
                     "target_name": manifest.target_name or "",
                     "surface_cover_category": manifest.surface_cover_category or "",
                 }

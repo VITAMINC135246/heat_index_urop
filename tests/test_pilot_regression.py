@@ -5,6 +5,9 @@ from pathlib import Path
 
 import pandas as pd
 
+from scripts.workflow.models import SourceMethod
+from scripts.workflow.pilot_adapter import adapt_pilot_image
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -30,6 +33,19 @@ class PilotRegressionTests(unittest.TestCase):
         import pyarrow.parquet as pq
 
         self.assertEqual(pq.ParquetFile(path).metadata.num_rows, 5 * 512 * 640)
+
+    def test_normal_part_c_pilot_adapter_builds_versioned_manifest(self) -> None:
+        import tempfile
+
+        image_id = pd.read_excel(PROJECT_ROOT / "data" / "metadata" / "part_b_pilot_pairs.xlsx").iloc[0]["image_id"]
+        with tempfile.TemporaryDirectory() as directory:
+            manifest, path = adapt_pilot_image(
+                PROJECT_ROOT, str(image_id), output_root=Path(directory), write_pixels_parquet=False
+            )
+            self.assertTrue(path.is_file())
+            self.assertEqual(manifest.source_method, SourceMethod.VISIBLE_REVIEW)
+            self.assertEqual((manifest.image_height, manifest.image_width), (512, 640))
+            self.assertEqual(manifest.known_pixel_count + manifest.unknown_pixel_count, 512 * 640)
 
 
 if __name__ == "__main__":

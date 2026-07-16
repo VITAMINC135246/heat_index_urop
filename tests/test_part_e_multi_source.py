@@ -59,6 +59,8 @@ class PartEMultiSourceTests(unittest.TestCase):
                 [normal, polygon], output_parquet=output, summary_csv=root / "summary.csv"
             )
             self.assertEqual(set(summary["source_method"]), {"visible_review", "thermal_polygon_user_annotation"})
+            self.assertTrue(summary["eligible_temperature_mean_c"].notna().all())
+            self.assertTrue(summary["eligible_delta_t_mean_c"].notna().all())
             combined = pd.read_parquet(output)
             self.assertEqual(set(combined["source_method"]), {"visible_review", "thermal_polygon_user_annotation"})
             polygon_rows = combined.loc[combined["source_method"].eq("thermal_polygon_user_annotation")]
