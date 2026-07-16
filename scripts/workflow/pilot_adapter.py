@@ -29,6 +29,8 @@ def adapt_pilot_image(
     *,
     output_root: Path | None = None,
     write_pixels_parquet: bool = True,
+    configuration_hash_value: str | None = None,
+    source_file_hashes_value: dict[str, str] | None = None,
 ) -> tuple[object, Path]:
     pairs = pd.read_excel(project_root / "data" / "metadata" / "part_b_pilot_pairs.xlsx")
     masks = pd.read_excel(project_root / "outputs" / "part_c" / "summaries" / "part_c_final_mask_manifest.xlsx")
@@ -81,8 +83,8 @@ def adapt_pilot_image(
         source_method=SourceMethod.VISIBLE_REVIEW,
         review_status=ManualReviewStatus.ACCEPTED,
         qa_status=qa,
-        configuration_hash=configuration_hash(config),
-        source_file_hashes=hashes,
+        configuration_hash=configuration_hash_value or configuration_hash(config),
+        source_file_hashes=source_file_hashes_value or hashes,
         surface_cover_names=names,
         shadow_mask=shadow,
         temperature_metadata={
