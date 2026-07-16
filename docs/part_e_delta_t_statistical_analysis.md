@@ -1,111 +1,160 @@
-# Part E Delta-T Statistical Analysis And Visualization
+# Part E Pixel-Level ΔT Statistical Analysis and Spectra
 
-Part E is the provisional pilot stage for delta-T calculation, descriptive
-statistical analysis, and visualization. It is not a prediction-modeling stage.
+Part E is the provisional five-image HKUST pilot for pixel-level delta-temperature
+analysis. Its primary scientific visual result is the **ΔT distribution/density
+spectrum**. In this project, spectrum means a statistical distribution of
+pixel-level ΔT values; it does not mean electromagnetic reflectance or
+multispectral-band analysis.
 
-> This is a provisional pilot delta-T analysis using temperature matrices that
-> have completed structural extraction QA but have not yet completed full
-> radiometric parameter validation.
+## Formal observation and formula
 
-## Analysis Units
-
-The primary analysis unit is a thermal image by LUHK-aligned 10 m cell
-observation:
-
-```text
-image_id + cell_id
-```
-
-The secondary analysis unit is a thermal image by LUHK-aligned 10 m cell by
-physical surface-cover class observation:
+The formal observation is one original thermal pixel. For every accepted finite
+pixel:
 
 ```text
-image_id + cell_id + physical_surface_cover_class
+delta_t_c = temperature_c - ambient_temperature_c
 ```
 
-Individual thermal pixels are not treated as independent statistical
-observations. Pixels are aggregated before delta-T is calculated.
+All finite pixels are preserved in
+`data/processed/part_e/part_e_pixel_delta_t.parquet`. LUHK cell IDs, sampling
+tiles, and image identifiers are provenance or sampling strata only. The formal
+workflow does not calculate LUHK-cell means, tile means, neighbouring-pixel
+means, or other spatial aggregates before analysis.
 
-## Delta-T Formula
+The image-level ambient values are provisional TAT3 parameters reconciled to
+the Part D extraction summary. They are not independently validated
+meteorological air-temperature observations.
 
-For thermal image `i` and LUHK-aligned cell `c`:
+## Eligibility and data layers
 
-```text
-mean_surface_temperature_c(i, c) = mean of valid thermal pixels inside that cell
-delta_t_c(i, c) = mean_surface_temperature_c(i, c) - ambient_temperature_c(i)
-```
+- Overall and image spectra require an accepted finite thermal pixel.
+- LUHK spectra additionally require a valid approximate LUHK label.
+- Surface-cover spectra additionally require a reviewed valid physical-cover
+  label.
+- Within-GIC spectra require LUHK code 31 and a valid physical-cover label.
+- Surface-cover × shadow contrasts require both `shadow_flag=0` and
+  `shadow_flag=1` within the same cover class with adequate sampled pixels.
 
-For physical surface-cover class `s` inside cell `c`:
+LUHK remains official 10 m broad land-use context, not fine physical-cover
+ground truth. Physical cover comes from reviewed Part C thermal-grid masks.
+Shadow remains a separate binary mask and is never recoded as a cover class.
 
-```text
-mean_surface_temperature_c(i, c, s) =
-  mean of valid thermal pixels classified as surface-cover s inside that cell
+## Sampling
 
-delta_t_c(i, c, s) =
-  mean_surface_temperature_c(i, c, s) - ambient_temperature_c(i)
-```
+Formal figures and exploratory tests use deterministic,
+spatially-thinned, stratified pseudorandom samples of individual pixels. The
+primary seed is `20260715`; twenty secondary seeds support stability analysis.
+An 8 px tile may contribute at most one selected pixel to the initial thinned
+candidate set, but tile values are never averaged. Selected records retain the
+original pixel-level ΔT values.
 
-The ambient temperature is a single scalar assigned to the acquisition time of
-each thermal image. All cells and surface-cover observations from the same
-thermal image use that same image-level ambient temperature.
+Spatial thinning improves geographic dispersion but does not eliminate spatial
+autocorrelation. Sampled pixels must not be described as completely independent
+observations.
 
-## Data Layers
+## Primary spectrum figure family
 
-- LUHK official land-use context: existing LUHK-aligned 10 m cell IDs and
-  official LUHK raster classes.
-- Physical surface-cover classification: reviewed Part C thermal-grid masks.
-- Shadow state: separate binary `shadow_flag`, where `1 = shadow` and
-  `0 = non-shadow`.
-- Surface temperature: extracted Part D temperature matrix values.
-- Ambient temperature: external or recorded image-level scalar value.
-- Delta-T: aggregated surface temperature minus image-level ambient
-  temperature.
+The formal Python stage is
+`scripts/part_e/04_generate_pixel_delta_t_spectra.py`. It reads only the
+completed sampled-pixel Parquets and existing coverage/stability tables. It
+writes PNG and PDF figures, a source summary, and captions under:
 
-## Ambient-Temperature Requirement
+- `outputs/part_e/figures/spectrum/`
+- `outputs/part_e/tables/part_e_pixel_delta_t_spectrum_summary.csv`
 
-Part E cannot calculate real delta-T until every pilot image has exactly one
-documented ambient-temperature value. The current accepted source for the five
-pilot images is the TAT3 parameter ingest table:
+The numbered family is:
 
-```text
-outputs/part_d/qa/tat3_parameter_audit/part_d_tat3_pilot_parameters.csv
-```
+1. overall pixel ΔT spectrum;
+2. LUHK-class spectra;
+3. physical surface-cover spectra;
+4. within-GIC cover spectra;
+5. within-GIC cover overlay;
+6. between-image spectra;
+7. shadow contrast, only when estimable;
+8. sampling-stability distribution;
+9. sampled-median bootstrap uncertainty summary.
 
-The older Part D placeholder SDK setting `ambient_temperature_c = 25 C` is
-deprecated and is not used by the active extraction workflow. If a later
-project-approved source, such as an on-site sensor or weather-station
-observation, supersedes the TAT3 ambient values, that replacement must be
-documented before Part E is rerun.
+The current pilot has no valid `shadow_flag=1` pixels. Figure 06 is therefore
+recorded as **not estimable** and is intentionally not created.
 
-Input template:
+## Density and uncertainty rules
 
-```text
-data/metadata/part_e_pilot_ambient_temperature_manifest_template.csv
-```
+KDEs use SciPy `gaussian_kde` with Scott's bandwidth rule. Direct comparisons
+share x and y scales. Each curve is evaluated only over its group's observed
+sampled range. The zero-ΔT reference, median, mean, and Q25–Q75 interval are
+shown. Groups with fewer than 100 sampled pixels, too few unique values, or
+near-constant values receive rugs/annotations instead of a misleading smooth
+curve.
 
-Copy or derive the TAT3 ambient values into
-`data/metadata/part_e_pilot_ambient_temperature_manifest.csv` for a local run.
-The populated working manifest and all generated `outputs/part_e/` products
-remain ignored while Part E is exploratory.
+Density is normalized within a group; curve height is not pixel count. Counts,
+full eligible populations, and image coverage are reported separately. Figure
+08 uses a deterministic percentile bootstrap interval for the median, but the
+interval is descriptive because ordinary pixel resampling does not fully model
+neighbouring-pixel correlation.
 
-## Current Shadow Limitation
+## Statistical interpretation
 
-The Part E code keeps shadow structurally available through cell-level and
-surface-cover-level shadow fractions. The current five pilot shadow masks
-contain no `shadow_flag = 1` pixels, so the current pilot cannot estimate a
-shadow effect and should not include shadow comparison figures.
+Interpretation prioritizes distribution shape, location shifts, spread,
+skewness, overlap, possible multimodality, medians, quartiles, effect sizes,
+between-image consistency, and sensitivity to sampling seed. Visual density
+differences are not conclusions by themselves. They must be cross-referenced
+to the source summary, image coverage, effect sizes, exploratory tests, and
+stability results.
 
-## Reproducibility
+P-values are exploratory and use multiple-testing correction where applicable.
+They support the distribution analysis; they do not establish causal,
+city-wide, or pixel-independent effects.
+
+## Supporting outputs and Excel policy
+
+Boxplots, coverage charts, the image boxplot, earlier stability and bootstrap
+charts, spatial maps, QA panels, and native Excel charts remain useful
+supporting or appendix outputs. They are not the primary Part E figure family.
+
+Python is the formal spectrum plotting engine. Excel is an optional interactive
+delivery layer. Excel COM or native-chart export failure must not block the
+canonical Parquet, sampling, spectrum, statistical-analysis, or report stages.
+Future batches should not create hundreds of complete per-image workbooks
+unless explicitly requested.
+
+## Resumable pipeline
+
+Regenerate or validate only the spectrum stage from completed samples:
 
 ```powershell
-.\.venv\Scripts\python.exe scripts\part_e\00_create_ambient_temperature_manifest_template.py
-.\.venv\Scripts\python.exe scripts\part_e\01_build_cell_delta_t_dataset.py
-.\.venv\Scripts\python.exe scripts\part_e\02_build_surface_cover_delta_t_dataset.py
-.\.venv\Scripts\python.exe scripts\part_e\03_generate_summary_tables.py
-.\.venv\Scripts\python.exe scripts\part_e\04_run_exploratory_statistics.py
-.\.venv\Scripts\python.exe scripts\part_e\05_create_figures.py
+.\.venv\Scripts\python.exe scripts\part_e\run_part_e_pipeline.py `
+    --config config\part_e_delta_t_analysis.json `
+    --resume `
+    --from-stage spectrum `
+    --to-stage spectrum
 ```
 
-The dataset, summary, statistics, and figure commands intentionally stop until
-the ambient manifest contains one documented numeric ambient value per pilot
-image.
+Equivalent shorthand:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\part_e\run_part_e_pipeline.py `
+    --config config\part_e_delta_t_analysis.json `
+    --spectrum-only
+```
+
+The driver also supports `--dry-run`, `--image-id`, `--workers`,
+`--skip-supporting-figures`, and `--skip-excel`. With `--resume`, completed
+upstream artifacts are reused rather than regenerated.
+
+## Deprecated research history
+
+`scripts/part_e/06_create_clear_spectrum_figures.py` and the older cell-level
+scripts are preserved as deprecated research history. Their data source is
+cell- or cell-cover aggregated observations, so the formal pipeline never calls
+them and their figures are not formal Part E spectra.
+
+## Limitations
+
+- The pilot contains only five HKUST thermal images and does not generalize to
+  all of Hong Kong.
+- TAT3 ambient parameters and the physical plausibility of apparent-temperature
+  extremes remain provisional.
+- Neighbouring pixels remain spatially correlated after thinning.
+- LUHK labels use an approximate north-up footprint model that ignores recorded
+  yaw.
+- No shadow-present pixels are available, so a shadow effect is not estimable.

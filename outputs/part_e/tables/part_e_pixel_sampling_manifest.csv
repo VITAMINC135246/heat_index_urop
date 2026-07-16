@@ -1,0 +1,98 @@
+﻿analysis_family,group_name,image_id,eligible_pixel_count,sampled_pixel_count,sampling_fraction,sampling_seed,sampling_method,spatial_tile_size_px,max_pixels_per_group,max_pixels_per_image_per_group
+luhk,31 | GIC / open space,DJI_20260107143259_0005,222592,1461,0.00656357820586544,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk,31 | GIC / open space,DJI_20260107143320_0007,319447,2097,0.006564469223376648,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk,31 | GIC / open space,DJI_20260107143328_0008,326558,2143,0.006562387079783683,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk,31 | GIC / open space,DJI_20260107143344_0009,327680,2151,0.0065643310546875,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk,31 | GIC / open space,DJI_20260107143401_0011,327188,2148,0.00656503294741861,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk,51 | Other urban / built-up land,DJI_20260107143259_0005,200,4,0.02,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk,71 | Woodland / shrubland / grassland / wetland,DJI_20260107143259_0005,66827,1174,0.017567749562302663,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk,71 | Woodland / shrubland / grassland / wetland,DJI_20260107143320_0007,7633,135,0.01768636184986244,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk,71 | Woodland / shrubland / grassland / wetland,DJI_20260107143328_0008,1122,21,0.01871657754010695,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk,71 | Woodland / shrubland / grassland / wetland,DJI_20260107143401_0011,492,16,0.032520325203252036,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk,72 | Woodland / shrubland / grassland / wetland,DJI_20260107143259_0005,31408,613,0.019517320427916453,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk,73 | Woodland / shrubland / grassland / wetland,DJI_20260107143259_0005,6653,134,0.020141289643769728,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk,73 | Woodland / shrubland / grassland / wetland,DJI_20260107143320_0007,600,16,0.02666666666666667,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,bare_soil,DJI_20260107143320_0007,8664,180,0.02077562326869806,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,bare_soil,DJI_20260107143328_0008,1558,41,0.02631578947368421,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,concrete_pavement,DJI_20260107143259_0005,20871,476,0.022806765368214268,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,concrete_pavement,DJI_20260107143320_0007,67562,1427,0.021121340398448832,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,concrete_pavement,DJI_20260107143328_0008,64721,1274,0.019684491895984303,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,concrete_pavement,DJI_20260107143344_0009,75342,1602,0.02126304053515967,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,concrete_pavement,DJI_20260107143401_0011,94360,1898,0.020114455277660027,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,grass_low_vegetation,DJI_20260107143259_0005,14540,263,0.018088033012379642,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,grass_low_vegetation,DJI_20260107143320_0007,14241,301,0.02113615616880837,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,grass_low_vegetation,DJI_20260107143328_0008,6749,130,0.019262112905615646,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,grass_low_vegetation,DJI_20260107143344_0009,2831,53,0.018721299894030378,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,grass_low_vegetation,DJI_20260107143401_0011,1031,23,0.02230843840931135,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,roof,DJI_20260107143259_0005,30014,638,0.021256746851469315,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,roof,DJI_20260107143320_0007,91251,1685,0.01846555106245411,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,roof,DJI_20260107143328_0008,124088,2083,0.01678647411514409,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,roof,DJI_20260107143344_0009,163090,2500,0.015328959470231161,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,roof,DJI_20260107143401_0011,161158,2500,0.015512726640936223,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,vegetation_tree,DJI_20260107143259_0005,262255,2500,0.009532706716745153,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,vegetation_tree,DJI_20260107143320_0007,145962,2500,0.01712774557761609,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,vegetation_tree,DJI_20260107143328_0008,130564,2332,0.017860972396679022,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,vegetation_tree,DJI_20260107143344_0009,86417,1581,0.01829501139822026,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover,vegetation_tree,DJI_20260107143401_0011,71131,1087,0.015281663409765082,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | bare_soil,DJI_20260107143320_0007,8664,180,0.02077562326869806,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | bare_soil,DJI_20260107143328_0008,1558,41,0.02631578947368421,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | concrete_pavement,DJI_20260107143259_0005,20806,472,0.022685763722003267,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | concrete_pavement,DJI_20260107143320_0007,67562,1427,0.021121340398448832,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | concrete_pavement,DJI_20260107143328_0008,64721,1274,0.019684491895984303,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | concrete_pavement,DJI_20260107143344_0009,75342,1602,0.02126304053515967,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | concrete_pavement,DJI_20260107143401_0011,94360,1898,0.020114455277660027,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | grass_low_vegetation,DJI_20260107143259_0005,14540,263,0.018088033012379642,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | grass_low_vegetation,DJI_20260107143320_0007,14241,301,0.02113615616880837,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | grass_low_vegetation,DJI_20260107143328_0008,6749,130,0.019262112905615646,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | grass_low_vegetation,DJI_20260107143344_0009,2831,53,0.018721299894030378,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | grass_low_vegetation,DJI_20260107143401_0011,1031,23,0.02230843840931135,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | roof,DJI_20260107143259_0005,29675,630,0.02122999157540017,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | roof,DJI_20260107143320_0007,91251,1685,0.01846555106245411,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | roof,DJI_20260107143328_0008,124088,2083,0.01678647411514409,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | roof,DJI_20260107143344_0009,163090,2500,0.015328959470231161,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | roof,DJI_20260107143401_0011,161028,2500,0.015525250267034305,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | vegetation_tree,DJI_20260107143259_0005,157571,2500,0.015865863642421513,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | vegetation_tree,DJI_20260107143320_0007,137729,2500,0.01815158753784606,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | vegetation_tree,DJI_20260107143328_0008,129442,2297,0.017745399483938752,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | vegetation_tree,DJI_20260107143344_0009,86417,1486,0.017195690662716825,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,31 | GIC / open space | vegetation_tree,DJI_20260107143401_0011,70769,1217,0.017196795206940892,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,51 | Other urban / built-up land | vegetation_tree,DJI_20260107143259_0005,200,4,0.02,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,71 | Woodland / shrubland / grassland / wetland | concrete_pavement,DJI_20260107143259_0005,5,2,0.4,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,71 | Woodland / shrubland / grassland / wetland | roof,DJI_20260107143259_0005,235,10,0.0425531914893617,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,71 | Woodland / shrubland / grassland / wetland | roof,DJI_20260107143401_0011,130,5,0.038461538461538464,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,71 | Woodland / shrubland / grassland / wetland | vegetation_tree,DJI_20260107143259_0005,66587,1170,0.01757099734182348,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,71 | Woodland / shrubland / grassland / wetland | vegetation_tree,DJI_20260107143320_0007,7633,135,0.01768636184986244,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,71 | Woodland / shrubland / grassland / wetland | vegetation_tree,DJI_20260107143328_0008,1122,21,0.01871657754010695,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,71 | Woodland / shrubland / grassland / wetland | vegetation_tree,DJI_20260107143401_0011,362,12,0.03314917127071823,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,72 | Woodland / shrubland / grassland / wetland | concrete_pavement,DJI_20260107143259_0005,60,6,0.1,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,72 | Woodland / shrubland / grassland / wetland | roof,DJI_20260107143259_0005,104,7,0.0673076923076923,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,72 | Woodland / shrubland / grassland / wetland | vegetation_tree,DJI_20260107143259_0005,31244,609,0.019491742414543593,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,73 | Woodland / shrubland / grassland / wetland | vegetation_tree,DJI_20260107143259_0005,6653,134,0.020141289643769728,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+luhk_surface_cover,73 | Woodland / shrubland / grassland / wetland | vegetation_tree,DJI_20260107143320_0007,600,16,0.02666666666666667,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,bare_soil | shadow=0,DJI_20260107143320_0007,8664,180,0.02077562326869806,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,bare_soil | shadow=0,DJI_20260107143328_0008,1558,41,0.02631578947368421,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,concrete_pavement | shadow=0,DJI_20260107143259_0005,20871,476,0.022806765368214268,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,concrete_pavement | shadow=0,DJI_20260107143320_0007,67562,1427,0.021121340398448832,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,concrete_pavement | shadow=0,DJI_20260107143328_0008,64721,1274,0.019684491895984303,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,concrete_pavement | shadow=0,DJI_20260107143344_0009,75342,1602,0.02126304053515967,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,concrete_pavement | shadow=0,DJI_20260107143401_0011,94360,1898,0.020114455277660027,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,grass_low_vegetation | shadow=0,DJI_20260107143259_0005,14540,263,0.018088033012379642,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,grass_low_vegetation | shadow=0,DJI_20260107143320_0007,14241,301,0.02113615616880837,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,grass_low_vegetation | shadow=0,DJI_20260107143328_0008,6749,130,0.019262112905615646,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,grass_low_vegetation | shadow=0,DJI_20260107143344_0009,2831,53,0.018721299894030378,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,grass_low_vegetation | shadow=0,DJI_20260107143401_0011,1031,23,0.02230843840931135,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,roof | shadow=0,DJI_20260107143259_0005,30014,638,0.021256746851469315,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,roof | shadow=0,DJI_20260107143320_0007,91251,1685,0.01846555106245411,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,roof | shadow=0,DJI_20260107143328_0008,124088,2083,0.01678647411514409,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,roof | shadow=0,DJI_20260107143344_0009,163090,2500,0.015328959470231161,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,roof | shadow=0,DJI_20260107143401_0011,161158,2500,0.015512726640936223,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,vegetation_tree | shadow=0,DJI_20260107143259_0005,262255,2500,0.009532706716745153,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,vegetation_tree | shadow=0,DJI_20260107143320_0007,145962,2500,0.01712774557761609,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,vegetation_tree | shadow=0,DJI_20260107143328_0008,130564,2332,0.017860972396679022,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,vegetation_tree | shadow=0,DJI_20260107143344_0009,86417,1581,0.01829501139822026,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+surface_cover_shadow,vegetation_tree | shadow=0,DJI_20260107143401_0011,71131,1087,0.015281663409765082,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+image_comparison,DJI_20260107143259_0005,DJI_20260107143259_0005,327680,2500,0.00762939453125,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+image_comparison,DJI_20260107143320_0007,DJI_20260107143320_0007,327680,2500,0.00762939453125,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+image_comparison,DJI_20260107143328_0008,DJI_20260107143328_0008,327680,2500,0.00762939453125,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+image_comparison,DJI_20260107143344_0009,DJI_20260107143344_0009,327680,2500,0.00762939453125,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500
+image_comparison,DJI_20260107143401_0011,DJI_20260107143401_0011,327680,2500,0.00762939453125,20260715,spatially_thinned_stratified_pseudorandom,8,10000,2500

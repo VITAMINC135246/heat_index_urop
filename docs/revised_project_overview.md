@@ -188,40 +188,47 @@ before delta-T analysis.
 Part E is: statistical analysis and visualization of delta-T distributions,
 with prediction as an optional later extension.
 
-Goal: Calculate provisional delta-T observations after LUHK-cell or
-cell-by-surface-cover aggregation, then describe and visualize their
-distributions by LUHK context, physical surface cover, image, and QA state.
-Prediction is an optional later extension and is not part of current Part E
-Round 1.
+Goal: Preserve all accepted finite thermal pixels, calculate pixel-level ΔT,
+and make sampled-pixel ΔT distribution/density spectra the primary scientific
+visual result. Prediction is an optional later extension and is not part of
+current Part E Round 1. Here, spectrum is a statistical distribution, not an
+electromagnetic or multispectral spectrum.
 
 Main work:
 
 - Assign exactly one documented ambient-temperature value to each thermal image.
-- Aggregate valid thermal pixels into existing LUHK-aligned 10 m cells.
-- Aggregate valid thermal pixels by physical surface-cover class within each
-  cell.
-- Calculate delta-T after aggregation, not at independent pixel level.
-- Compare provisional delta-T distributions by LUHK class, physical
-  surface-cover class, image, flight, and acquisition time.
-- Keep all finite temperatures in the primary analysis and support explicit
-  sensitivity analysis for configured thresholds.
+- Calculate `delta_t_c = temperature_c - ambient_temperature_c` for every
+  accepted finite thermal pixel.
+- Preserve the full finite pixel population in canonical Parquet.
+- Select deterministic, spatially dispersed individual pixels without
+  averaging LUHK cells, sampling tiles, or neighbouring pixels.
+- Compare distribution shape, location, spread, skewness, overlap, possible
+  multimodality, medians, and quartiles by LUHK, physical cover, within-GIC
+  cover, and image.
+- Cross-reference spectra with full/sample counts, effect sizes, image
+  coverage, exploratory tests, and sampling-seed stability.
 - Document the current shadow limitation: shadow masks exist, but the five
   pilot masks contain no `shadow_flag = 1` pixels.
 
 Expected outputs:
 
-- Cell-level provisional delta-T observations.
-- Cell-by-physical-surface-cover provisional delta-T observations.
-- Descriptive summary tables and exploratory statistical-test tables.
-- Publication-style pilot figures and spatial cell maps.
+- Canonical full-pixel Parquet and five sampled-pixel Parquets.
+- Primary Python PNG/PDF ΔT spectrum figures with formal captions and source
+  summary.
+- Full/sample descriptive tables, effect sizes, exploratory tests, and
+  sampling-stability results.
+- Supporting boxplots, coverage charts, spatial QA maps, and optional Excel
+  workbooks/charts.
 - Part E summary report with provisional interpretation, reproducibility
   commands, and unresolved limitations.
 
-Current status: Part E scripts and ambient-temperature templates have been
-prepared. Numeric delta-T outputs are pending a local Part E ambient manifest
-derived from the documented TAT3 pilot parameter table or another explicitly
-approved source. All results must remain provisional until remaining
-apparent-temperature plausibility review is complete.
+Current status: Complete for the five-image pilot in provisional form. The
+canonical 1,638,400-row pixel dataset, five primary-seed samples, grouped
+summaries, 21-seed stability analysis, formal pixel spectra, supporting
+figures, spatial QA, five pixel workbooks, main workbook, and final QA are
+present. Python/SciPy is the formal spectrum engine; Excel is optional. Results
+remain provisional until remaining apparent-temperature plausibility review is
+complete.
 
 ## Feasibility Assessment
 
@@ -257,9 +264,12 @@ apparent-temperature plausibility review is complete.
   image.
 - TAT3 parameter ingest, TAT3-parameter temperature extraction, and sub-zero
   spatial QA are complete for five pilot images.
-- The next major input needed for Part E is a local ambient manifest derived
-  from the documented TAT3 pilot parameter table or another explicitly approved
-  source.
+- Part E's canonical pixel layer, deterministic sampled-pixel datasets,
+  descriptive/statistical tables, primary ΔT spectra, supporting figures,
+  spatial QA, and workbooks are complete for the five-image pilot.
+- The current scientific narrative is spectrum-first. P-values are exploratory,
+  spatial dependence remains, and the pilot does not generalize to all of Hong
+  Kong.
 
 ## Related Documents
 

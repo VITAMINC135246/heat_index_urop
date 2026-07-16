@@ -1,0 +1,6 @@
+image_id,capture_datetime,ambient_temperature_c,ambient_source,source_file,validation_status,notes
+DJI_20260107143259_0005,2026-01-07 14:32:59,11.0,TAT3,outputs/part_d/summaries/part_d_tat3_parameter_temperature_extraction_summary.csv,provisional,Per-image TAT3 ambient parameter; not independently validated meteorological air temperature.
+DJI_20260107143320_0007,2026-01-07 14:33:20,10.6,TAT3,outputs/part_d/summaries/part_d_tat3_parameter_temperature_extraction_summary.csv,provisional,Per-image TAT3 ambient parameter; not independently validated meteorological air temperature.
+DJI_20260107143328_0008,2026-01-07 14:33:28,10.5,TAT3,outputs/part_d/summaries/part_d_tat3_parameter_temperature_extraction_summary.csv,provisional,Per-image TAT3 ambient parameter; not independently validated meteorological air temperature.
+DJI_20260107143344_0009,2026-01-07 14:33:44,9.9,TAT3,outputs/part_d/summaries/part_d_tat3_parameter_temperature_extraction_summary.csv,provisional,Per-image TAT3 ambient parameter; not independently validated meteorological air temperature.
+DJI_20260107143401_0011,2026-01-07 14:34:01,9.9,TAT3,outputs/part_d/summaries/part_d_tat3_parameter_temperature_extraction_summary.csv,provisional,Per-image TAT3 ambient parameter; not independently validated meteorological air temperature.

@@ -4,6 +4,8 @@ pandas
 openpyxl
 matplotlib
 scipy
+statsmodels
+pyarrow
 pyproj
 rasterio
 Pillow

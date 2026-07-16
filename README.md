@@ -150,6 +150,37 @@ number `0016` alone does not automatically select a pilot.
 - Part E: statistical analysis and visualization of delta-T distributions, with
   prediction as an optional later extension.
 
+## Part E formal pixel-spectrum workflow
+
+The primary Part E scientific figures are pixel-level **ΔT distribution/density
+spectra**. Here, spectrum means a statistical distribution of ΔT values, not an
+electromagnetic or multispectral spectrum. One formal observation is one
+accepted finite thermal pixel:
+
+```text
+delta_t_c = temperature_c - ambient_temperature_c
+```
+
+All finite pixels remain in the canonical Parquet. Formal figures and
+exploratory tests use spatially thinned samples of original pixels; LUHK cells
+and sampling tiles are never averaged. Spatial thinning disperses records but
+does not remove spatial autocorrelation.
+
+To validate and reuse the completed samples while running only the spectrum
+stage:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\part_e\run_part_e_pipeline.py `
+    --config config\part_e_delta_t_analysis.json `
+    --resume --from-stage spectrum --to-stage spectrum
+```
+
+Formal PNG/PDF figures and captions are under
+`outputs/part_e/figures/spectrum/`. Boxplots, coverage charts, spatial panels,
+and Excel charts remain supporting outputs. Python/SciPy is the formal plotting
+engine; Excel is optional. The deprecated cell-level spectrum script is retained
+as research history and is never called by the formal pipeline.
+
 Part A does not include V/T geometric alignment, visible/thermal ROI matching,
 segmentation, temperature extraction, LUHK overlay production, or model
 preparation.

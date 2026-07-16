@@ -1,0 +1,100 @@
+{
+  "analysis_scope": "HKUST five-image pilot",
+  "pilot_image_ids": [
+    "DJI_20260107143259_0005",
+    "DJI_20260107143320_0007",
+    "DJI_20260107143328_0008",
+    "DJI_20260107143344_0009",
+    "DJI_20260107143401_0011"
+  ],
+  "garden_hill_exclusion": true,
+  "whole_day_extension_date": "2026-02-02",
+  "inputs": {
+    "pilot_pairs": "data/metadata/part_b_pilot_pairs.xlsx",
+    "image_metadata": "data/metadata/dji_image_metadata.xlsx",
+    "temperature_summary": "outputs/part_d/summaries/part_d_tat3_parameter_temperature_extraction_summary.csv",
+    "temperature_matrix_directory": "data/processed/part_d/temperature_matrices",
+    "temperature_matrix_format": "npy_float32_celsius",
+    "ambient_manifest": "data/metadata/part_e_ambient_temperature_manifest.csv",
+    "mask_manifest": "outputs/part_c/summaries/part_c_final_mask_manifest.xlsx",
+    "part_c_combined_summary": "outputs/part_c/summaries/part_c_luhk_surface_cover_combined_summary.xlsx",
+    "surface_cover_mapping": "data/annotations/part_c/surface_cover_class_mapping.xlsx",
+    "shadow_mapping": "data/annotations/part_c/shadow_flag_mapping.xlsx",
+    "luhk_grid": "data/processed/grids/pilot_luhk_aligned_10m_grid_cells.xlsx",
+    "image_footprints": "data/processed/footprints/image_footprints.xlsx"
+  },
+  "outputs": {
+    "canonical_parquet": "data/processed/part_e/part_e_pixel_delta_t.parquet",
+    "sample_directory": "data/processed/part_e/samples",
+    "excel_source_directory": "data/processed/part_e/excel_source",
+    "part_e_root": "outputs/part_e",
+    "tables": "outputs/part_e/tables",
+    "qa": "outputs/part_e/qa",
+    "summaries": "outputs/part_e/summaries",
+    "excel": "outputs/part_e/excel",
+    "pixel_workbooks": "outputs/part_e/excel/pixel_workbooks",
+    "excel_figures": "outputs/part_e/figures/excel",
+    "spectrum_figures": "outputs/part_e/figures/spectrum",
+    "spatial_maps": "outputs/part_e/figures/spatial_maps"
+  },
+  "pixel_policy": "all_finite_pixels",
+  "ambient_source": "TAT3",
+  "ambient_validation_status": "provisional",
+  "shadow_policy": {
+    "separate_binary_flag": true,
+    "missing_is_not_zero": true,
+    "exclude_from_surface_cover_totals": true
+  },
+  "luhk_assignment": {
+    "method": "approximate_north_up_footprint_to_official_10m_grid_lookup",
+    "cell_id_use": "provenance_and_spatial_qa_only",
+    "temperature_aggregation_by_cell": false
+  },
+  "sampling": {
+    "method": "spatially_thinned_stratified_pseudorandom",
+    "primary_seed": 20260715,
+    "secondary_seeds": [
+      20260716, 20260717, 20260718, 20260719, 20260720,
+      20260721, 20260722, 20260723, 20260724, 20260725,
+      20260726, 20260727, 20260728, 20260729, 20260730,
+      20260731, 20260732, 20260733, 20260734, 20260735
+    ],
+    "spatial_tile_size_px": 8,
+    "max_pixels_per_group": 10000,
+    "max_pixels_per_image_per_group": 2500,
+    "minimum_pixels_for_formal_plot": 100,
+    "minimum_images_for_cross_image_statement": 2
+  },
+  "statistics": {
+    "bootstrap_repetitions": 1000,
+    "permutation_repetitions": 999,
+    "multiple_testing_correction": "benjamini_hochberg",
+    "p_value_interpretation": "exploratory"
+  },
+  "spectrum": {
+    "kde_bandwidth_method": "scott",
+    "kde_grid_points": 512,
+    "minimum_unique_values_for_kde": 5,
+    "near_constant_std_c": 0.02,
+    "overlay_minimum_images": 2,
+    "bootstrap_confidence_level": 0.95
+  },
+  "excel": {
+    "authoring_runtime": "artifact_tool_then_excel_com",
+    "pixel_data_excel_table": true,
+    "freeze_panes": true,
+    "analysis_sample_rows_per_image": 5000,
+    "qa_formula_spotchecks_per_image": 25,
+    "pivot_tables_requested": true,
+    "native_charts_requested": true
+  },
+  "chart_export": {
+    "png_width_px": 2000,
+    "png_height_px": 1200,
+    "pdf_enabled": true,
+    "background": "white"
+  },
+  "overwrite": true,
+  "prediction_status": "skipped",
+  "prediction_reason": "insufficient independent images and current Part E scope is pixel-level distribution analysis"
+}

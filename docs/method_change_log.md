@@ -1,5 +1,29 @@
 # Method Change Log
 
+## 2026-07-16 Part E pixel-level spectrum priority
+
+Part E's primary scientific visual result is now the pixel-level ΔT
+distribution/density spectrum. Spectrum means a statistical distribution of
+ΔT values, not electromagnetic reflectance or multispectral-band analysis.
+
+Key implications:
+
+- The formal observation is one accepted finite thermal pixel with
+  `delta_t_c = temperature_c - ambient_temperature_c`.
+- All finite pixels remain in the canonical Parquet. Formal samples retain
+  original pixel values after spatial thinning; no LUHK-cell, tile, or
+  neighbouring-pixel mean is calculated before analysis.
+- Formal spectra use Python/SciPy and completed sampled-pixel Parquets. Boxplots,
+  spatial QA, coverage charts, and Excel charts are supporting outputs.
+- The earlier cell-level spectrum workflow is deprecated research history and
+  is absent from the formal pipeline.
+- Density height is normalized, not pixel count; counts and image coverage are
+  reported separately.
+- P-values remain exploratory, spatial dependence remains a limitation, and the
+  five-image pilot does not generalize to all of Hong Kong.
+- The current pilot has no valid shadow-present pixels, so a surface-cover ×
+  shadow spectrum is not estimable and no empty figure is produced.
+
 ## 2026-07-15 Part D TAT3-parameter extraction baseline
 
 Part D temperature extraction now requires per-image parameters parsed from
@@ -39,6 +63,9 @@ Key implications:
   review of apparent temperatures is complete.
 - The old June 2026 progress note with superseded prediction-first language has
   been archived under `docs/archive/deprecated/`.
+
+This 2026-07-15 cell-aggregation definition was superseded on 2026-07-16 by the
+formal pixel-level method above. It remains recorded here as change history.
 
 ## 2026-07-07 revised A-E project structure
 

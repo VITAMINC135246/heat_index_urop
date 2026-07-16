@@ -1,5 +1,7 @@
 .DS_Store
 .vscode/
+node_modules/
+**/node_modules/
 __pycache__/
 **/__pycache__/
 *.py[cod]
@@ -75,6 +77,7 @@ outputs/georef/
 !docs/**
 !scripts/
 !scripts/**
+scripts/**/node_modules/
 scripts/**/__pycache__/
 scripts/**/*.py[cod]
 !outputs/
@@ -91,8 +94,39 @@ data/processed/part_d/temperature_matrices/*.csv
 data/processed/part_d/temperature_matrices/*.npy
 data/processed/part_d/temperature_matrices/*_temperature_metadata.json
 
-# Part E is still exploratory. Keep reusable code, configuration, and the blank
-# input template under version control, but keep run-specific inputs and all
-# generated analysis products local until the workflow is formally validated.
+# Historical Part E pilot inputs and large reproducible pixel payloads remain
+# local. Formal code, configuration, compact tables, QA, reports, figures, and
+# a suitably sized main workbook are explicitly unignored below.
 data/metadata/part_e_pilot_ambient_temperature_manifest.csv
-outputs/part_e/
+data/processed/part_e/**/*.parquet
+data/processed/part_e/samples/*.csv
+data/processed/part_e/excel_source/*.csv
+outputs/part_e/excel/pixel_workbooks/
+outputs/part_e/workbook_previews/
+outputs/part_e/excel/*.inspect.ndjson
+outputs/part_e/qa/*.log
+outputs/part_e/**/*.lock
+outputs/part_e/**/~$*.xlsx
+
+!outputs/part_e/
+!outputs/part_e/DEPRECATED_CELL_LEVEL_OUTPUTS.md
+!outputs/part_e/tables/
+!outputs/part_e/tables/*.csv
+!outputs/part_e/qa/
+!outputs/part_e/qa/*.csv
+!outputs/part_e/qa/*.md
+!outputs/part_e/summaries/
+!outputs/part_e/summaries/*.md
+!outputs/part_e/figures/
+!outputs/part_e/figures/excel/
+!outputs/part_e/figures/excel/*.png
+!outputs/part_e/figures/excel/*.pdf
+!outputs/part_e/figures/spectrum/
+!outputs/part_e/figures/spectrum/*.png
+!outputs/part_e/figures/spectrum/*.pdf
+!outputs/part_e/figures/spectrum/*.md
+!outputs/part_e/figures/spatial_maps/
+!outputs/part_e/figures/spatial_maps/*.png
+!outputs/part_e/figures/spatial_maps/*.pdf
+!outputs/part_e/excel/
+!outputs/part_e/excel/part_e_pixel_statistical_analysis.xlsx

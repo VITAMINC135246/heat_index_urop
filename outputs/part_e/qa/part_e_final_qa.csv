@@ -1,0 +1,48 @@
+﻿area,check,status,detail
+inputs,pilot_pairs,PASS,E:\Projects\heat_index_urop\data\metadata\part_b_pilot_pairs.xlsx
+inputs,image_metadata,PASS,E:\Projects\heat_index_urop\data\metadata\dji_image_metadata.xlsx
+inputs,temperature_summary,PASS,E:\Projects\heat_index_urop\outputs\part_d\summaries\part_d_tat3_parameter_temperature_extraction_summary.csv
+inputs,temperature_matrix_directory,PASS,E:\Projects\heat_index_urop\data\processed\part_d\temperature_matrices
+inputs,ambient_manifest,PASS,E:\Projects\heat_index_urop\data\metadata\part_e_ambient_temperature_manifest.csv
+inputs,mask_manifest,PASS,E:\Projects\heat_index_urop\outputs\part_c\summaries\part_c_final_mask_manifest.xlsx
+inputs,part_c_combined_summary,PASS,E:\Projects\heat_index_urop\outputs\part_c\summaries\part_c_luhk_surface_cover_combined_summary.xlsx
+inputs,surface_cover_mapping,PASS,E:\Projects\heat_index_urop\data\annotations\part_c\surface_cover_class_mapping.xlsx
+inputs,shadow_mapping,PASS,E:\Projects\heat_index_urop\data\annotations\part_c\shadow_flag_mapping.xlsx
+inputs,luhk_grid,PASS,E:\Projects\heat_index_urop\data\processed\grids\pilot_luhk_aligned_10m_grid_cells.xlsx
+inputs,image_footprints,PASS,E:\Projects\heat_index_urop\data\processed\footprints\image_footprints.xlsx
+inputs,pilot_image_ids,PASS,5 unique pilot IDs
+canonical,row_count,PASS,"1,638,400 rows; expected 1,638,400"
+canonical,required_schema,PASS,missing=[]
+canonical,accepted_pixels_finite,PASS,"accepted=1,638,400; finite accepted=1,638,400"
+canonical,pixel_delta_t_formula,PASS,max abs error=1.91e-06 °C
+canonical,complete_image_grids,PASS,"{""DJI_20260107143259_0005"": 327680, ""DJI_20260107143320_0007"": 327680, ""DJI_20260107143328_0008"": 327680, ""DJI_20260107143344_0009"": 327680, ""DJI_20260107143401_0011"": 327680}"
+canonical,shadow_status,PASS,valid shadow_flag=1 pixels=0
+samples,reproducibility,PASS,{'PASS': 5}
+samples,luhk,PASS,"sampled=12,113; coverage=12,113; manifest=12,113; unique pixels=12,113"
+samples,surface_cover,PASS,"sampled=27,074; coverage=27,074; manifest=27,074; unique pixels=27,074"
+samples,luhk_surface_cover,PASS,"sampled=29,193; coverage=29,193; manifest=29,193; unique pixels=29,193"
+samples,surface_cover_shadow,PASS,"sampled=27,074; coverage=27,074; manifest=27,074; unique pixels=27,074"
+samples,image_comparison,PASS,"sampled=12,500; coverage=12,500; manifest=12,500; unique pixels=12,500"
+analysis,required_tables,PASS,missing=[]
+analysis,sampling_stability_seeds,PASS,21 seeds; expected 21
+spectrum,fig00_pixel_delta_t_spectrum_overall,PASS,PNG 3192×1473; top-left luminance=255; PDF=valid
+spectrum,fig01_pixel_delta_t_spectrum_by_luhk_facets,PASS,PNG 3192×2201; top-left luminance=255; PDF=valid
+spectrum,fig02_pixel_delta_t_spectrum_by_surface_cover_facets,PASS,PNG 3192×2201; top-left luminance=255; PDF=valid
+spectrum,fig03_pixel_delta_t_spectrum_within_gic_by_cover_facets,PASS,PNG 3192×2201; top-left luminance=255; PDF=valid
+spectrum,fig04_pixel_delta_t_spectrum_within_gic_overlay,PASS,PNG 4430×1582; top-left luminance=255; PDF=valid
+spectrum,fig05_pixel_delta_t_spectrum_by_image_facets,PASS,PNG 3192×2201; top-left luminance=255; PDF=valid
+spectrum,fig07_pixel_delta_t_sampling_stability,PASS,PNG 2769×1538; top-left luminance=255; PDF=valid
+spectrum,fig08_pixel_delta_t_surface_cover_bootstrap_ci,PASS,PNG 2515×1495; top-left luminance=255; PDF=valid
+spectrum,shadow_not_estimable,PASS,"no fig06 files, as required"
+spectrum,source_summary,PASS,rows=26; missing columns=[]
+spectrum,captions,PASS,caption file=E:\Projects\heat_index_urop\outputs\part_e\figures\spectrum\part_e_spectrum_figure_captions.md; required statements present=True
+supporting,supporting_figures,PASS,missing=[]
+supporting,spatial_figures,PASS,missing count=0
+supporting,excel_workbooks,PASS,part_e_pixel_statistical_analysis.xlsx=valid; DJI_20260107143259_0005_pixel_delta_t.xlsx=valid; DJI_20260107143320_0007_pixel_delta_t.xlsx=valid; DJI_20260107143328_0008_pixel_delta_t.xlsx=valid; DJI_20260107143344_0009_pixel_delta_t.xlsx=valid; DJI_20260107143401_0011_pixel_delta_t.xlsx=valid
+methodology,legacy_spectrum_deprecated,PASS,legacy script preserved and absent from formal pipeline
+supporting,part_e_root,PASS,E:\Projects\heat_index_urop\outputs\part_e
+documentation,README,PASS,missing statements=[]
+documentation,methodology,PASS,missing statements=[]
+documentation,overview,PASS,missing statements=[]
+documentation,change_log,PASS,missing statements=[]
+documentation,formal_report,PASS,missing statements=[]
