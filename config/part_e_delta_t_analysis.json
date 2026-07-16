@@ -95,6 +95,8 @@
     "background": "white"
   },
   "overwrite": true,
+  "write_full_pixel_csv": false,
+  "require_provenance_fields": true,
   "prediction_status": "skipped",
   "prediction_reason": "insufficient independent images and current Part E scope is pixel-level distribution analysis"
 }

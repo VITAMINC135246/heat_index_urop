@@ -152,8 +152,8 @@ def main() -> int:
         image_id = str(record["image_id"])
         temperature = load_temperature(record)
         delta_t = temperature - np.float32(record["ambient_temperature_c"])
-        cover, shadow = load_masks(record)
-        luhk = build_luhk_pixel_labels(record, tables)
+        cover, shadow = load_masks(record, temperature.shape)
+        luhk = build_luhk_pixel_labels(record, tables, temperature.shape)
         luhk_code = np.asarray(luhk["class_code"], dtype=int); luhk_code[~np.asarray(luhk["mapped"], dtype=bool)] = -1
         scalar_map(temperature, f"{image_id} — full-pixel temperature", "Temperature (°C)", "cividis", directory, f"{image_id}_temperature_map")
         scalar_map(delta_t, f"{image_id} — full-pixel ΔT", "ΔT (°C)", "coolwarm", directory, f"{image_id}_delta_t_map")

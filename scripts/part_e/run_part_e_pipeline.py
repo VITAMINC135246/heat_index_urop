@@ -61,6 +61,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--spectrum-only", action="store_true", help="Run only the formal spectrum stage.")
     parser.add_argument("--skip-supporting-figures", action="store_true")
     parser.add_argument("--skip-excel", action="store_true")
+    parser.add_argument("--include-excel", action="store_true", help="Explicitly build the optional main Excel workbook.")
+    parser.add_argument(
+        "--include-per-image-excel",
+        action="store_true",
+        help="Explicitly build large per-image workbooks; also enables full pixel CSV export.",
+    )
+    parser.add_argument(
+        "--write-full-pixel-csv",
+        action="store_true",
+        help="Explicitly export large per-image pixel CSV files during extraction.",
+    )
     parser.add_argument("--image-id", help="Limit stages that support targeted per-image output.")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--resume", action="store_true", help="Skip stages whose required outputs already exist.")
@@ -88,7 +99,8 @@ def stage_definitions() -> list[Stage]:
         return [py("00_audit_part_e_inputs.py", args)]
 
     def extract_commands(args: argparse.Namespace) -> list[Command]:
-        return [py("01_build_pixel_delta_t_dataset.py", args, "--overwrite")]
+        extra = ("--write-full-pixel-csv",) if (args.write_full_pixel_csv or args.include_per_image_excel) else ()
+        return [py("01_build_pixel_delta_t_dataset.py", args, "--overwrite", *extra)]
 
     def pixel_validation_commands(args: argparse.Namespace) -> list[Command]:
         return [py("10_validate_part_e_outputs.py", args, "--scope", "pixels")]
@@ -111,22 +123,25 @@ def stage_definitions() -> list[Stage]:
 
     def excel_commands(args: argparse.Namespace) -> list[Command]:
         image_extra = ("--image-id", args.image_id) if args.image_id else ()
-        first = py("06_build_per_image_pixel_workbooks.py", args, *image_extra)
-        first.optional = True
-        commands = [first]
-        if not args.image_id:
+        commands: list[Command] = []
+        if args.include_per_image_excel:
+            first = py("06_build_per_image_pixel_workbooks.py", args, *image_extra)
+            first.optional = True
+            commands.append(first)
+        if args.include_excel and not args.image_id:
             main_workbook = py("07_build_main_excel_workbook.py", args)
             main_workbook.optional = True
             export_charts = py("09_export_excel_charts.py", args)
             export_charts.optional = True
+            commands.append(main_workbook)
+        if commands:
             commands.extend([
-                main_workbook,
                 Command([
                     "powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
                     str(PROJECT_ROOT / "scripts" / "part_e" / "08_finalize_excel_workbooks.ps1"),
                     "-ProjectRoot", str(PROJECT_ROOT), "-ConfigPath", str(project_path(args.config)),
                 ], optional=True),
-                export_charts,
+                *([export_charts] if args.include_excel and not args.image_id else []),
             ])
         return commands
 
@@ -149,8 +164,11 @@ def stage_definitions() -> list[Stage]:
 
     def excel_outputs(args: argparse.Namespace, config: dict) -> list[Path]:
         ids = [args.image_id] if args.image_id else list(config["pilot_image_ids"])
-        paths = [output(config, "pixel_workbooks", f"{image_id}_pixel_delta_t.xlsx") for image_id in ids]
-        if not args.image_id:
+        paths = (
+            [output(config, "pixel_workbooks", f"{image_id}_pixel_delta_t.xlsx") for image_id in ids]
+            if args.include_per_image_excel else []
+        )
+        if args.include_excel and not args.image_id:
             paths.append(output(config, "excel", "part_e_pixel_statistical_analysis.xlsx"))
         return paths
 
@@ -222,7 +240,7 @@ def selected_stages(args: argparse.Namespace, stages: list[Stage]) -> list[Stage
         selected = stages[start : stop + 1]
     if args.skip_supporting_figures:
         selected = [stage for stage in selected if stage.name != "supporting-figures"]
-    if args.skip_excel:
+    if args.skip_excel or not (args.include_excel or args.include_per_image_excel):
         selected = [stage for stage in selected if stage.name != "excel"]
     return selected
 
@@ -233,7 +251,7 @@ def main() -> int:
         raise ValueError("--workers must be at least 1")
     config = load_config(args.config)
     if args.image_id and args.image_id not in set(map(str, config["pilot_image_ids"])):
-        raise ValueError(f"Unknown pilot image ID: {args.image_id}")
+        raise ValueError(f"Unknown selected image ID: {args.image_id}")
     stages = selected_stages(args, stage_definitions())
     print(f"Part E stages: {', '.join(stage.name for stage in stages) or 'none'}")
     print(f"Worker budget: {args.workers}; deterministic single-process execution is used by current stages")

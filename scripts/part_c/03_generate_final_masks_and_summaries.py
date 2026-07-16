@@ -28,6 +28,7 @@ import pandas as pd
 from PIL import Image, ImageDraw, ImageOps
 
 from table_io import read_table, write_rows, write_table
+from workflow.part_b_review import accepted_alignment_rows
 
 
 ANNOTATION_DIR = PROJECT_ROOT / "data" / "annotations" / "part_c"
@@ -300,11 +301,7 @@ def validate_annotations(
     else:
         add_validation(rows, "annotations", "shadow_column", "pass", "info", f"Using `{shadow_col}` as the shadow flag source.")
 
-    accepted_alignment = alignment.copy()
-    if "alignment_quality" in accepted_alignment.columns:
-        accepted_alignment = accepted_alignment.loc[
-            accepted_alignment["alignment_quality"].astype(str).str.casefold().eq("acceptable")
-        ]
+    accepted_alignment = accepted_alignment_rows(alignment)
     accepted_pair_ids = set(accepted_alignment["pair_id"].astype(str)) if "pair_id" in accepted_alignment.columns else set()
     pilot_pair_ids = set(pilot_pairs["pair_id"].astype(str)) if "pair_id" in pilot_pairs.columns else set()
     annotation_pair_ids = set(annotations["pair_id"].astype(str)) if "pair_id" in annotations.columns else set()

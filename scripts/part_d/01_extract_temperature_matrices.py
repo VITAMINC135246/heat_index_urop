@@ -64,7 +64,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "sdk_root": "",
     "dji_irp_exe": "",
     "measure_format": "float32",
-    "write_matrix_csv": True,
+    "write_matrix_csv": False,
     "keep_sdk_raw": False,
 }
 
@@ -926,11 +926,13 @@ def process_pairs(config: dict[str, Any], tool: SdkTool, args: argparse.Namespac
                 "validation_flags": flags,
             }
 
-            class_mask = np.load(class_mask_path)
-            shadow_mask = np.load(shadow_mask_path)
-            aligned = class_mask.shape == temps.shape and shadow_mask.shape == temps.shape
-            if aligned:
+            class_mask = np.load(class_mask_path) if class_mask_path.is_file() else None
+            shadow_mask = np.load(shadow_mask_path) if shadow_mask_path.is_file() else None
+            available_masks = [mask for mask in (class_mask, shadow_mask) if mask is not None]
+            aligned = all(mask.shape == temps.shape for mask in available_masks)
+            if class_mask is not None and class_mask.shape == temps.shape:
                 class_qa_rows.extend(qa_by_class(image_id, pair_id, temps, class_mask, class_names))
+            if shadow_mask is not None and shadow_mask.shape == temps.shape:
                 shadow_qa_rows.extend(qa_by_shadow(image_id, pair_id, temps, shadow_mask))
 
             npy_path.parent.mkdir(parents=True, exist_ok=True)
@@ -944,9 +946,11 @@ def process_pairs(config: dict[str, Any], tool: SdkTool, args: argparse.Namespac
                 {
                     "extraction_status": "success",
                     "temperature_shape": f"{temps.shape[0]}x{temps.shape[1]}",
-                    "part_c_class_mask_shape": f"{class_mask.shape[0]}x{class_mask.shape[1]}",
-                    "part_c_shadow_mask_shape": f"{shadow_mask.shape[0]}x{shadow_mask.shape[1]}",
-                    "aligns_with_part_c_masks": "yes" if aligned else "no",
+                    "part_c_class_mask_shape": "" if class_mask is None else f"{class_mask.shape[0]}x{class_mask.shape[1]}",
+                    "part_c_shadow_mask_shape": "" if shadow_mask is None else f"{shadow_mask.shape[0]}x{shadow_mask.shape[1]}",
+                    "aligns_with_part_c_masks": (
+                        "not_applicable" if not available_masks else ("yes" if aligned else "no")
+                    ),
                     "temperature_min_c": round(float(stats["min_c"]), 6),
                     "temperature_max_c": round(float(stats["max_c"]), 6),
                     "temperature_mean_c": round(float(stats["mean_c"]), 6),
@@ -961,7 +965,11 @@ def process_pairs(config: dict[str, Any], tool: SdkTool, args: argparse.Namespac
                     "preview_png_path": relative_posix(preview_path),
                     "metadata_json_path": relative_posix(metadata_path),
                     "notes": (
-                        ("extracted and aligned" if aligned else "extracted but Part C mask shapes do not match")
+                        (
+                            "extracted; no optional Part C masks supplied"
+                            if not available_masks
+                            else ("extracted and aligned" if aligned else "extracted but Part C mask shapes do not match")
+                        )
                         + (f"; QA flags: {';'.join(flags)}" if flags else "")
                     ),
                 }
@@ -1010,6 +1018,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sdk-root", default="", help="External DJI Thermal SDK root.")
     parser.add_argument("--irp-exe", default="", help="Full path to external dji_irp.exe.")
     parser.add_argument("--no-matrix-csv", action="store_true", help="Skip full matrix CSV output.")
+    parser.add_argument(
+        "--write-matrix-csv",
+        action="store_true",
+        help="Explicitly export the large full temperature matrix CSV (disabled by default).",
+    )
     parser.add_argument("--keep-sdk-raw", action="store_true", help="Keep intermediate SDK float32 raw files.")
     return parser.parse_args()
 
@@ -1017,6 +1030,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     config = load_config(Path(args.config))
+    if args.write_matrix_csv:
+        config["write_matrix_csv"] = True
     if args.no_matrix_csv:
         config["write_matrix_csv"] = False
     if args.keep_sdk_raw:

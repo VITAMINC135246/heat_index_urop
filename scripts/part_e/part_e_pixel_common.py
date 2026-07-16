@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 import subprocess
 from pathlib import Path
 from typing import Any, Iterable
@@ -22,7 +21,6 @@ import pyarrow.parquet as pq
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-EXPECTED_SHAPE = (512, 640)
 LUHK_GRID_SIZE_M = 10.0
 LUHK_KEY_MULTIPLIER = 1_000_000
 
@@ -55,6 +53,13 @@ SAMPLE_COLUMNS = [
     "surface_cover_review_status",
     "shadow_flag",
     "shadow_valid",
+    "source_method",
+    "label_provenance",
+    "label_known",
+    "analysis_eligible",
+    "exclusion_reason",
+    "target_name",
+    "annotation_review_status",
 ]
 
 
@@ -248,24 +253,26 @@ def class_mapping(tables: dict[str, pd.DataFrame]) -> dict[int, str]:
 
 def load_temperature(record: pd.Series) -> np.ndarray:
     matrix = np.load(project_path(str(record["npy_path"])))
-    if matrix.shape != EXPECTED_SHAPE:
-        raise ValueError(f"{record['image_id']} temperature shape {matrix.shape}, expected {EXPECTED_SHAPE}.")
+    if matrix.ndim != 2 or not all(int(value) > 0 for value in matrix.shape):
+        raise ValueError(f"{record['image_id']} temperature matrix must be a non-empty two-dimensional grid.")
     return matrix.astype(np.float32, copy=False)
 
 
-def load_masks(record: pd.Series) -> tuple[np.ndarray, np.ndarray | None]:
+def load_masks(record: pd.Series, expected_shape: tuple[int, int] | None = None) -> tuple[np.ndarray, np.ndarray | None]:
     class_mask = np.load(project_path(str(record["class_mask_thermal_grid_npy_path"])))
-    if class_mask.shape != EXPECTED_SHAPE:
-        raise ValueError(f"{record['image_id']} cover-mask shape {class_mask.shape}, expected {EXPECTED_SHAPE}.")
+    if class_mask.ndim != 2:
+        raise ValueError(f"{record['image_id']} cover mask must be two-dimensional.")
+    if expected_shape is not None and class_mask.shape != expected_shape:
+        raise ValueError(f"{record['image_id']} cover-mask shape {class_mask.shape}, expected {expected_shape}.")
     shadow_path = project_path(str(record["shadow_mask_thermal_grid_npy_path"]))
     shadow_mask = np.load(shadow_path) if shadow_path.is_file() else None
-    if shadow_mask is not None and shadow_mask.shape != EXPECTED_SHAPE:
-        raise ValueError(f"{record['image_id']} shadow-mask shape {shadow_mask.shape}, expected {EXPECTED_SHAPE}.")
+    if shadow_mask is not None and expected_shape is not None and shadow_mask.shape != expected_shape:
+        raise ValueError(f"{record['image_id']} shadow-mask shape {shadow_mask.shape}, expected {expected_shape}.")
     return class_mask, shadow_mask
 
 
 def build_luhk_pixel_labels(
-    record: pd.Series, tables: dict[str, pd.DataFrame]
+    record: pd.Series, tables: dict[str, pd.DataFrame], shape: tuple[int, int]
 ) -> dict[str, np.ndarray | float]:
     grid = tables["grid"].copy()
     grid = grid.loc[grid["pair_id"].astype(str).eq(str(record["pair_id"])) & truthy(grid["is_thermal_covered"])].copy()
@@ -285,7 +292,7 @@ def build_luhk_pixel_labels(
     origin_y = np.median(
         grid["cell_max_y_2326"].astype(float) + grid["luhk_row"].astype(float) * LUHK_GRID_SIZE_M
     )
-    height, width = EXPECTED_SHAPE
+    height, width = shape
     x_centers = float(footprint["min_x_2326"]) + (
         np.arange(width, dtype=np.float64) + 0.5
     ) * (float(footprint["max_x_2326"]) - float(footprint["min_x_2326"])) / width
@@ -305,7 +312,7 @@ def build_luhk_pixel_labels(
     key_to_index = {int(key): index for index, key in enumerate(cell_keys)}
     unique_keys, inverse = np.unique(keys, return_inverse=True)
     unique_indices = np.array([key_to_index.get(int(key), -1) for key in unique_keys], dtype=np.int32)
-    cell_index = unique_indices[inverse].reshape(EXPECTED_SHAPE)
+    cell_index = unique_indices[inverse].reshape(shape)
     mapped = cell_index >= 0
     safe = np.where(mapped, cell_index, 0)
     return {
@@ -349,27 +356,31 @@ def splitmix64(values: np.ndarray, seed: int) -> np.ndarray:
 
 def family_eligible_and_group(frame: pd.DataFrame, family: str) -> tuple[np.ndarray, pd.Series]:
     accepted = frame["pixel_accepted"].astype(bool).to_numpy()
+    source = frame.get("source_method", pd.Series("visible_review", index=frame.index)).astype(str)
+    prefix = (source + " | ") if source.nunique(dropna=False) > 1 else ""
+    analysis_eligible = frame.get("analysis_eligible", frame["surface_cover_valid"]).astype(bool).to_numpy()
     if family == "luhk":
         eligible = accepted & frame["luhk_label_valid"].astype(bool).to_numpy()
-        group = frame["luhk_class_code"].astype(str) + " | " + frame["luhk_class_name"].astype(str)
+        group = prefix + frame["luhk_class_code"].astype(str) + " | " + frame["luhk_class_name"].astype(str)
     elif family == "surface_cover":
-        eligible = accepted & frame["surface_cover_valid"].astype(bool).to_numpy()
-        group = frame["surface_cover_class"].astype(str)
+        eligible = accepted & frame["surface_cover_valid"].astype(bool).to_numpy() & analysis_eligible
+        group = prefix + frame["surface_cover_class"].astype(str)
     elif family == "luhk_surface_cover":
-        eligible = accepted & frame["luhk_label_valid"].astype(bool).to_numpy() & frame["surface_cover_valid"].astype(bool).to_numpy()
+        eligible = accepted & frame["luhk_label_valid"].astype(bool).to_numpy() & frame["surface_cover_valid"].astype(bool).to_numpy() & analysis_eligible
         group = (
-            frame["luhk_class_code"].astype(str)
+            prefix
+            + frame["luhk_class_code"].astype(str)
             + " | "
             + frame["luhk_class_name"].astype(str)
             + " | "
             + frame["surface_cover_class"].astype(str)
         )
     elif family == "surface_cover_shadow":
-        eligible = accepted & frame["surface_cover_valid"].astype(bool).to_numpy() & frame["shadow_valid"].astype(bool).to_numpy()
-        group = frame["surface_cover_class"].astype(str) + " | shadow=" + frame["shadow_flag"].astype("Int64").astype(str)
+        eligible = accepted & frame["surface_cover_valid"].astype(bool).to_numpy() & frame["shadow_valid"].astype(bool).to_numpy() & analysis_eligible
+        group = prefix + frame["surface_cover_class"].astype(str) + " | shadow=" + frame["shadow_flag"].astype("Int64").astype(str)
     elif family == "image_comparison":
         eligible = accepted
-        group = frame["image_id"].astype(str)
+        group = prefix + frame["image_id"].astype(str)
     else:
         raise KeyError(f"Unknown analysis family: {family}")
     return eligible, group
@@ -415,19 +426,18 @@ def spatially_thinned_sample(
             "thermal_col": frame.iloc[positions]["thermal_col"].to_numpy(dtype=np.int32),
         }
     )
-    image_codes, image_labels = pd.factorize(work["image_id"], sort=True)
-    group_codes, group_labels = pd.factorize(work["group_name"], sort=True)
     tile_size = int(sampling["spatial_tile_size_px"])
-    tile_cols = math.ceil(EXPECTED_SHAPE[1] / tile_size)
-    tile_count = math.ceil(EXPECTED_SHAPE[0] / tile_size) * tile_cols
     work["tile_row"] = work["thermal_row"] // tile_size
     work["tile_col"] = work["thermal_col"] // tile_size
-    tile_code = work["tile_row"].to_numpy(np.int64) * tile_cols + work["tile_col"].to_numpy(np.int64)
-    strata_key = (image_codes.astype(np.int64) * len(group_labels) + group_codes.astype(np.int64)) * tile_count + tile_code
-    base_id = image_codes.astype(np.uint64) * np.uint64(EXPECTED_SHAPE[0] * EXPECTED_SHAPE[1]) + (
-        work["thermal_row"].to_numpy(np.uint64) * np.uint64(EXPECTED_SHAPE[1])
-        + work["thermal_col"].to_numpy(np.uint64)
+    strata_key, _ = pd.factorize(
+        pd.MultiIndex.from_frame(work[["image_id", "group_name", "tile_row", "tile_col"]]),
+        sort=True,
     )
+    pixel_key, _ = pd.factorize(
+        pd.MultiIndex.from_frame(work[["image_id", "thermal_row", "thermal_col"]]),
+        sort=True,
+    )
+    base_id = pixel_key.astype(np.uint64)
     score = splitmix64(base_id, seed)
     order = np.lexsort((score, strata_key))
     sorted_keys = strata_key[order]
@@ -483,8 +493,28 @@ def spatially_thinned_sample(
 
 
 def read_canonical(config: dict[str, Any], columns: list[str] | None = None) -> pd.DataFrame:
-    table = pq.read_table(project_path(config["outputs"]["canonical_parquet"]), columns=columns)
-    return table.to_pandas(strings_to_categorical=True)
+    path = project_path(config["outputs"]["canonical_parquet"])
+    available = set(pq.ParquetFile(path).schema_arrow.names)
+    selected = None if columns is None else [column for column in columns if column in available]
+    frame = pq.read_table(path, columns=selected).to_pandas(strings_to_categorical=True)
+    defaults: dict[str, Any] = {
+        "source_method": "visible_review",
+        "label_provenance": "visible_review",
+        "label_known": frame.get("surface_cover_valid", pd.Series(False, index=frame.index)),
+        "analysis_eligible": frame.get("surface_cover_valid", pd.Series(False, index=frame.index)),
+        "exclusion_reason": "",
+        "target_name": "",
+        "annotation_review_status": frame.get("surface_cover_review_status", pd.Series("", index=frame.index)),
+    }
+    for column, value in defaults.items():
+        if column not in frame.columns:
+            frame[column] = value
+    if columns is not None:
+        missing = [column for column in columns if column not in frame.columns]
+        if missing:
+            raise ValueError(f"Canonical dataset is missing required columns: {missing}")
+        return frame[columns]
+    return frame
 
 
 def write_sample_outputs(config: dict[str, Any], family: str, sample: pd.DataFrame) -> None:

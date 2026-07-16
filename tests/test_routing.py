@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import unittest
 
+import pandas as pd
+
 from scripts.workflow.models import (
     CoverageClass,
     ManualReviewStatus,
@@ -11,6 +13,7 @@ from scripts.workflow.models import (
     SceneCorrespondence,
 )
 from scripts.workflow.routing import finalize_part_b, route_group
+from scripts.workflow.part_b_review import accepted_alignment_rows
 
 
 class RoutingTests(unittest.TestCase):
@@ -54,6 +57,16 @@ class RoutingTests(unittest.TestCase):
         decision = PartBDecision(group_id="g1", manual_review_status=ManualReviewStatus.CANCELLED)
         route = route_group(decision, thermal_valid=True)
         self.assertEqual(route.route, ProcessingRoute.CANCELLED)
+
+    def test_final_status_takes_precedence_over_candidate_quality(self) -> None:
+        rows = pd.DataFrame(
+            [
+                {"image_id": "rejected", "alignment_quality": "acceptable", "final_alignment_status": "rejected"},
+                {"image_id": "accepted", "alignment_quality": "poor", "final_alignment_status": "accepted"},
+            ]
+        )
+        accepted = accepted_alignment_rows(rows)
+        self.assertEqual(accepted["image_id"].tolist(), ["accepted"])
 
 
 if __name__ == "__main__":

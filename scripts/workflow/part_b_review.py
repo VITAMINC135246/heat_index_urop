@@ -105,3 +105,16 @@ def resolve_decision(
         review_evidence_path=source.review_evidence_path,
         notes=source.notes,
     )
+
+
+def accepted_alignment_rows(frame: pd.DataFrame) -> pd.DataFrame:
+    """Return final-accepted rows while reading frozen legacy pilot summaries."""
+    if "final_alignment_status" in frame.columns:
+        return frame.loc[
+            frame["final_alignment_status"].astype(str).str.casefold().eq("accepted")
+        ].copy()
+    if "alignment_quality" in frame.columns:
+        return frame.loc[
+            frame["alignment_quality"].astype(str).str.casefold().eq("acceptable")
+        ].copy()
+    return frame.iloc[0:0].copy()

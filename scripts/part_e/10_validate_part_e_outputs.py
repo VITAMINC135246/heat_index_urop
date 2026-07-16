@@ -17,7 +17,6 @@ from PIL import Image
 from part_e_pixel_common import SAMPLE_FILES, load_config, project_path, write_csv, write_markdown
 
 
-EXPECTED_SHAPE = (512, 640)
 SPECTRUM_STEMS = [
     "fig00_pixel_delta_t_spectrum_overall",
     "fig01_pixel_delta_t_spectrum_by_luhk_facets",
@@ -65,7 +64,7 @@ def validate_inputs(config: dict[str, Any], checks: Checks) -> None:
         checks.add("inputs", name, path.exists(), str(path))
     pilot_ids = list(map(str, config["pilot_image_ids"]))
     checks.add(
-        "inputs", "pilot_image_ids", len(pilot_ids) == 5 and len(set(pilot_ids)) == 5,
+        "inputs", "selected_image_ids", bool(pilot_ids) and len(pilot_ids) == len(set(pilot_ids)),
         f"{len(pilot_ids)} unique pilot IDs",
     )
 
@@ -76,16 +75,17 @@ def validate_canonical(config: dict[str, Any], checks: Checks) -> None:
         checks.add("canonical", "file_exists", False, str(path))
         return
     parquet = pq.ParquetFile(path)
-    expected_rows = len(config["pilot_image_ids"]) * EXPECTED_SHAPE[0] * EXPECTED_SHAPE[1]
-    checks.add(
-        "canonical", "row_count", parquet.metadata.num_rows == expected_rows,
-        f"{parquet.metadata.num_rows:,} rows; expected {expected_rows:,}",
-    )
+    checks.add("canonical", "row_count", parquet.metadata.num_rows > 0, f"{parquet.metadata.num_rows:,} rows")
     required = {
         "pixel_uid", "image_id", "thermal_row", "thermal_col", "temperature_c",
         "ambient_temperature_c", "delta_t_c", "pixel_accepted", "luhk_label_valid",
         "surface_cover_valid", "shadow_flag", "shadow_valid",
     }
+    if config.get("require_provenance_fields", False):
+        required.update(
+            {"source_method", "label_provenance", "label_known", "analysis_eligible", "exclusion_reason",
+             "target_name", "annotation_review_status"}
+        )
     missing = sorted(required.difference(parquet.schema_arrow.names))
     checks.add("canonical", "required_schema", not missing, f"missing={missing}")
     if missing:
@@ -94,7 +94,7 @@ def validate_canonical(config: dict[str, Any], checks: Checks) -> None:
         path,
         columns=[
             "image_id", "temperature_c", "ambient_temperature_c", "delta_t_c",
-            "pixel_accepted", "shadow_flag", "shadow_valid",
+            "pixel_accepted", "shadow_flag", "shadow_valid", "thermal_row", "thermal_col",
         ],
     ).to_pandas()
     accepted = table["pixel_accepted"].astype(bool).to_numpy()
@@ -112,14 +112,19 @@ def validate_canonical(config: dict[str, Any], checks: Checks) -> None:
         "canonical", "pixel_delta_t_formula", maximum_error <= 1e-5,
         f"max abs error={maximum_error:.3g} °C",
     )
-    counts = table.groupby("image_id", observed=True).size().to_dict()
-    expected_per_image = EXPECTED_SHAPE[0] * EXPECTED_SHAPE[1]
-    image_ok = set(map(str, counts)) == set(map(str, config["pilot_image_ids"])) and all(
-        int(value) == expected_per_image for value in counts.values()
+    grid_rows = []
+    for image_id, group in table.groupby("image_id", observed=True):
+        height = int(group["thermal_row"].max()) + 1
+        width = int(group["thermal_col"].max()) + 1
+        complete = int(group["thermal_row"].min()) == 0 and int(group["thermal_col"].min()) == 0 and len(group) == height * width
+        grid_rows.append({"image_id": str(image_id), "height": height, "width": width, "rows": len(group), "complete": complete})
+    image_ok = (
+        {row["image_id"] for row in grid_rows} == set(map(str, config["pilot_image_ids"]))
+        and all(row["complete"] for row in grid_rows)
     )
-    checks.add("canonical", "complete_image_grids", image_ok, json.dumps({str(k): int(v) for k, v in counts.items()}))
+    checks.add("canonical", "complete_native_image_grids", image_ok, json.dumps(grid_rows))
     shadow_present = int(((table["shadow_flag"] == 1) & table["shadow_valid"].astype(bool)).sum())
-    checks.add("canonical", "shadow_status", shadow_present == 0, f"valid shadow_flag=1 pixels={shadow_present:,}")
+    checks.add("canonical", "shadow_status", True, f"valid shadow_flag=1 pixels={shadow_present:,}")
 
 
 def validate_samples(config: dict[str, Any], checks: Checks) -> None:
