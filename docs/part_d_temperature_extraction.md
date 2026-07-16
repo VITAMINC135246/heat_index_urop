@@ -110,3 +110,13 @@ Still requiring review before delta T:
 
 The old placeholder/default-parameter extraction is deprecated and should not be used for downstream analysis.
 <!-- PART_D_TAT3_PARAMETER_SUBZERO_QA:END -->
+
+## Version 0.1 canonical adapter
+
+Temperature extraction is now separable from label availability. The existing
+TAT3-parameter DJI SDK route is reused for new R-JPEGs, while explicit NPY and
+verified pilot matrices are supported adapters. Native dimensions are derived
+from the matrix; surface-cover and shadow masks are optional layers with strict
+shape checks. Unknown labels are never invented, and a Part C* result does not
+require a shadow mask. Full matrix CSV output is disabled unless explicitly
+requested.

@@ -74,6 +74,20 @@ tracked by Git.
 
 ## Usage
 
+### Version 0.1 local MVP
+
+The modular entry point for dataset/selected-file processing, cache reuse,
+explicit Part B routing, and the Part C* thermal polygon fallback is:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\run_analysis.py --help
+```
+
+See `docs/v0_1_workflow.md` for the canonical per-image contract, polygon
+known/unknown semantics, cache behavior, optional CSV/Excel exports, tests, and
+benchmark-derived request/retention limits. The numbered scripts remain the
+verified scientific implementations and compatibility entry points.
+
 Install the Python dependencies in your environment, then run:
 
 ```bash

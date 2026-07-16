@@ -183,3 +183,12 @@ Part A is mostly complete and ready for the next stage with minor environment
 limitations documented. The project now has a usable V/T inventory, pairing
 statistics, HKUST/Garden Hill distinction, LUHK reference check, metadata
 readiness check, camera/spatial assumptions, and pilot-candidate list.
+
+## Version 0.1 integration note
+
+`scripts/workflow/input_validation.py` now returns one structured validation
+record per V/T group for both dataset and selected-file modes. It validates
+existence, readability, type, role, identifier, time/session consistency, image
+metadata availability, and thermal availability. It deliberately does not
+claim scene correspondence; that decision remains in Part B. The existing
+pairing and DJI metadata scripts remain reusable preparation tools.

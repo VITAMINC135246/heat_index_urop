@@ -83,3 +83,13 @@ translation, affine, or homography transforms and report residual errors.
 - Do not extract thermal temperature values.
 - Do not treat LUHK as pixel-level surface cover.
 - Do not start full batch processing.
+
+## Version 0.1 routing note
+
+The FOV crop, cross-modal candidates, GCP support, and review images remain
+candidate-generation evidence. Version 0.1 stores scene correspondence,
+coverage class, automatic candidate status, manual review status, and final
+alignment status separately. A better automatic score never implies final
+acceptance. Only a manually accepted, fully supported final alignment enters
+normal Part C; unusable correspondence with a valid thermal image routes to
+the reviewed thermal-polygon fallback.

@@ -159,3 +159,14 @@ implementations. They remain recoverable from Git history and the
 - LUHK labels use an approximate north-up footprint model that ignores recorded
   yaw.
 - No shadow-present pixels are available, so a shadow effect is not estimable.
+
+## Version 0.1 multi-source ingestion
+
+The formal pipeline now derives native image dimensions and retains
+`source_method`, `label_provenance`, `label_known`, `analysis_eligible`,
+`exclusion_reason`, `target_name`, and annotation-review status where provided.
+Polygon exterior pixels cannot enter a surface-cover analysis family, and
+source methods are kept explicit rather than silently pooled. The project-level
+entry point writes a compatible combined Parquet and per-image descriptive
+summary; the numbered formal scripts remain the statistics, KDE, plot, QA, and
+resume implementation. Full pixel CSV and Excel generation are opt-in.

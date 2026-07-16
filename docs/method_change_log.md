@@ -1,5 +1,26 @@
 # Method Change Log
 
+## 2026-07-17 Version 0.1 modular local MVP
+
+The verified five-image workflow is now exposed through
+`scripts/run_analysis.py` with versioned per-image manifests, compatible-result
+reuse, explicit Part B review states, and a thermal-polygon fallback. This is an
+orchestration and contract change; it does not replace the verified alignment,
+visible review, TAT3/DJI extraction, or formal Part E methods.
+
+Key implications:
+
+- Automatic alignment quality remains candidate evidence and cannot create a
+  final acceptance without manual review.
+- Thermal-polygon labels are known only inside the accepted polygon; exterior
+  pixels remain unknown and are excluded from target analysis.
+- Native thermal dimensions and optional shadow masks are supported.
+- NPY and compressed Parquet are canonical. Full pixel CSV and per-image Excel
+  exports require explicit flags.
+- Source method, label provenance, eligibility, and exclusion reason are
+  retained through common Part E ingestion.
+- Existing pilot outputs remain regression evidence and are not deleted.
+
 ## 2026-07-16 Part E pixel-level spectrum priority
 
 Part E's primary scientific visual result is now the pixel-level ΔT

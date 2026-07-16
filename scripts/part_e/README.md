@@ -4,6 +4,17 @@
 numbered files below are the current formal implementation, ordered by their
 first use in the end-to-end workflow:
 
+At project level, version 0.1 uses `scripts/run_analysis.py` to route cached,
+visible-review, and thermal-polygon results into common Part E ingestion. This
+formal pipeline remains the reusable statistics and plotting implementation.
+It now derives native thermal dimensions and retains multi-source provenance;
+polygon exterior pixels are not surface-cover eligible.
+
+Full per-image pixel CSV and Excel workbooks are optional. Use
+`--write-full-pixel-csv`, `--include-excel`, or
+`--include-per-image-excel` explicitly when those delivery artifacts are
+required.
+
 | Stage | File | Purpose |
 |---:|---|---|
 | 00 | `00_audit_part_e_inputs.py` | Audit source matrices, masks, ambient values, orientation, and script namespace. |
