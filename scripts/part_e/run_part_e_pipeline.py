@@ -82,7 +82,7 @@ def output(config: dict, key: str, name: str = "") -> Path:
 
 def stage_definitions() -> list[Stage]:
     def discover_commands(args: argparse.Namespace) -> list[Command]:
-        return [py("08_validate_part_e_outputs.py", args, "--scope", "inputs")]
+        return [py("10_validate_part_e_outputs.py", args, "--scope", "inputs")]
 
     def audit_commands(args: argparse.Namespace) -> list[Command]:
         return [py("00_audit_part_e_inputs.py", args)]
@@ -91,7 +91,7 @@ def stage_definitions() -> list[Stage]:
         return [py("01_build_pixel_delta_t_dataset.py", args, "--overwrite")]
 
     def pixel_validation_commands(args: argparse.Namespace) -> list[Command]:
-        return [py("08_validate_part_e_outputs.py", args, "--scope", "pixels")]
+        return [py("10_validate_part_e_outputs.py", args, "--scope", "pixels")]
 
     def sample_commands(args: argparse.Namespace) -> list[Command]:
         return [py("02_build_pixel_analysis_samples.py", args)]
@@ -107,23 +107,23 @@ def stage_definitions() -> list[Stage]:
 
     def spatial_commands(args: argparse.Namespace) -> list[Command]:
         extra = ("--image-id", args.image_id) if args.image_id else ()
-        return [py("07_generate_pixel_spatial_figures.py", args, *extra)]
+        return [py("05_generate_pixel_spatial_figures.py", args, *extra)]
 
     def excel_commands(args: argparse.Namespace) -> list[Command]:
         image_extra = ("--image-id", args.image_id) if args.image_id else ()
-        first = py("04_build_per_image_pixel_workbooks.py", args, *image_extra)
+        first = py("06_build_per_image_pixel_workbooks.py", args, *image_extra)
         first.optional = True
         commands = [first]
         if not args.image_id:
-            main_workbook = py("05_build_main_excel_workbook.py", args)
+            main_workbook = py("07_build_main_excel_workbook.py", args)
             main_workbook.optional = True
-            export_charts = py("06_export_excel_charts.py", args)
+            export_charts = py("09_export_excel_charts.py", args)
             export_charts.optional = True
             commands.extend([
                 main_workbook,
                 Command([
                     "powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
-                    str(PROJECT_ROOT / "scripts" / "part_e" / "06_finalize_excel_workbooks.ps1"),
+                    str(PROJECT_ROOT / "scripts" / "part_e" / "08_finalize_excel_workbooks.ps1"),
                     "-ProjectRoot", str(PROJECT_ROOT), "-ConfigPath", str(project_path(args.config)),
                 ], optional=True),
                 export_charts,
@@ -131,10 +131,10 @@ def stage_definitions() -> list[Stage]:
         return commands
 
     def final_qa_commands(args: argparse.Namespace) -> list[Command]:
-        return [py("08_validate_part_e_outputs.py", args, "--scope", "all")]
+        return [py("10_validate_part_e_outputs.py", args, "--scope", "all")]
 
     def report_commands(args: argparse.Namespace) -> list[Command]:
-        return [py("09_generate_part_e_report.py", args)]
+        return [py("11_generate_part_e_report.py", args)]
 
     def spatial_outputs(args: argparse.Namespace, config: dict) -> list[Path]:
         ids = [args.image_id] if args.image_id else list(config["pilot_image_ids"])

@@ -94,10 +94,9 @@ data/processed/part_d/temperature_matrices/*.csv
 data/processed/part_d/temperature_matrices/*.npy
 data/processed/part_d/temperature_matrices/*_temperature_metadata.json
 
-# Historical Part E pilot inputs and large reproducible pixel payloads remain
-# local. Formal code, configuration, compact tables, QA, reports, figures, and
+# Large reproducible Part E pixel payloads remain local. Formal code,
+# configuration, compact tables, QA, reports, figures, and
 # a suitably sized main workbook are explicitly unignored below.
-data/metadata/part_e_pilot_ambient_temperature_manifest.csv
 data/processed/part_e/**/*.parquet
 data/processed/part_e/samples/*.csv
 data/processed/part_e/excel_source/*.csv
@@ -109,7 +108,6 @@ outputs/part_e/**/*.lock
 outputs/part_e/**/~$*.xlsx
 
 !outputs/part_e/
-!outputs/part_e/DEPRECATED_CELL_LEVEL_OUTPUTS.md
 !outputs/part_e/tables/
 !outputs/part_e/tables/*.csv
 !outputs/part_e/qa/

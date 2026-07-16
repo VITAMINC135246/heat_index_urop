@@ -13,13 +13,14 @@
 
 ## Existing implementation
 
-Part E scripts present at audit time: `00_audit_part_e_inputs.py`, `00_create_ambient_temperature_manifest_template.py`, `01_build_cell_delta_t_dataset.py`, `01_build_pixel_delta_t_dataset.py`, `02_build_pixel_analysis_samples.py`, `02_build_surface_cover_delta_t_dataset.py`, `03_generate_summary_tables.py`, `03_run_pixel_statistical_analysis.py`, `04_build_per_image_pixel_workbooks.py`, `04_generate_pixel_delta_t_spectra.py`, `04_run_exploratory_statistics.py`, `05_build_main_excel_workbook.py`, `05_create_figures.py`, `06_create_clear_spectrum_figures.py`, `06_export_excel_charts.py`, `07_generate_pixel_spatial_figures.py`, `08_validate_part_e_outputs.py`, `09_generate_part_e_report.py`, `excel_workbook_common.py`, `part_e_common.py`, `part_e_pixel_common.py`, `run_part_e_pipeline.py`.
+Active Part E implementation files: `00_audit_part_e_inputs.py`, `01_build_pixel_delta_t_dataset.py`, `02_build_pixel_analysis_samples.py`, `03_run_pixel_statistical_analysis.py`, `04_generate_pixel_delta_t_spectra.py`, `05_generate_pixel_spatial_figures.py`, `06_build_per_image_pixel_workbooks.py`, `07_build_main_excel_workbook.py`, `08_finalize_excel_workbooks.ps1`, `09_export_excel_charts.py`, `10_validate_part_e_outputs.py`, `11_generate_part_e_report.py`, `build_part_e_workbooks.mjs`, `excel_workbook_common.py`, `part_e_pixel_common.py`, `run_part_e_pipeline.py`.
 
-Legacy cell-level scripts retained as research history: `01_build_cell_delta_t_dataset.py`, `02_build_surface_cover_delta_t_dataset.py`, `03_generate_summary_tables.py`, `04_run_exploratory_statistics.py`, `05_create_figures.py`, `06_create_clear_spectrum_figures.py`.
-The old default workflow aggregated pixels to LUHK cells and is not methodologically valid for this formal round. Reusable elements are limited to deterministic footprint-to-LUHK lookup, source-table loading, and plotting conventions. The formal `run_part_e_pipeline.py` entry point invokes only the new pixel stages.
+Superseded cell-level scripts in the active directory: none.
+Duplicate numbered stage prefixes: none.
+The old workflow aggregated pixels to LUHK cells and was removed from the active tree after the formal pixel workflow was validated. It remains recoverable from Git history and the pre-validation checkpoint tag. The formal `run_part_e_pipeline.py` entry point invokes only the current pixel stages.
 The formal spectrum stage reads the completed sampled-pixel Parquets directly. It never reads the historical cell-level tables. Density is normalized rather than a count, and spatial thinning does not eliminate spatial autocorrelation.
 
-Historical local cell outputs detected: `part_e_cell_delta_t_exclusion_audit.csv`, `part_e_cell_delta_t_observations_all_finite.csv`; these are deprecated and never read by the formal pipeline.
+Superseded cell-level outputs detected in the formal output tree: none.
 
 ## Matrix and mask orientation
 

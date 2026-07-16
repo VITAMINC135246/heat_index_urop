@@ -46,7 +46,7 @@ Validation reads existing artifacts and does not regenerate extraction, sampling
 | supporting | supporting_figures | PASS | missing=[] |
 | supporting | spatial_figures | PASS | missing count=0 |
 | supporting | excel_workbooks | PASS | part_e_pixel_statistical_analysis.xlsx=valid; DJI_20260107143259_0005_pixel_delta_t.xlsx=valid; DJI_20260107143320_0007_pixel_delta_t.xlsx=valid; DJI_20260107143328_0008_pixel_delta_t.xlsx=valid; DJI_20260107143344_0009_pixel_delta_t.xlsx=valid; DJI_20260107143401_0011_pixel_delta_t.xlsx=valid |
-| methodology | legacy_spectrum_deprecated | PASS | legacy script preserved and absent from formal pipeline |
+| methodology | formal_script_namespace_clean | PASS | active numbered scripts=['00_audit_part_e_inputs.py', '01_build_pixel_delta_t_dataset.py', '02_build_pixel_analysis_samples.py', '03_run_pixel_statistical_analysis.py', '04_generate_pixel_delta_t_spectra.py', '05_generate_pixel_spatial_figures.py', '06_build_per_image_pixel_workbooks.py', '07_build_main_excel_workbook.py', '08_finalize_excel_workbooks.ps1', '09_export_excel_charts.py', '10_validate_part_e_outputs.py', '11_generate_part_e_report.py']; legacy present=[]; duplicate prefixes=[] |
 | supporting | part_e_root | PASS | E:\Projects\heat_index_urop\outputs\part_e |
 | documentation | README | PASS | missing statements=[] |
 | documentation | methodology | PASS | missing statements=[] |

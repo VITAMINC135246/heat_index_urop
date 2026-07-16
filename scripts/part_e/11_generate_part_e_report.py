@@ -162,7 +162,7 @@ def main() -> int:
         ".\\.venv\\Scripts\\python.exe scripts\\part_e\\run_part_e_pipeline.py --config config\\part_e_delta_t_analysis.json --resume --from-stage final-qa --to-stage report",
         "```",
         "",
-        "The deprecated `06_create_clear_spectrum_figures.py` is research history only and is never called by the formal pipeline.",
+        "The superseded cell-level scripts and their generated outputs were removed from the active tree after the pixel workflow was validated. They remain recoverable from Git history and the pre-validation checkpoint tag.",
         "",
         "## Limitations",
         "",

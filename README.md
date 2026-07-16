@@ -18,6 +18,8 @@ model.
 - `docs/part_e_delta_t_statistical_analysis.md`: current Part E delta-T
   analysis method, ambient-temperature requirement, and provisional-result
   rule.
+- `docs/repository_inventory.md`: repository layout policy, current boundary
+  exceptions, and future migration guidance.
 - `scripts/`: reproducible inventory, metadata, footprint, grid, and LUHK
   overlay scripts.
 - `data/metadata/`: generated V/T and metadata XLSX tables kept under version
@@ -178,8 +180,9 @@ stage:
 Formal PNG/PDF figures and captions are under
 `outputs/part_e/figures/spectrum/`. Boxplots, coverage charts, spatial panels,
 and Excel charts remain supporting outputs. Python/SciPy is the formal plotting
-engine; Excel is optional. The deprecated cell-level spectrum script is retained
-as research history and is never called by the formal pipeline.
+engine; Excel is optional. Superseded cell-level scripts and outputs were
+removed from the active tree after validation and remain recoverable from Git
+history.
 
 Part A does not include V/T geometric alignment, visible/thermal ROI matching,
 segmentation, temperature extraction, LUHK overlay production, or model

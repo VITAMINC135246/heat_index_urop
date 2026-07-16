@@ -2,7 +2,7 @@
 """Generate the formal Part E sampled-pixel delta-T spectrum figure family.
 
 "Spectrum" means a statistical distribution/density spectrum of original
-thermal-pixel delta-T values. This stage never reads the deprecated cell-level
+thermal-pixel delta-T values. This stage never reads the retired cell-level
 tables and never averages pixels before plotting.
 """
 

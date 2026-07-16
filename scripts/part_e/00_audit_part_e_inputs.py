@@ -104,16 +104,41 @@ def main() -> int:
     inventory_frame = pd.DataFrame(inventory)
     write_csv(project_path(config["outputs"]["qa"]) / "part_e_input_inventory.csv", inventory_frame)
 
-    existing_scripts = sorted(path.name for path in (PROJECT_ROOT / "scripts" / "part_e").glob("*.py"))
-    legacy_scripts = [name for name in existing_scripts if name in {
+    script_dir = PROJECT_ROOT / "scripts" / "part_e"
+    existing_scripts = sorted(
+        path.name for path in script_dir.iterdir()
+        if path.is_file() and path.suffix.casefold() in {".py", ".ps1", ".mjs"}
+    )
+    legacy_names = {
+        "00_create_ambient_temperature_manifest_template.py",
         "01_build_cell_delta_t_dataset.py",
         "02_build_surface_cover_delta_t_dataset.py",
         "03_generate_summary_tables.py",
         "04_run_exploratory_statistics.py",
         "05_create_figures.py",
         "06_create_clear_spectrum_figures.py",
-    }]
-    historical_outputs = sorted(path.name for path in (PROJECT_ROOT / "outputs" / "part_e" / "tables").glob("*cell*"))
+        "part_e_common.py",
+    }
+    legacy_scripts = sorted(name for name in existing_scripts if name in legacy_names)
+    numbered_scripts = [name for name in existing_scripts if len(name) > 3 and name[:2].isdigit() and name[2] == "_"]
+    duplicate_prefixes = sorted({prefix for prefix in (name[:2] for name in numbered_scripts) if sum(item.startswith(prefix + "_") for item in numbered_scripts) > 1})
+    legacy_output_names = {
+        "gic_surface_cover_delta_t_density_spectrum_facets.png",
+        "gic_surface_cover_delta_t_density_spectrum_overlay.png",
+        "luhk_delta_t_density_spectrum_facets.png",
+        "surface_cover_delta_t_density_spectrum_facets.png",
+    }
+    historical_outputs = sorted(
+        path.name
+        for path in (PROJECT_ROOT / "outputs" / "part_e").rglob("*")
+        if path.is_file() and ("cell_delta_t" in path.name or path.name in legacy_output_names)
+    )
+    if legacy_scripts:
+        problems.append(f"superseded Part E scripts remain in active directory: {legacy_scripts}")
+    if duplicate_prefixes:
+        problems.append(f"duplicate active Part E numeric prefixes: {duplicate_prefixes}")
+    if historical_outputs:
+        problems.append(f"superseded Part E outputs remain in formal output tree: {historical_outputs}")
     whole_day_root = PROJECT_ROOT / "data" / "raw" / "HKUST" / "20260202_Thermal_HKUST"
     whole_day_thermal_images = list(whole_day_root.rglob("*_T.JPG")) if whole_day_root.exists() else []
     whole_day_ready = False
@@ -134,16 +159,17 @@ def main() -> int:
         "",
         "## Existing implementation",
         "",
-        f"Part E scripts present at audit time: {', '.join(f'`{name}`' for name in existing_scripts)}.",
+        f"Active Part E implementation files: {', '.join(f'`{name}`' for name in existing_scripts)}.",
         "",
-        f"Legacy cell-level scripts retained as research history: {', '.join(f'`{name}`' for name in legacy_scripts)}.",
-        "The old default workflow aggregated pixels to LUHK cells and is not methodologically valid for this formal round. "
-        "Reusable elements are limited to deterministic footprint-to-LUHK lookup, source-table loading, and plotting conventions. "
-        "The formal `run_part_e_pipeline.py` entry point invokes only the new pixel stages.",
+        f"Superseded cell-level scripts in the active directory: {', '.join(f'`{name}`' for name in legacy_scripts) if legacy_scripts else 'none'}.",
+        f"Duplicate numbered stage prefixes: {', '.join(f'`{name}`' for name in duplicate_prefixes) if duplicate_prefixes else 'none'}.",
+        "The old workflow aggregated pixels to LUHK cells and was removed from the active tree after the formal pixel workflow was validated. "
+        "It remains recoverable from Git history and the pre-validation checkpoint tag. "
+        "The formal `run_part_e_pipeline.py` entry point invokes only the current pixel stages.",
         "The formal spectrum stage reads the completed sampled-pixel Parquets directly. It never reads the historical cell-level tables. "
         "Density is normalized rather than a count, and spatial thinning does not eliminate spatial autocorrelation.",
         "",
-        f"Historical local cell outputs detected: {', '.join(f'`{name}`' for name in historical_outputs) if historical_outputs else 'none'}; these are deprecated and never read by the formal pipeline.",
+        f"Superseded cell-level outputs detected in the formal output tree: {', '.join(f'`{name}`' for name in historical_outputs) if historical_outputs else 'none'}.",
         "",
         "## Matrix and mask orientation",
         "",

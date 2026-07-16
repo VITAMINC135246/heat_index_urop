@@ -20,7 +20,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     config_path = project_path(args.config)
-    script = PROJECT_ROOT / "scripts" / "part_e" / "06_finalize_excel_workbooks.ps1"
+    script = PROJECT_ROOT / "scripts" / "part_e" / "08_finalize_excel_workbooks.ps1"
     command = [
         "powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script),
         "-ProjectRoot", str(PROJECT_ROOT), "-ConfigPath", str(config_path),

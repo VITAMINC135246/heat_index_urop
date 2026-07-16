@@ -15,8 +15,9 @@ Key implications:
   neighbouring-pixel mean is calculated before analysis.
 - Formal spectra use Python/SciPy and completed sampled-pixel Parquets. Boxplots,
   spatial QA, coverage charts, and Excel charts are supporting outputs.
-- The earlier cell-level spectrum workflow is deprecated research history and
-  is absent from the formal pipeline.
+- The earlier cell-level spectrum workflow was retired from the active tree
+  after validation; it remains recoverable from Git history and is absent from
+  the formal pipeline.
 - Density height is normalized, not pixel count; counts and image coverage are
   reported separately.
 - P-values remain exploratory, spatial dependence remains a limitation, and the

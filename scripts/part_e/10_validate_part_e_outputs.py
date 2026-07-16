@@ -286,13 +286,33 @@ def validate_supporting_outputs(config: dict[str, Any], checks: Checks) -> None:
     checks.add(
         "supporting", "excel_workbooks", valid, "; ".join(workbook_details), required=False,
     )
-    legacy_script = project_path("scripts/part_e/06_create_clear_spectrum_figures.py")
+    script_dir = project_path("scripts/part_e")
+    legacy_names = {
+        "00_create_ambient_temperature_manifest_template.py",
+        "01_build_cell_delta_t_dataset.py",
+        "02_build_surface_cover_delta_t_dataset.py",
+        "03_generate_summary_tables.py",
+        "04_run_exploratory_statistics.py",
+        "05_create_figures.py",
+        "06_create_clear_spectrum_figures.py",
+        "part_e_common.py",
+    }
+    legacy_present = sorted(path.name for path in script_dir.iterdir() if path.name in legacy_names)
+    numbered_scripts = sorted(
+        path.name
+        for path in script_dir.iterdir()
+        if path.is_file() and len(path.name) > 3 and path.name[:2].isdigit() and path.name[2] == "_"
+    )
+    prefix_counts: dict[str, int] = {}
+    for name in numbered_scripts:
+        prefix_counts[name[:2]] = prefix_counts.get(name[:2], 0) + 1
+    duplicate_prefixes = sorted(prefix for prefix, count in prefix_counts.items() if count > 1)
     pipeline = project_path("scripts/part_e/run_part_e_pipeline.py")
     pipeline_text = pipeline.read_text(encoding="utf-8") if pipeline.is_file() else ""
     checks.add(
-        "methodology", "legacy_spectrum_deprecated",
-        legacy_script.is_file() and "06_create_clear_spectrum_figures.py" not in pipeline_text,
-        "legacy script preserved and absent from formal pipeline",
+        "methodology", "formal_script_namespace_clean",
+        not legacy_present and not duplicate_prefixes and not any(name in pipeline_text for name in legacy_names),
+        f"active numbered scripts={numbered_scripts}; legacy present={legacy_present}; duplicate prefixes={duplicate_prefixes}",
     )
     checks.add("supporting", "part_e_root", root.is_dir(), str(root))
 

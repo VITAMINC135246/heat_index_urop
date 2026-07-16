@@ -141,12 +141,13 @@ The driver also supports `--dry-run`, `--image-id`, `--workers`,
 `--skip-supporting-figures`, and `--skip-excel`. With `--resume`, completed
 upstream artifacts are reused rather than regenerated.
 
-## Deprecated research history
+## Retired research history
 
-`scripts/part_e/06_create_clear_spectrum_figures.py` and the older cell-level
-scripts are preserved as deprecated research history. Their data source is
-cell- or cell-cover aggregated observations, so the formal pipeline never calls
-them and their figures are not formal Part E spectra.
+The superseded cell-level scripts and their generated outputs were removed from
+the active tree after the pixel workflow passed validation. Their data source
+was cell- or cell-cover aggregated observations, so they are not formal Part E
+implementations. They remain recoverable from Git history and the
+`pre-e2e-validation-2026-07-15` checkpoint tag.
 
 ## Limitations
 
