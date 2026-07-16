@@ -107,6 +107,12 @@ outputs/part_e/qa/*.log
 outputs/part_e/**/*.lock
 outputs/part_e/**/~$*.xlsx
 
+# Version 0.1 runtime state and canonical per-image payloads. These are
+# reproducible/local artifacts, not source files.
+data/processed/images/
+data/metadata/canonical_result_index.json
+outputs/runs/
+
 !outputs/part_e/
 !outputs/part_e/tables/
 !outputs/part_e/tables/*.csv
