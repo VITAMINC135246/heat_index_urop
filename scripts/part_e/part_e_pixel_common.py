@@ -53,12 +53,17 @@ SAMPLE_COLUMNS = [
     "surface_cover_review_status",
     "shadow_flag",
     "shadow_valid",
+    "measurement_type",
+    "temperature_source",
     "source_method",
     "label_provenance",
+    "surface_cover_provenance",
+    "luhk_provenance",
     "label_known",
     "analysis_eligible",
     "exclusion_reason",
     "target_name",
+    "qa_status",
     "annotation_review_status",
 ]
 
@@ -355,9 +360,29 @@ def splitmix64(values: np.ndarray, seed: int) -> np.ndarray:
 
 
 def family_eligible_and_group(frame: pd.DataFrame, family: str) -> tuple[np.ndarray, pd.Series]:
-    accepted = frame["pixel_accepted"].astype(bool).to_numpy()
-    source = frame.get("source_method", pd.Series("visible_review", index=frame.index)).astype(str)
-    prefix = (source + " | ") if source.nunique(dropna=False) > 1 else ""
+    # Formal Part E is a delta-temperature analysis. Retain temperature-only
+    # rows in the canonical dataset, but do not fabricate an ambient value or
+    # admit a non-finite delta-T row into sampling.
+    delta_finite = (
+        np.isfinite(pd.to_numeric(frame["delta_t_c"], errors="coerce").to_numpy(float))
+        if "delta_t_c" in frame.columns
+        else np.ones(len(frame), dtype=bool)
+    )
+    accepted = frame["pixel_accepted"].astype(bool).to_numpy() & delta_finite
+    source_fields = [
+        ("measurement_type", "full_thermal_pixel"),
+        ("temperature_source", "unknown"),
+        ("source_method", "visible_review"),
+        ("surface_cover_provenance", "visible_review"),
+        ("luhk_provenance", "unknown"),
+        ("target_name", ""),
+        ("qa_status", "pass"),
+    ]
+    source = pd.Series("", index=frame.index, dtype=object)
+    for column, default in source_fields:
+        value = frame[column].astype(str) if column in frame else pd.Series(default, index=frame.index)
+        source = source + column + "=" + value + " | "
+    prefix = source
     analysis_eligible = frame.get("analysis_eligible", frame["surface_cover_valid"]).astype(bool).to_numpy()
     if family == "luhk":
         eligible = accepted & frame["luhk_label_valid"].astype(bool).to_numpy()
@@ -416,7 +441,16 @@ def spatially_thinned_sample(
     eligible, groups = family_eligible_and_group(frame, family)
     positions = np.flatnonzero(eligible)
     if not positions.size:
-        return pd.DataFrame(columns=SAMPLE_COLUMNS), pd.DataFrame()
+        sample_columns = SAMPLE_COLUMNS + [
+            "analysis_family", "group_name", "sampling_seed", "tile_row", "tile_col",
+            "sampling_method", "source_population_count",
+        ]
+        manifest_columns = [
+            "analysis_family", "group_name", "image_id", "eligible_pixel_count",
+            "sampled_pixel_count", "sampling_fraction", "sampling_seed", "sampling_method",
+            "spatial_tile_size_px", "max_pixels_per_group", "max_pixels_per_image_per_group",
+        ]
+        return pd.DataFrame(columns=sample_columns), pd.DataFrame(columns=manifest_columns)
     work = pd.DataFrame(
         {
             "position": positions,
@@ -499,11 +533,16 @@ def read_canonical(config: dict[str, Any], columns: list[str] | None = None) -> 
     frame = pq.read_table(path, columns=selected).to_pandas(strings_to_categorical=True)
     defaults: dict[str, Any] = {
         "source_method": "visible_review",
+        "measurement_type": "full_thermal_pixel",
+        "temperature_source": "legacy_part_d",
         "label_provenance": "visible_review",
+        "surface_cover_provenance": "visible_review",
+        "luhk_provenance": "unknown",
         "label_known": frame.get("surface_cover_valid", pd.Series(False, index=frame.index)),
         "analysis_eligible": frame.get("surface_cover_valid", pd.Series(False, index=frame.index)),
         "exclusion_reason": "",
         "target_name": "",
+        "qa_status": "pass",
         "annotation_review_status": frame.get("surface_cover_review_status", pd.Series("", index=frame.index)),
     }
     for column, value in defaults.items():
@@ -530,7 +569,7 @@ def write_sample_outputs(config: dict[str, Any], family: str, sample: pd.DataFra
         "sampling_method",
         "source_population_count",
     ]
-    output = sample[[column for column in ordered if column in sample.columns]].copy()
+    output = sample.reindex(columns=ordered).copy()
     for column in output.select_dtypes(include="category").columns:
         output[column] = output[column].astype(str)
     output.to_parquet(directory / f"{base}.parquet", index=False, compression="zstd")

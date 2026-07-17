@@ -138,3 +138,9 @@ outputs/runs/
 # Version 0.1 combined Part E outputs are regenerated from canonical images.
 data/processed/part_e_v0_1/
 outputs/part_e/tables/part_e_v0_1_source_summary.csv
+
+# Version 0.2 canonical aggregation, source dashboards, and formal run bundles
+# are regenerated from per-image manifests and remain local.
+data/processed/part_e_v0_2/
+outputs/part_e/source_dashboard/
+outputs/part_e/schema_0_2/

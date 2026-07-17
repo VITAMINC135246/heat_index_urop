@@ -35,6 +35,10 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 
 PALETTE = ["#0072B2", "#E69F00", "#009E73", "#CC79A7", "#D55E00", "#56B4E9", "#F0E442"]
+SOURCE_STRATA = [
+    "measurement_type", "temperature_source", "source_method",
+    "surface_cover_provenance", "luhk_provenance", "target_name", "qa_status",
+]
 
 
 def parse_args() -> argparse.Namespace:
@@ -61,6 +65,12 @@ def read_sample(config: dict, family: str) -> pd.DataFrame:
 
 def add_label(frame: pd.DataFrame, family: str) -> pd.DataFrame:
     result = frame.copy()
+    if "group_name" in result.columns:
+        # Schema 0.2 group_name already contains the complete source stratum.
+        # Reusing it here prevents measurement/provenance strata from being
+        # collapsed again by the formal statistical stage.
+        result["analysis_group"] = result["group_name"].astype(str)
+        return result
     if family == "luhk":
         result["analysis_group"] = result["luhk_class_code"].astype(str) + " | " + result["luhk_class_name"].astype(str)
     elif family == "surface_cover":
@@ -285,6 +295,15 @@ def stability_analysis(full: pd.DataFrame, config: dict) -> pd.DataFrame:
                 })
         print(f"Stability seeds completed for {family}: {len(seeds)}")
     result = pd.DataFrame(rows)
+    if result.empty:
+        return pd.DataFrame(columns=[
+            "analysis_family", "record_type", "sampling_seed", "is_primary_seed",
+            "group_a", "group_b", "sampled_n_a", "sampled_n_b", "sampled_mean_a",
+            "sampled_mean_b", "sampled_median_a", "sampled_median_b", "q25_a", "q75_a",
+            "pairwise_mean_difference", "pairwise_median_difference",
+            "effect_size_rank_biserial", "sign_agreement_mean_fraction",
+            "sign_agreement_median_fraction", "sign_agreement_effect_fraction", "stability_status",
+        ])
     result["sign_agreement_mean_fraction"] = np.nan
     result["sign_agreement_median_fraction"] = np.nan
     result["sign_agreement_effect_fraction"] = np.nan
@@ -316,6 +335,8 @@ def stability_analysis(full: pd.DataFrame, config: dict) -> pd.DataFrame:
 
 def apply_stability_coverage_rules(stability: pd.DataFrame, coverage: pd.DataFrame, config: dict) -> pd.DataFrame:
     result = stability.copy()
+    if result.empty:
+        return result
     minimum_n = int(config["sampling"]["minimum_pixels_for_formal_plot"])
     minimum_images = int(config["sampling"]["minimum_images_for_cross_image_statement"])
     lookup = coverage.set_index(["analysis_family", "group_name"])[
@@ -460,11 +481,11 @@ def main() -> int:
         return 0
     accepted = full["pixel_accepted"].astype(bool)
     summaries = {
-        "part_e_delta_t_by_luhk_pixels.csv": grouped_summary(full, samples["luhk"], ["luhk_class_code", "luhk_class_name"], accepted & full["luhk_label_valid"].astype(bool)),
-        "part_e_delta_t_by_surface_cover_pixels.csv": grouped_summary(full, samples["surface_cover"], ["surface_cover_class"], accepted & full["surface_cover_valid"].astype(bool)),
-        "part_e_delta_t_by_luhk_surface_cover_pixels.csv": grouped_summary(full, samples["luhk_surface_cover"], ["luhk_class_code", "luhk_class_name", "surface_cover_class"], accepted & full["luhk_label_valid"].astype(bool) & full["surface_cover_valid"].astype(bool)),
-        "part_e_delta_t_by_surface_cover_shadow_pixels.csv": grouped_summary(full, samples["surface_cover_shadow"], ["surface_cover_class", "shadow_flag"], accepted & full["surface_cover_valid"].astype(bool) & full["shadow_valid"].astype(bool)),
-        "part_e_delta_t_by_image_pixels.csv": grouped_summary(full, samples["image_comparison"], ["image_id"], accepted),
+        "part_e_delta_t_by_luhk_pixels.csv": grouped_summary(full, samples["luhk"], SOURCE_STRATA + ["luhk_class_code", "luhk_class_name"], accepted & full["luhk_label_valid"].astype(bool)),
+        "part_e_delta_t_by_surface_cover_pixels.csv": grouped_summary(full, samples["surface_cover"], SOURCE_STRATA + ["surface_cover_class"], accepted & full["surface_cover_valid"].astype(bool)),
+        "part_e_delta_t_by_luhk_surface_cover_pixels.csv": grouped_summary(full, samples["luhk_surface_cover"], SOURCE_STRATA + ["luhk_class_code", "luhk_class_name", "surface_cover_class"], accepted & full["luhk_label_valid"].astype(bool) & full["surface_cover_valid"].astype(bool)),
+        "part_e_delta_t_by_surface_cover_shadow_pixels.csv": grouped_summary(full, samples["surface_cover_shadow"], SOURCE_STRATA + ["surface_cover_class", "shadow_flag"], accepted & full["surface_cover_valid"].astype(bool) & full["shadow_valid"].astype(bool)),
+        "part_e_delta_t_by_image_pixels.csv": grouped_summary(full, samples["image_comparison"], SOURCE_STRATA + ["image_id"], accepted),
     }
     for filename, frame in summaries.items():
         write_csv(project_path(config["outputs"]["tables"]) / filename, frame)

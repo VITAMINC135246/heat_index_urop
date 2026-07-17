@@ -26,6 +26,14 @@ EXPECTED_TEMPERATURE = {
     "DJI_20260107143401_0011": (-29.1531429291, 40.5692062378, 16.0390987396, 30.4305057526, 9.9),
 }
 
+EXPECTED_DELTA_MEAN = {
+    "DJI_20260107143259_0005": 3.2802686942,
+    "DJI_20260107143320_0007": 5.7118446199,
+    "DJI_20260107143328_0008": 5.5528450844,
+    "DJI_20260107143344_0009": 6.2059433415,
+    "DJI_20260107143401_0011": 6.1390985313,
+}
+
 
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -71,6 +79,29 @@ class PilotNumericBaselineTests(unittest.TestCase):
             self.assertEqual(matrix.shape, (512, 640))
             np.testing.assert_allclose(actual, expected, rtol=0.0, atol=2e-6)
             self.assertEqual(matrix.size, 512 * 640)
+
+    def test_pilot_part_e_row_counts_and_selected_numeric_summaries(self) -> None:
+        tables = PROJECT_ROOT / "outputs" / "part_e" / "tables"
+        by_image = pd.read_csv(tables / "part_e_full_pixel_summary_by_image.csv").set_index("image_id")
+        self.assertEqual(set(by_image.index), set(EXPECTED_TEMPERATURE))
+        self.assertTrue(by_image["total_pixel_count"].eq(512 * 640).all())
+        self.assertEqual(int(by_image["total_pixel_count"].sum()), 5 * 512 * 640)
+        for image_id, expected in EXPECTED_DELTA_MEAN.items():
+            self.assertAlmostEqual(float(by_image.loc[image_id, "delta_t_mean_c"]), expected, places=8)
+
+        cover = pd.read_csv(tables / "part_e_delta_t_by_surface_cover_pixels.csv").set_index("surface_cover_class")
+        self.assertEqual(int(cover.loc["roof", "n_pixels_full"]), 569601)
+        self.assertAlmostEqual(float(cover.loc["roof", "mean_full"]), 6.9981487844, places=8)
+        self.assertEqual(int(cover.loc["vegetation_tree", "n_images"]), 5)
+        luhk = pd.read_csv(tables / "part_e_delta_t_by_luhk_pixels.csv")
+        gic = luhk.loc[luhk["luhk_class_code"].eq(31)].iloc[0]
+        self.assertEqual(int(gic["n_pixels_full"]), 1523465)
+        self.assertAlmostEqual(float(gic["mean_full"]), 5.6239319111, places=8)
+
+        coverage = pd.read_csv(tables / "part_e_pixel_sample_coverage.csv")
+        images = coverage.loc[coverage["analysis_family"].eq("image_comparison")]
+        self.assertEqual(len(images), 5)
+        self.assertTrue(images["sampled_pixel_count"].eq(2500).all())
 
 
 if __name__ == "__main__":

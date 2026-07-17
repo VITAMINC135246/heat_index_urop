@@ -35,6 +35,9 @@ class PartEMultiSourceTests(unittest.TestCase):
             configuration_hash="c", source_file_hashes={"t": image_id}, surface_cover_names={1: "roof", 5: "grass"},
             surface_cover_class_id=class_id, surface_cover_category=category,
             polygon_coordinates=[[0, 0], [2, 0], [2, 2]] if route == ProcessingRoute.THERMAL_POLYGON else [],
+            luhk_category="GIC / open space" if route == ProcessingRoute.THERMAL_POLYGON else None,
+            luhk_code="gic_open_space" if route == ProcessingRoute.THERMAL_POLYGON else None,
+            luhk_provenance="user_supplied_luhk" if route == ProcessingRoute.THERMAL_POLYGON else "unknown",
             temperature_metadata={"ambient_temperature_c": 20.0},
         )
         return path
@@ -65,7 +68,7 @@ class PartEMultiSourceTests(unittest.TestCase):
             self.assertEqual(set(combined["source_method"]), {"visible_review", "thermal_polygon_user_annotation"})
             polygon_rows = combined.loc[combined["source_method"].eq("thermal_polygon_user_annotation")]
             self.assertFalse(polygon_rows.loc[~polygon_rows["label_known"], "surface_cover_valid"].any())
-            self.assertTrue(polygon_rows.loc[~polygon_rows["label_known"], "exclusion_reason"].eq("label_unknown").all())
+            self.assertTrue(polygon_rows.loc[~polygon_rows["label_known"], "exclusion_reason"].eq("outside_target_selection").all())
 
 
 if __name__ == "__main__":
