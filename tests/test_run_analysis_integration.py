@@ -37,7 +37,7 @@ class RunAnalysisIntegrationTests(unittest.TestCase):
         )
         return config
 
-    def test_unreviewed_vt_uses_polygon_then_cache_and_part_e(self) -> None:
+    def test_rejected_b0_uses_polygon_then_cache_and_part_e(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             visible = root / "DJI_20260717120000_0001_V.JPG"
@@ -49,12 +49,15 @@ class RunAnalysisIntegrationTests(unittest.TestCase):
             np.save(matrix, np.arange(35, dtype=np.float32).reshape(5, 7))
             polygon = root / "polygon.json"
             polygon.write_text(
-                json.dumps({image_id: {"review_status": "accepted", "coordinates": [[1, 1], [5, 1], [5, 3], [1, 3]]}}),
+                json.dumps({image_id: {"review_status": "accepted", "coordinates": [[1, 1], [5, 1], [5, 3], [1, 3]], "luhk": "GIC / open space", "luhk_provenance": "user_supplied_luhk"}}),
                 encoding="utf-8",
             )
+            b0_review = root / "b0_review.json"
+            b0_review.write_text(json.dumps({image_id: "rejected"}), encoding="utf-8")
             config = self.write_config(root)
             command = [
                 sys.executable, str(SCRIPT), "--config", str(config), "--polygon-json", str(polygon),
+                "--part-b0-review", str(b0_review),
                 "--surface-cover", "grass_low_vegetation", "--target-name", "synthetic field",
                 "--temperature-npy", f"{image_id}={matrix}", "selected", "--group", str(visible), str(thermal),
             ]
@@ -81,11 +84,15 @@ class RunAnalysisIntegrationTests(unittest.TestCase):
             image_id = "DJI_20260717120000_0002"
             polygon = root / "polygon.json"
             polygon.write_text(json.dumps({image_id: {"review_status": "cancelled"}}), encoding="utf-8")
+            b0_review = root / "b0_review.json"
+            b0_review.write_text(json.dumps({image_id: "rejected"}), encoding="utf-8")
             config = self.write_config(root)
             completed = subprocess.run(
                 [
                     sys.executable, str(SCRIPT), "--config", str(config), "--polygon-json", str(polygon),
-                    "--surface-cover", "roof", "selected", "--group", str(visible), str(thermal),
+                    "--part-b0-review", str(b0_review), "--surface-cover", "roof",
+                    "--luhk", "GIC / open space", "--luhk-provenance", "user_supplied_luhk",
+                    "selected", "--group", str(visible), str(thermal),
                 ],
                 cwd=PROJECT_ROOT, capture_output=True, text=True, check=False,
             )
@@ -107,7 +114,7 @@ class RunAnalysisIntegrationTests(unittest.TestCase):
                 cwd=PROJECT_ROOT, capture_output=True, text=True, check=False,
             )
             self.assertEqual(completed.returncode, 1)
-            self.assertIn("missing_or_invalid_thermal_image", completed.stdout)
+            self.assertIn("fatal_part_a_thermal_validation", completed.stdout)
             self.assertFalse((root / "part_e.parquet").exists())
 
 

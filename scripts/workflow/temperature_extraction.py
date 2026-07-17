@@ -7,11 +7,13 @@ import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageOps
+
+from .result_index import sha256_file
 
 
 REQUIRED_PARAMETER_COLUMNS = {
@@ -99,21 +101,43 @@ def temperature_qa(matrix: np.ndarray) -> tuple[str, list[str]]:
     flags: list[str] = []
     finite = matrix[np.isfinite(matrix)]
     if finite.size == 0:
-        return "fail", ["no_finite_temperature_pixels"]
-    if np.allclose(finite, finite[0]):
-        flags.append("constant_temperature_matrix")
+        return "fail", ["no_finite_values"]
+    minimum = float(np.min(finite))
+    maximum = float(np.max(finite))
     if np.allclose(finite, 0.0):
-        flags.append("all_zero_temperature_matrix")
-    if float(np.min(finite)) < -100 or float(np.max(finite)) > 300:
+        flags.append("all_zero")
+    if float(np.std(finite)) < 1e-6:
+        flags.append("all_constant")
+    sample = finite[: min(finite.size, 100000)]
+    if minimum >= 0 and maximum <= 255 and np.allclose(sample, np.round(sample), atol=1e-6) and len(np.unique(sample)) <= 256:
+        flags.append("preview_intensity_like_integer_values")
+    if minimum < 0 or maximum > 80:
+        flags.append("outside_typical_surface_temperature_review_range")
+    if minimum < -80 or maximum > 200:
         flags.append("outside_broad_celsius_plausibility_range")
-    if float(np.min(finite)) < 0:
-        flags.append("subzero_pixels_require_review")
-    if float(np.max(finite)) > 80:
-        flags.append("high_temperature_pixels_require_review")
-    failed = {"constant_temperature_matrix", "all_zero_temperature_matrix", "outside_broad_celsius_plausibility_range"}
+    failed = {"all_constant", "all_zero", "outside_broad_celsius_plausibility_range"}
     if failed.intersection(flags):
         return "fail", flags
     return ("warn" if flags else "pass"), flags
+
+
+def build_sdk_command(
+    *,
+    irp_exe: Path,
+    thermal_path: Path,
+    raw_path: Path,
+    parameters: dict[str, Any],
+) -> list[str]:
+    """Build the preserved Part D DJI SDK measure/float32 command."""
+    return [
+        str(irp_exe), "-s", str(thermal_path), "-a", "measure", "-o", str(raw_path),
+        "--measurefmt", "float32",
+        "--distance", str(parameters["distance_m"]),
+        "--humidity", str(parameters["relative_humidity_percent"]),
+        "--emissivity", str(parameters["emissivity"]),
+        "--ambient", str(parameters["ambient_temperature_c"]),
+        "--reflection", str(parameters["reflected_temperature_c"]),
+    ]
 
 
 def extract_temperature(
@@ -124,22 +148,15 @@ def extract_temperature(
     work_directory: Path,
     irp_exe: Path,
     keep_raw: bool = False,
+    runner: Callable[..., Any] = subprocess.run,
 ) -> TemperatureResult:
     with Image.open(thermal_path) as source:
         oriented = ImageOps.exif_transpose(source)
         width, height = oriented.size
     raw_path = work_directory / f"{image_id}_temperature_float32.raw"
     raw_path.parent.mkdir(parents=True, exist_ok=True)
-    command = [
-        str(irp_exe), "-s", str(thermal_path), "-a", "measure", "-o", str(raw_path),
-        "--measurefmt", "float32",
-        "--distance", str(parameters["distance_m"]),
-        "--humidity", str(parameters["relative_humidity_percent"]),
-        "--emissivity", str(parameters["emissivity"]),
-        "--ambient", str(parameters["ambient_temperature_c"]),
-        "--reflection", str(parameters["reflected_temperature_c"]),
-    ]
-    completed = subprocess.run(
+    command = build_sdk_command(irp_exe=irp_exe, thermal_path=thermal_path, raw_path=raw_path, parameters=parameters)
+    completed = runner(
         command,
         cwd=irp_exe.parent,
         capture_output=True,
@@ -167,19 +184,39 @@ def extract_temperature(
         "thermal_width": width,
         "thermal_height": height,
         "sdk_output": output,
+        "sdk_tool_path": irp_exe.resolve().as_posix(),
+        "sdk_tool_sha256": sha256_file(irp_exe),
+        "sdk_command_parameter_names": ["distance", "humidity", "emissivity", "ambient", "reflection"],
         "qa_flags": flags,
     }
     return TemperatureResult(matrix, metadata, qa_status, flags)
 
 
-def load_temperature_override(path: Path) -> TemperatureResult:
-    matrix = np.load(path)
+def load_temperature_override(
+    path: Path,
+    *,
+    ambient_metadata: dict[str, Any] | None = None,
+    native_shape: tuple[int, int] | None = None,
+) -> TemperatureResult:
+    matrix = np.load(path, allow_pickle=False)
     if matrix.ndim != 2:
         raise ValueError(f"Temperature override must be a two-dimensional NPY matrix: {path}")
+    if native_shape is not None and tuple(matrix.shape) != tuple(native_shape):
+        raise ValueError(f"Temperature override shape {matrix.shape} does not match native thermal grid {native_shape}.")
     status, flags = temperature_qa(matrix)
     return TemperatureResult(
         matrix.astype(np.float32, copy=False),
-        {"extraction_method": "provided_npy", "source_npy": path.resolve().as_posix(), "qa_flags": flags},
+        {
+            "extraction_method": "provided_npy",
+            "source_npy": path.resolve().as_posix(),
+            "source_npy_sha256": sha256_file(path),
+            "ambient_temperature_c": (ambient_metadata or {}).get("ambient_temperature_c"),
+            "delta_temperature_available": bool(
+                ambient_metadata
+                and ambient_metadata.get("ambient_temperature_c") not in (None, "")
+            ),
+            "qa_flags": flags,
+        },
         status,
         flags,
     )

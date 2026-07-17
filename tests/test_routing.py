@@ -26,7 +26,8 @@ class RoutingTests(unittest.TestCase):
         finalized = finalize_part_b(decision)
         self.assertEqual(finalized.final_alignment_status.value, "indeterminate")
         route = route_group(decision, thermal_valid=True)
-        self.assertEqual(route.route, ProcessingRoute.THERMAL_POLYGON)
+        self.assertEqual(route.route, ProcessingRoute.AWAITING_REVIEW)
+        self.assertEqual(route.status, ProcessingStatus.AWAITING_PART_B_REVIEW)
 
     def test_manual_full_coverage_acceptance_enters_normal_route(self) -> None:
         decision = PartBDecision(

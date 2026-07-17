@@ -33,6 +33,7 @@ if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
 from table_io import write_rows
+from workflow.temperature_extraction import extract_temperature, temperature_qa
 
 PILOT_PAIRS_XLSX = PROJECT_ROOT / "data" / "metadata" / "part_b_pilot_pairs.xlsx"
 DJI_METADATA_XLSX = PROJECT_ROOT / "data" / "metadata" / "dji_image_metadata.xlsx"
@@ -907,12 +908,17 @@ def process_pairs(config: dict[str, Any], tool: SdkTool, args: argparse.Namespac
                 with Image.open(t_path) as image:
                     width, height = image.size
                 row["expected_thermal_shape"] = f"{height}x{width}"
-            ok, sdk_output = run_sdk_measure(tool, t_path, raw_path, parameter_config)
-            if not ok:
-                raise RuntimeError(sdk_output)
-
-            temps = read_temperature_raw(raw_path, width, height)
-            status, flags = validation_flags(temps)
+            shared_result = extract_temperature(
+                thermal_path=t_path,
+                image_id=image_id,
+                parameters=parameter_config,
+                work_directory=TEMPERATURE_DIR / "sdk_raw",
+                irp_exe=tool.irp_exe,
+                keep_raw=bool(config.get("keep_sdk_raw", False)),
+            )
+            temps = shared_result.matrix
+            sdk_output = str(shared_result.metadata.get("sdk_output", ""))
+            status, flags = temperature_qa(temps)
             stats = {
                 "shape": list(temps.shape),
                 "min_c": safe_stat(temps, "min"),

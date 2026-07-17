@@ -54,15 +54,16 @@ class InputValidationTests(unittest.TestCase):
             self.assertTrue(any(value.startswith("invalid_thermal_image") for value in record.errors))
             self.assertFalse(record.thermal_valid)
 
-    def test_dataset_discovery_requires_both_roles(self) -> None:
+    def test_dataset_discovery_retains_thermal_only_fallback_groups(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             self.make_image(root / "DJI_20260717120000_0001_V.JPG")
             self.make_image(root / "DJI_20260717120000_0001_T.JPG")
             self.make_image(root / "DJI_20260717120100_0002_T.JPG")
             groups = discover_dataset_groups(root, "dataset-a")
-            self.assertEqual(len(groups), 1)
+            self.assertEqual(len(groups), 2)
             self.assertEqual(groups[0].dataset_id, "dataset-a")
+            self.assertEqual(groups[1].visible_path, "")
 
 
 if __name__ == "__main__":

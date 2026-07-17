@@ -441,6 +441,33 @@ def manual_review_status(pair_df: pd.DataFrame) -> str:
     return "not_reviewed"
 
 
+def build_reviewed_label_layers(
+    segment_labels: np.ndarray,
+    annotations: pd.DataFrame,
+    class_ids: dict[str, int],
+    shadow_col: str | None = None,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Map reviewed Part C superpixels to the preserved class/shadow layers.
+
+    This is the reusable form of the original loop used by
+    ``generate_masks_and_summaries``; class mappings and shadow semantics are
+    unchanged.
+    """
+    class_mask = np.zeros(segment_labels.shape, dtype=np.uint8)
+    shadow_mask = np.zeros(segment_labels.shape, dtype=np.uint8)
+    low_conf_mask = np.zeros(segment_labels.shape, dtype=bool)
+    for _, row in annotations.iterrows():
+        segment_id = int(row["segment_id"])
+        segment_pixels = segment_labels == segment_id
+        manual_class = str(row["manual_class"]).strip()
+        class_mask[segment_pixels] = class_ids.get(manual_class, 0)
+        shadow_flag = normalize_shadow(row[shadow_col]) if shadow_col is not None else 0
+        shadow_mask[segment_pixels] = 0 if shadow_flag is None else shadow_flag
+        if str(row.get("confidence", "")).strip().casefold() == "low":
+            low_conf_mask[segment_pixels] = True
+    return class_mask, shadow_mask, low_conf_mask
+
+
 def generate_masks_and_summaries(
     annotations: pd.DataFrame,
     round1: pd.DataFrame,
@@ -461,20 +488,9 @@ def generate_masks_and_summaries(
         pair_df = annotations.loc[annotations["pair_id"].astype(str).eq(pair_id)].copy()
         label_path = resolve_project_path(summary_row["segment_id_map_16bit_path"])
         labels = np.asarray(Image.open(label_path), dtype=np.int32)
-        class_mask = np.zeros(labels.shape, dtype=np.uint8)
-        shadow_mask = np.zeros(labels.shape, dtype=np.uint8)
-        low_conf_mask = np.zeros(labels.shape, dtype=bool)
-
-        for _, row in pair_df.iterrows():
-            segment_id = int(row["segment_id"])
-            segment_pixels = labels == segment_id
-            manual_class = str(row["manual_class"]).strip()
-            class_id = class_ids.get(manual_class, 0)
-            class_mask[segment_pixels] = class_id
-            shadow_flag = normalize_shadow(row[shadow_col]) if shadow_col is not None else 0
-            shadow_mask[segment_pixels] = 0 if shadow_flag is None else shadow_flag
-            if str(row.get("confidence", "")).strip().casefold() == "low":
-                low_conf_mask[segment_pixels] = True
+        class_mask, shadow_mask, low_conf_mask = build_reviewed_label_layers(
+            labels, pair_df, class_ids, shadow_col
+        )
 
         out_dir = MASK_DIR / image_id
         out_dir.mkdir(parents=True, exist_ok=True)

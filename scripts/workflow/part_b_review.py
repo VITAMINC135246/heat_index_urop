@@ -10,6 +10,7 @@ import pandas as pd
 
 from .models import (
     AutoCandidateStatus,
+    ContentTriageState,
     CoverageClass,
     ManualReviewStatus,
     PartBDecision,
@@ -21,12 +22,15 @@ from .routing import finalize_part_b
 def decision_from_dict(group_id: str, payload: dict[str, Any]) -> PartBDecision:
     decision = PartBDecision(
         group_id=group_id,
+        filename_time_pairing=str(payload.get("filename_time_pairing", "indeterminate")),
+        part_b0_state=ContentTriageState(payload.get("part_b0_state", "not_run")),
         scene_correspondence=SceneCorrespondence(payload.get("scene_correspondence", "indeterminate")),
         coverage_class=CoverageClass(payload.get("coverage_class", "indeterminate")),
         auto_candidate_status=AutoCandidateStatus(payload.get("auto_candidate_status", "not_run")),
         manual_review_status=ManualReviewStatus(payload.get("manual_review_status", "not_reviewed")),
         candidate_transform_path=str(payload.get("candidate_transform_path", "")),
         review_evidence_path=str(payload.get("review_evidence_path", "")),
+        gcp_status=str(payload.get("gcp_status", "not_run")),
         notes=str(payload.get("notes", "")),
     )
     return finalize_part_b(decision)
@@ -69,6 +73,8 @@ def verified_pilot_decisions(project_root: Path) -> dict[str, PartBDecision]:
             continue
         decision = PartBDecision(
             group_id=str(row.pair_id),
+            filename_time_pairing="accepted_from_pilot_pair_table",
+            part_b0_state=ContentTriageState.CONTENT_MATCH_CANDIDATE,
             scene_correspondence=SceneCorrespondence.ACCEPTED,
             coverage_class=CoverageClass.THERMAL_FULLY_SUPPORTED_BY_VISIBLE,
             auto_candidate_status=AutoCandidateStatus.AVAILABLE,
@@ -96,6 +102,8 @@ def resolve_decision(
         return PartBDecision(group_id=group_id)
     return PartBDecision(
         group_id=group_id,
+        filename_time_pairing=source.filename_time_pairing,
+        part_b0_state=source.part_b0_state,
         scene_correspondence=source.scene_correspondence,
         coverage_class=source.coverage_class,
         auto_candidate_status=source.auto_candidate_status,
@@ -103,6 +111,11 @@ def resolve_decision(
         final_alignment_status=source.final_alignment_status,
         candidate_transform_path=source.candidate_transform_path,
         review_evidence_path=source.review_evidence_path,
+        candidate_transform=source.candidate_transform,
+        candidate_crop=source.candidate_crop,
+        candidate_scores=source.candidate_scores,
+        gcp_status=source.gcp_status,
+        gcp_evidence=source.gcp_evidence,
         notes=source.notes,
     )
 

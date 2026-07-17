@@ -19,6 +19,10 @@ class PolygonAnnotation:
     cancelled: bool
     coordinates: list[Point]
     surface_cover_category: str
+    luhk_category: str
+    luhk_code: str = ""
+    luhk_provenance: str = "unknown"
+    surface_cover_provenance: str = "thermal_polygon_user_annotation"
     target_name: str = ""
     reviewer_confidence: str = ""
     notes: str = ""
@@ -76,6 +80,21 @@ def labelled_polygon_arrays(
     return labels, known
 
 
+def polygon_context_arrays(
+    vertices: Sequence[Sequence[float]],
+    shape: tuple[int, int],
+    surface_cover_class_id: int,
+    luhk_value: str,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Build target-scoped cover and LUHK layers without exterior extrapolation."""
+    labels, surface_known = labelled_polygon_arrays(vertices, shape, surface_cover_class_id)
+    target = surface_known.copy()
+    luhk_known = target.copy()
+    luhk_labels = np.full(shape, "", dtype="<U96")
+    luhk_labels[target] = str(luhk_value)
+    return labels, surface_known, luhk_labels, luhk_known, target
+
+
 class PolygonAnnotationUI:
     """Small blocking Matplotlib UI with Draw/Clear/Accept/Cancel behavior."""
 
@@ -85,13 +104,23 @@ class PolygonAnnotationUI:
         surface_cover_category: str,
         *,
         target_name: str = "",
+        luhk_category: str,
+        luhk_code: str = "",
+        luhk_provenance: str = "user_supplied_luhk",
         reviewer_confidence: str = "",
     ):
         if not surface_cover_category.strip():
             raise ValueError("A surface-cover category must be selected before drawing.")
+        if not luhk_category.strip():
+            raise ValueError("A LUHK category must be selected before drawing.")
+        if luhk_provenance not in {"official_luhk_lookup", "user_supplied_luhk"}:
+            raise ValueError("Accepted polygon LUHK provenance must be official lookup or user supplied.")
         self.thermal_image_path = thermal_image_path
         self.surface_cover_category = surface_cover_category.strip()
         self.target_name = target_name.strip()
+        self.luhk_category = luhk_category.strip()
+        self.luhk_code = luhk_code.strip()
+        self.luhk_provenance = luhk_provenance
         self.reviewer_confidence = reviewer_confidence.strip()
         self.vertices: list[Point] = []
         self.accepted = False
@@ -152,6 +181,9 @@ class PolygonAnnotationUI:
             cancelled=self.cancelled,
             coordinates=self.vertices if self.accepted else [],
             surface_cover_category=self.surface_cover_category,
+            luhk_category=self.luhk_category,
+            luhk_code=self.luhk_code,
+            luhk_provenance=self.luhk_provenance,
             target_name=self.target_name,
             reviewer_confidence=self.reviewer_confidence,
         )

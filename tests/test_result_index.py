@@ -27,6 +27,7 @@ class ResultIndexTests(unittest.TestCase):
                 configuration_hash="config-hash", source_file_hashes=hashes,
                 surface_cover_class_id=1, surface_cover_category="roof",
                 polygon_coordinates=[[0, 0], [3, 0], [3, 3]],
+                luhk_category="GIC / open space", luhk_provenance="user_supplied_luhk",
             )
             index = ResultIndex(root / "index.json")
             index.register(manifest_path, manifest)
