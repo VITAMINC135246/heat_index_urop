@@ -120,3 +120,11 @@ from the matrix; surface-cover and shadow masks are optional layers with strict
 shape checks. Unknown labels are never invented, and a Part C* result does not
 require a shadow mask. Full matrix CSV output is disabled unless explicitly
 requested.
+# Version 0.2 shared implementation
+
+The numbered batch script and persistent workflow call
+`scripts/workflow/temperature_extraction.py` for the preserved DJI
+`measure/float32` command and QA. TAT3 distance, humidity, emissivity, ambient,
+and reflection parameters remain unchanged. NPY overrides require native shape
+compatibility. Missing ambient retains temperature but disables delta-T; failed
+QA never enters the successful index or Part E.

@@ -192,3 +192,10 @@ existence, readability, type, role, identifier, time/session consistency, image
 metadata availability, and thermal availability. It deliberately does not
 claim scene correspondence; that decision remains in Part B. The existing
 pairing and DJI metadata scripts remain reusable preparation tools.
+# Version 0.2 integration
+
+The persistent entry point now writes a structured Part A record for every
+group, including failures. It reuses the existing inventory/metadata/camera
+assumptions and adds explicit fatal-thermal versus visible-only errors, pairing
+uncertainty, native temperature-grid compatibility, and cache-safe metadata
+fingerprints. Part A still does not perform alignment or invent missing inputs.

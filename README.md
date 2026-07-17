@@ -4,7 +4,8 @@ Pilot workflow for linking UAV thermal imagery, visible-image surface-cover
 information, and official LUHK 2024 land-use data. The current objective is to
 analyze temperature and delta-temperature differences across land-use and
 surface-cover conditions, not to immediately build a full heat-index prediction
-model.
+model. Version 0.2 is the supported persistent workflow and connects the
+verified Part A–E methods through one entry point.
 
 ## Contents
 
@@ -20,6 +21,13 @@ model.
   rule.
 - `docs/repository_inventory.md`: repository layout policy, current boundary
   exceptions, and future migration guidance.
+- `docs/v0_2_workflow.md`: route state machine, adapters, Part B0, Part C GUI,
+  formal Part E, extremes, and limitations.
+- `docs/v0_2_canonical_schema.md`: schema, measurement/provenance definitions,
+  eligibility, artifacts, and cache dependencies.
+- `docs/v0_2_gui_and_tat3.md`: GUI smoke test and temporary TAT3 instructions.
+- `docs/v0_2_benchmark.md`: measured stage timings, memory/storage, and separate
+  request-X versus retention-Y guidance.
 - `scripts/`: reproducible inventory, metadata, footprint, grid, and LUHK
   overlay scripts.
 - `data/metadata/`: generated V/T and metadata XLSX tables kept under version
@@ -74,19 +82,31 @@ tracked by Git.
 
 ## Usage
 
-### Version 0.1 local MVP
+### Version 0.2 persistent workflow
 
-The modular entry point for dataset/selected-file processing, cache reuse,
-explicit Part B routing, and the Part C* thermal polygon fallback is:
+The modular entry point now executes structured Part A, non-centred Part B0
+triage, full reviewed Part B, normal reviewed Part C or Part C*, shared Part D,
+schema-0.2 canonical writing, extremes, and source-stratified Part E:
 
 ```powershell
 .\.venv\Scripts\python.exe scripts\run_analysis.py --help
+.\.venv\Scripts\python.exe scripts\run_analysis.py selected --group V.JPG T.JPG
 ```
 
-See `docs/v0_1_workflow.md` for the canonical per-image contract, polygon
-known/unknown semantics, cache behavior, optional CSV/Excel exports, tests, and
-benchmark-derived request/retention limits. The numbered scripts remain the
-verified scientific implementations and compatibility entry points.
+Automatic alignment evidence never accepts the normal route. Ambiguous B0 and
+unreviewed final Part B groups pause for explicit decisions. A valid thermal
+input can use Part C* only with accepted target, surface-cover, and LUHK context.
+
+Temporary manual TAT3 point/region analysis is deliberately separate:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\run_tat3_manual_analysis.py --help
+```
+
+It writes an ignored temporary bundle and does not modify the canonical
+warehouse or result index. See the v0.2 documents above. The numbered scripts
+remain the verified scientific implementations and compatibility entry points;
+`docs/v0_1_workflow.md` is retained for the earlier release contract.
 
 Install the Python dependencies in your environment, then run:
 

@@ -167,3 +167,35 @@ Practical implication: LUHK answers "what official land-use context is this
 thermal ROI in?", while visible-image segmentation answers "what surface-cover
 patches are visible inside the thermal ROI?" These should remain separate
 analysis layers.
+
+## 2026-07-17 version 0.2 persistent integration
+
+Version 0.2 modularizes and connects the original A–E scientific functions; it
+does not replace their formulas, class mapping, SLIC method, alignment scoring,
+DJI temperature calculation, spatial thinning, statistical tests, effect sizes,
+or SciPy KDE interpretation.
+
+Changes with demonstrated correctness reasons:
+
+- Added non-centred structural Part B0 triage before full Part B. It is a review
+  boundary, never final alignment acceptance.
+- Extracted reusable Part C final-mask logic and shared Part D SDK extraction so
+  there is one active implementation of each method.
+- Added explicit final Part B review gating, a headlessly testable superpixel
+  review controller/GUI, and audited label-override requirements.
+- Extended Part C* with target-scoped LUHK context; exterior target context is
+  unknown rather than extrapolated.
+- Introduced schema 0.2, dependency-complete cache checks, atomic result/index
+  sequencing, failed-QA isolation, and read-only schema-0.1 compatibility.
+- Adapted schema-0.2 Parquet to the original formal Part E stages, removing
+  fixed pilot-ID/dimension and mandatory LUHK/shadow/ambient assumptions while
+  preserving the validated sampling/statistics/KDE methods.
+- Made source/provenance strata explicit and equal-image dashboards primary;
+  incompatible measurement types are not pooled by default.
+- Added deterministic Min/Max/q99 tables/figures and a separate non-canonical
+  temporary TAT3 point/region workflow.
+
+The five-image masks and temperature matrices were frozen before the reusable
+Part C/Part D refactors. Exact hashes and numeric summaries are regression
+tested. Intentional differences are schema/provenance fields, review-state
+strictness, target/LUHK semantics, cache completeness, and optional-family QA.

@@ -170,3 +170,19 @@ source methods are kept explicit rather than silently pooled. The project-level
 entry point writes a compatible combined Parquet and per-image descriptive
 summary; the numbered formal scripts remain the statistics, KDE, plot, QA, and
 resume implementation. Full pixel CSV and Excel generation are opt-in.
+
+## Version 0.2 schema-0.2 formal runner
+
+The formal runner now accepts schema-0.2 manifest lists, run summaries, or a
+combined Parquet without legacy XLSX ingestion. It still invokes the preserved
+spatial-thinning, exploratory statistics, effect-size, stability, SciPy KDE,
+plot, QA, resume, and reporting stages. Image dimensions are dynamic and LUHK,
+shadow, and ambient may be unavailable. Unavailable families receive explicit
+QA output; no label or ambient value is imputed.
+
+Every primary group name/table retains measurement type, temperature source,
+source method, cover provenance, LUHK provenance, target, and QA. Image-specific
+figures and equal-image dashboards keep image/capture time as the temporal unit.
+Pixels, manual points, and region statistics remain within-image observations.
+No default formal inference silently pools sources; any pooled sensitivity file
+must be explicitly requested and labelled.
