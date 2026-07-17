@@ -89,6 +89,9 @@ class FormalPartEV02IntegrationTests(unittest.TestCase):
             self.assertTrue((output / "qa" / "part_e_sampling_reproducibility.csv").is_file())
             self.assertTrue((output / "figures" / "spectrum" / "fig00_pixel_delta_t_spectrum_overall.png").is_file())
             self.assertTrue((output / "figures" / "spectrum" / "fig01_pixel_delta_t_spectrum_by_luhk_facets.png").is_file())
+            self.assertTrue((output / "figures" / "spatial" / "spatial_figure_validation.json").is_file())
+            self.assertTrue((output / "temporal" / "tables" / "temporal_capture_summary.csv").is_file())
+            self.assertTrue((output / "temporal" / "qa" / "temporal_output_validation.json").is_file())
             self.assertTrue(Path(result["report"]).is_file())
 
             tests = pd.read_csv(output / "tables" / "part_e_pixel_statistical_tests.csv")
@@ -108,6 +111,8 @@ class FormalPartEV02IntegrationTests(unittest.TestCase):
             )
             self.assertIn("SKIP sample", resumed["stage_stdout"])
             self.assertIn("SKIP spectrum", resumed["stage_stdout"])
+            self.assertIn("SKIP spatial-figures", resumed["stage_stdout"])
+            self.assertEqual(resumed["temporal_status"], "cache_hit")
 
             dry = run_formal_part_e(
                 output_root=root / "dry_run", combined_parquet=Path(result["canonical_parquet"]), dry_run=True,

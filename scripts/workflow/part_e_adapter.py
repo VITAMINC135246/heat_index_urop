@@ -21,6 +21,7 @@ os.environ.setdefault("MPLCONFIGDIR", str(Path(__file__).resolve().parents[2] / 
 PROVENANCE_COLUMNS = [
     "measurement_type",
     "temperature_source",
+    "temperature_definition",
     "source_method",
     "surface_cover_provenance",
     "luhk_provenance",
@@ -39,6 +40,11 @@ def _compatible_frame(frame: pd.DataFrame, manifest: CanonicalManifest) -> pd.Da
     defaults: dict[str, object] = {
         "measurement_type": manifest.measurement_type.value,
         "temperature_source": manifest.temperature_source,
+        "temperature_definition": str(
+            manifest.temperature_metadata.get(
+                "definition", manifest.temperature_metadata.get("measurement_definition", "")
+            )
+        ),
         "source_method": manifest.source_method.value,
         "surface_cover_provenance": manifest.surface_cover_provenance,
         "luhk_provenance": manifest.luhk_provenance,
@@ -171,6 +177,7 @@ def aggregate_canonical_results(
                 "processing_route": manifest.processing_route.value,
                 "measurement_type": manifest.measurement_type.value,
                 "temperature_source": manifest.temperature_source,
+                "temperature_definition": str(frame["temperature_definition"].iloc[0]),
                 "source_method": manifest.source_method.value,
                 "surface_cover_provenance": manifest.surface_cover_provenance,
                 "luhk_provenance": manifest.luhk_provenance,
@@ -221,7 +228,7 @@ def write_source_dashboard(summary: pd.DataFrame, directory: Path, include_poole
 
     directory.mkdir(parents=True, exist_ok=True)
     strata = [
-        "measurement_type", "temperature_source", "source_method", "surface_cover_provenance",
+        "measurement_type", "temperature_source", "temperature_definition", "source_method", "surface_cover_provenance",
         "luhk_provenance", "target_id", "target_name", "qa_status",
     ]
     grouped = (
