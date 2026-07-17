@@ -113,6 +113,8 @@ class FormalPartEV02IntegrationTests(unittest.TestCase):
             self.assertIn("SKIP spectrum", resumed["stage_stdout"])
             self.assertIn("SKIP spatial-figures", resumed["stage_stdout"])
             self.assertEqual(resumed["temporal_status"], "cache_hit")
+            state = json.loads((output / "qa" / "part_e_stage_state.json").read_text(encoding="utf-8"))
+            self.assertRegex(state["dependency_sha256"], r"^[0-9a-f]{64}$")
 
             dry = run_formal_part_e(
                 output_root=root / "dry_run", combined_parquet=Path(result["canonical_parquet"]), dry_run=True,

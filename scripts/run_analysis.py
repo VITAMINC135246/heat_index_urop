@@ -697,6 +697,7 @@ def main() -> int:
                 run_summary_path=run_summary_path,
                 resume=True,
                 dry_run=args.part_e_dry_run,
+                temporal_timezone=str(part_e.get("temporal_timezone", "Asia/Hong_Kong")),
             )
     print(f"Groups requested: {len(groups)}")
     for summary in summaries:

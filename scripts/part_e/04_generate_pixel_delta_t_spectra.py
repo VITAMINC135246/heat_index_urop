@@ -86,8 +86,8 @@ def readable_group(group_name: str, family: str) -> str:
     text = str(group_name)
     parts = text.split(" | ")
     source_keys = {
-        "measurement_type", "temperature_source", "source_method",
-        "surface_cover_provenance", "luhk_provenance", "target_name", "qa_status",
+        "measurement_type", "temperature_source", "temperature_definition", "source_method",
+        "surface_cover_provenance", "luhk_provenance", "target_id", "target_name", "qa_status",
     }
     source_parts = [part for part in parts if part.split("=", 1)[0] in source_keys]
     detail_parts = [part for part in parts if part not in source_parts]

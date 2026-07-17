@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import subprocess
 import sys
@@ -15,6 +16,16 @@ from part_e_pixel_common import SAMPLE_FILES, load_config, project_path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 STAGE_NAMES = [
     "discover",
     "audit",
@@ -164,6 +175,9 @@ def stage_definitions() -> list[Stage]:
             return controls
         try:
             payload = json.loads(validation.read_text(encoding="utf-8"))
+            method_path = PROJECT_ROOT / "scripts" / "part_e" / "05_generate_pixel_spatial_figures.py"
+            if payload.get("method_sha256") != sha256_file(method_path):
+                return [*controls, directory / "__spatial_method_cache_invalid__"]
             figures = [directory / str(value) for value in payload.get("expected_figure_files", [])]
         except (OSError, ValueError, TypeError):
             return controls

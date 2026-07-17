@@ -55,6 +55,7 @@ SAMPLE_COLUMNS = [
     "shadow_valid",
     "measurement_type",
     "temperature_source",
+    "temperature_definition",
     "source_method",
     "label_provenance",
     "surface_cover_provenance",
@@ -63,6 +64,7 @@ SAMPLE_COLUMNS = [
     "analysis_eligible",
     "exclusion_reason",
     "target_name",
+    "target_id",
     "qa_status",
     "annotation_review_status",
 ]
@@ -372,10 +374,12 @@ def family_eligible_and_group(frame: pd.DataFrame, family: str) -> tuple[np.ndar
     source_fields = [
         ("measurement_type", "full_thermal_pixel"),
         ("temperature_source", "unknown"),
+        ("temperature_definition", "unknown"),
         ("source_method", "visible_review"),
         ("surface_cover_provenance", "visible_review"),
         ("luhk_provenance", "unknown"),
         ("target_name", ""),
+        ("target_id", ""),
         ("qa_status", "pass"),
     ]
     source = pd.Series("", index=frame.index, dtype=object)
@@ -535,6 +539,7 @@ def read_canonical(config: dict[str, Any], columns: list[str] | None = None) -> 
         "source_method": "visible_review",
         "measurement_type": "full_thermal_pixel",
         "temperature_source": "legacy_part_d",
+        "temperature_definition": "legacy definition unavailable",
         "label_provenance": "visible_review",
         "surface_cover_provenance": "visible_review",
         "luhk_provenance": "unknown",
@@ -542,6 +547,7 @@ def read_canonical(config: dict[str, Any], columns: list[str] | None = None) -> 
         "analysis_eligible": frame.get("surface_cover_valid", pd.Series(False, index=frame.index)),
         "exclusion_reason": "",
         "target_name": "",
+        "target_id": "",
         "qa_status": "pass",
         "annotation_review_status": frame.get("surface_cover_review_status", pd.Series("", index=frame.index)),
     }

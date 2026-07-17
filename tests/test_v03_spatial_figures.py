@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -143,6 +144,19 @@ class V03CanonicalSpatialFigureTests(unittest.TestCase):
             victim = output / result["expected_figure_files"][0]
             victim.unlink()
             with self.assertRaisesRegex(ValueError, "incomplete"):
+                SPATIAL.validate_outputs(output, expected_hash=result["canonical_sha256"])
+
+    def test_validation_rejects_outputs_from_a_different_spatial_method(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            _, combined = self._results(root)
+            output = root / "spatial"
+            result = SPATIAL.run(combined, output)
+            validation_path = output / "spatial_figure_validation.json"
+            payload = json.loads(validation_path.read_text(encoding="utf-8"))
+            payload["method_sha256"] = "obsolete-method"
+            validation_path.write_text(json.dumps(payload), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "different method"):
                 SPATIAL.validate_outputs(output, expected_hash=result["canonical_sha256"])
 
     def test_non_pixel_sources_are_recorded_not_silently_completed_empty(self) -> None:

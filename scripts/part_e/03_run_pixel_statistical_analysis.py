@@ -36,8 +36,8 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 PALETTE = ["#0072B2", "#E69F00", "#009E73", "#CC79A7", "#D55E00", "#56B4E9", "#F0E442"]
 SOURCE_STRATA = [
-    "measurement_type", "temperature_source", "source_method",
-    "surface_cover_provenance", "luhk_provenance", "target_name", "qa_status",
+    "measurement_type", "temperature_source", "temperature_definition", "source_method",
+    "surface_cover_provenance", "luhk_provenance", "target_id", "target_name", "qa_status",
 ]
 
 
