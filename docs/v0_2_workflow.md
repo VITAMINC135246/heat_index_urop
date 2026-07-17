@@ -35,11 +35,16 @@ Each group is isolated from failures in other groups.
 2. On a miss, Part A validates the thermal input first. Fatal thermal errors
    fail the group. A valid thermal image with unusable visible input enters
    Part C*.
-3. A usable pair enters Part B0. `content_mismatch_candidate` enters Part C*.
-   `needs_manual_review` pauses as `awaiting_part_b0_review` unless explicitly
-   accepted or rejected. `content_match_candidate` is candidate evidence only.
-4. An accepted B0 match runs the preserved full Part B crop search, candidate
-   scoring, optional GCP refinement, transform persistence, and review package.
+3. A usable pair enters Part B0. With no explicit review,
+   `content_mismatch_candidate` enters Part C* and `needs_manual_review` pauses
+   as `awaiting_part_b0_review`. An explicit rejection enters Part C*,
+   cancellation stops, and an explicit acceptance can only continue to full
+   Part B; it never directly accepts alignment. `content_match_candidate` is
+   candidate evidence only.
+4. An accepted B0 review or match candidate runs the preserved full Part B
+   crop search, candidate scoring, optional GCP refinement, transform
+   persistence, and review package. The applied B0 decision is persisted with
+   the automatic triage evidence.
 5. Only a final manual acceptance with
    `thermal_fully_supported_by_visible` enters normal Part C. Rejection may
    enter Part C*. Cancellation and unreviewed/indeterminate evidence never

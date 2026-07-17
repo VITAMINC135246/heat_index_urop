@@ -44,6 +44,7 @@ from scripts.workflow.part_b_correspondence import (
     apply_part_b0_review,
     load_part_b0_reviews,
     triage_content_correspondence,
+    write_part_b0_result,
 )
 from scripts.workflow.part_b_review import load_review_decisions, resolve_decision, verified_pilot_decisions
 from scripts.workflow.part_c_adapter import load_reviewed_label_override, run_reviewed_part_c
@@ -414,6 +415,7 @@ def main() -> int:
             if selected_b0 is None and image_id in pilot_reviews:
                 selected_b0 = ManualReviewStatus.ACCEPTED
             part_b0 = apply_part_b0_review(part_b0, selected_b0)
+            write_part_b0_result(part_b0, group_dir / "part_b0" / "part_b0.json")
             route = route_after_part_b0(part_b0)
             if route.status in {ProcessingStatus.AWAITING_PART_B0_REVIEW, ProcessingStatus.CANCELLED}:
                 summaries.append(GroupRunSummary(

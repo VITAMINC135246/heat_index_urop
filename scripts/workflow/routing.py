@@ -55,12 +55,12 @@ def route_after_part_a(record: ValidationRecord) -> RouteDecision:
 def route_after_part_b0(result: PartB0Result) -> RouteDecision:
     if result.manual_review_status == ManualReviewStatus.CANCELLED:
         return RouteDecision(ProcessingRoute.CANCELLED, ProcessingStatus.CANCELLED, "part_b0_review_cancelled")
-    if result.triage_state == ContentTriageState.CONTENT_MISMATCH_CANDIDATE:
-        return RouteDecision(ProcessingRoute.THERMAL_POLYGON, ProcessingStatus.READY, "part_b0_content_mismatch_candidate")
     if result.manual_review_status == ManualReviewStatus.REJECTED:
         return RouteDecision(ProcessingRoute.THERMAL_POLYGON, ProcessingStatus.READY, "part_b0_match_rejected")
     if result.manual_review_status == ManualReviewStatus.ACCEPTED:
         return RouteDecision(ProcessingRoute.INCOMPLETE, ProcessingStatus.READY, "part_b0_match_manually_accepted_run_full_part_b")
+    if result.triage_state == ContentTriageState.CONTENT_MISMATCH_CANDIDATE:
+        return RouteDecision(ProcessingRoute.THERMAL_POLYGON, ProcessingStatus.READY, "part_b0_content_mismatch_candidate")
     if result.triage_state == ContentTriageState.NEEDS_MANUAL_REVIEW:
         return RouteDecision(
             ProcessingRoute.AWAITING_REVIEW,

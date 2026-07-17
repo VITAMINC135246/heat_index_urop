@@ -194,6 +194,14 @@ Changes with demonstrated correctness reasons:
   incompatible measurement types are not pooled by default.
 - Added deterministic Min/Max/q99 tables/figures and a separate non-canonical
   temporary TAT3 point/region workflow.
+- User-acceptance execution of all five pilots exposed that their initial B0
+  scores can be mismatch candidates even though preserved downstream manual
+  review and grid-compatible Part D evidence accepts the pairs. Explicit
+  accepted B0 evidence now takes precedence over the automatic triage
+  candidate only to continue into full Part B, never to accept alignment
+  directly. The applied review decision is also persisted atomically in the
+  Part B0 record. No B0 score, threshold, or scientific alignment method was
+  changed.
 
 The five-image masks and temperature matrices were frozen before the reusable
 Part C/Part D refactors. Exact hashes and numeric summaries are regression

@@ -1,0 +1,41 @@
+{
+  "schema_version": "0.2.0",
+  "processing_version": "heat-index-urop-0.2",
+  "dataset_root": "data/raw/HKUST",
+  "canonical_output_root": "outputs/runs/v0_2_user_acceptance/canonical/images",
+  "result_index": "outputs/runs/v0_2_user_acceptance/canonical/result_index.json",
+  "run_output_root": "outputs/runs/v0_2_user_acceptance/workflow_runs",
+  "part_b0": {
+    "algorithm_version": "part-b0-structural-ensemble-0.2.0",
+    "thresholds": {
+      "match_score": 0.61,
+      "mismatch_score": 0.34,
+      "minimum_margin": 0.025,
+      "minimum_texture": 0.012,
+      "minimum_edge_overlap_for_match": 0.18
+    },
+    "threshold_status": "initial explainable triage thresholds; not generally calibrated from the five-image pilot"
+  },
+  "part_b": {
+    "automatic_scores_are_candidates_only": true,
+    "normal_route_required_coverage": "thermal_fully_supported_by_visible",
+    "final_manual_acceptance_required": true
+  },
+  "polygon": {
+    "annotation_source": "thermal_polygon_user_annotation",
+    "unknown_label_storage_value": -1,
+    "surface_cover_and_luhk_context_required": true,
+    "outside_target_context_known": false
+  },
+  "part_e": {
+    "canonical_parquet": "outputs/runs/v0_2_user_acceptance/part_e/part_e_multi_source_pixels.parquet",
+    "summary_csv": "outputs/runs/v0_2_user_acceptance/part_e/source_summary.csv",
+    "dashboard_directory": "outputs/runs/v0_2_user_acceptance/part_e/source_dashboard",
+    "formal_enabled": true,
+    "formal_output_root": "outputs/runs/v0_2_user_acceptance/part_e/schema_0_2",
+    "write_full_pixel_csv": false,
+    "write_per_image_excel": false,
+    "pool_sources_by_default": false,
+    "cross_image_weighting": "equal_image"
+  }
+}

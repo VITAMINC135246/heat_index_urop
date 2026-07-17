@@ -28,6 +28,9 @@ verified Part A–E methods through one entry point.
 - `docs/v0_2_gui_and_tat3.md`: GUI smoke test and temporary TAT3 instructions.
 - `docs/v0_2_benchmark.md`: measured stage timings, memory/storage, and separate
   request-X versus retention-Y guidance.
+- `docs/v0_2_user_acceptance_test_plan.md`: complete Chinese user-acceptance
+  procedure, including all five pilots, the soccer-field V/T mismatch route,
+  per-case evidence, and all 48 automated cases.
 - `scripts/`: reproducible inventory, metadata, footprint, grid, and LUHK
   overlay scripts.
 - `data/metadata/`: generated V/T and metadata XLSX tables kept under version

@@ -1,0 +1,17 @@
+{
+  "DJI_20260202091128_0058": {
+    "review_status": "accepted",
+    "coordinates": [
+      [218, 135],
+      [402, 101],
+      [446, 284],
+      [250, 330]
+    ],
+    "target_name": "HKUST soccer field",
+    "surface_cover": "grass_low_vegetation",
+    "luhk": "GIC / open space",
+    "luhk_provenance": "user_supplied_luhk",
+    "reviewer_confidence": "low",
+    "notes": "Route-test polygon only. Visually confirm or redraw before any scientific use."
+  }
+}

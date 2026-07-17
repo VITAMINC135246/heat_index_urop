@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -21,7 +22,11 @@ from scripts.workflow.models import (
     SceneCorrespondence,
 )
 from scripts.workflow.part_b_adapter import run_full_part_b
-from scripts.workflow.part_b_correspondence import apply_part_b0_review, triage_content_correspondence
+from scripts.workflow.part_b_correspondence import (
+    apply_part_b0_review,
+    triage_content_correspondence,
+    write_part_b0_result,
+)
 from scripts.workflow.routing import route_after_part_a, route_after_part_b0, route_group
 
 
@@ -97,6 +102,10 @@ class PartAAndB0Tests(unittest.TestCase):
                 output_directory=root / "mismatch",
             )
             self.assertEqual(mismatch.triage_state, ContentTriageState.CONTENT_MISMATCH_CANDIDATE)
+            accepted_mismatch = apply_part_b0_review(mismatch, ManualReviewStatus.ACCEPTED)
+            self.assertIn("run_full_part_b", route_after_part_b0(accepted_mismatch).reason)
+            accepted_record = write_part_b0_result(accepted_mismatch, root / "accepted_mismatch.json")
+            self.assertEqual(json.loads(accepted_record.read_text(encoding="utf-8"))["manual_review_status"], "accepted")
             flat_path = root / "flat.png"
             Image.new("RGB", (90, 80), "gray").save(flat_path)
             ambiguous = triage_content_correspondence(

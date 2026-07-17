@@ -25,6 +25,15 @@ DEFAULT_THRESHOLDS: dict[str, float] = {
 ALGORITHM_VERSION = "part-b0-structural-ensemble-0.2.0"
 
 
+def write_part_b0_result(result: PartB0Result, path: Path) -> Path:
+    """Persist the current triage plus any applied manual decision atomically."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(".json.tmp")
+    temporary.write_text(json.dumps(result.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8")
+    temporary.replace(path)
+    return path
+
+
 def _normalized_mutual_information(a: np.ndarray, b: np.ndarray, bins: int = 32) -> float:
     histogram, _, _ = np.histogram2d(a.ravel(), b.ravel(), bins=bins, range=((0, 1), (0, 1)))
     if histogram.sum() <= 0:
@@ -189,11 +198,7 @@ def triage_content_correspondence(
         reasons=reasons,
         warnings=warnings,
     )
-    output_directory.mkdir(parents=True, exist_ok=True)
-    record_path = output_directory / "part_b0.json"
-    temporary = record_path.with_suffix(".json.tmp")
-    temporary.write_text(json.dumps(result.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8")
-    temporary.replace(record_path)
+    write_part_b0_result(result, output_directory / "part_b0.json")
     return result
 
 
