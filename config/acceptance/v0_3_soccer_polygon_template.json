@@ -1,0 +1,13 @@
+{
+  "REPLACE_WITH_EACH_REAL_CAPTURE_IMAGE_ID": {
+    "review_status": "draft",
+    "coordinates": [],
+    "target_id": "hkust-soccer-field-natural-turf",
+    "target_name": "HKUST soccer field",
+    "surface_cover": "grass_low_vegetation",
+    "luhk": "GIC / open space",
+    "luhk_provenance": "user_supplied_luhk",
+    "reviewer_confidence": "",
+    "notes": "Template only. Draw, inspect, and accept a separate real polygon for every capture; do not reuse coordinates without validated registration evidence. Confirm natural turf from visible evidence."
+  }
+}

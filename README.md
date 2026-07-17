@@ -4,8 +4,9 @@ Pilot workflow for linking UAV thermal imagery, visible-image surface-cover
 information, and official LUHK 2024 land-use data. The current objective is to
 analyze temperature and delta-temperature differences across land-use and
 surface-cover conditions, not to immediately build a full heat-index prediction
-model. Version 0.2 is the supported persistent workflow and connects the
-verified Part A–E methods through one entry point.
+model. Version 0.3 is the supported persistent workflow. It preserves the
+verified Part A–E methods, adds canonical schema-aware spatial figures, and
+adds capture-level temporal analysis without treating pixels as time replicates.
 
 ## Contents
 
@@ -31,6 +32,12 @@ verified Part A–E methods through one entry point.
 - `docs/v0_2_user_acceptance_test_plan.md`: complete Chinese user-acceptance
   procedure, including all five pilots, the soccer-field V/T mismatch route,
   per-case evidence, and all 48 automated cases.
+- `docs/v0_3_workflow.md`: v0.3 routing, spatial, temporal, cache, and soccer-field scope.
+- `docs/v0_3_canonical_schema.md`: schema-0.2 retention decision and optional v0.3 linkage metadata.
+- `docs/v0_3_spatial_figures.md`: canonical spatial maps, unavailable-layer semantics, and completeness validation.
+- `docs/v0_3_temporal_analysis.md`: capture-level aggregation, compatibility strata, QA, and scientific limits.
+- `docs/v0_3_gui_and_soccer_field.md`: per-capture polygon and real soccer-field reproduction workflow.
+- `docs/v0_3_user_acceptance_test_plan.md`: isolated Chinese v0.3 acceptance procedure and checklist.
 - `scripts/`: reproducible inventory, metadata, footprint, grid, and LUHK
   overlay scripts.
 - `data/metadata/`: generated V/T and metadata XLSX tables kept under version
@@ -85,7 +92,7 @@ tracked by Git.
 
 ## Usage
 
-### Version 0.2 persistent workflow
+### Version 0.3 persistent workflow
 
 The modular entry point now executes structured Part A, non-centred Part B0
 triage, full reviewed Part B, normal reviewed Part C or Part C*, shared Part D,
@@ -95,6 +102,20 @@ schema-0.2 canonical writing, extremes, and source-stratified Part E:
 .\.venv\Scripts\python.exe scripts\run_analysis.py --help
 .\.venv\Scripts\python.exe scripts\run_analysis.py selected --group V.JPG T.JPG
 ```
+
+The default configuration is `config/workflow_v0_3.json`; isolated acceptance
+uses `config/workflow_v0_3_acceptance.json`. Formal Part E now produces
+`figures/spatial/` from the shared canonical Parquet and `temporal/` from one
+capture-level summary per compatible source/target stratum. Run temporal-only
+analysis with an explicit timezone:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\run_temporal_analysis.py --canonical-parquet PATH.parquet --output-root outputs\runs\temporal_example --timezone Asia/Hong_Kong
+```
+
+No code path contains a fabricated soccer-field 26°C result. The real workflow
+requires a separately accepted polygon for each capture, real compatible
+temperature matrices, and documented ambient-air records.
 
 Automatic alignment evidence never accepts the normal route. Ambiguous B0 and
 unreviewed final Part B groups pause for explicit decisions. A valid thermal

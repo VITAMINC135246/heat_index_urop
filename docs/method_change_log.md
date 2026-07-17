@@ -1,5 +1,31 @@
 # Method Change Log
 
+## 2026-07-18 Version 0.3 spatial and temporal integration
+
+Version 0.3 preserves the validated A–E scientific methods and keeps canonical
+schema `0.2.0`, while changing the processing version to
+`heat-index-urop-0.3`.
+
+- Replaced the legacy five-pilot spatial reader with a canonical-Parquet stage
+  supporting normal and polygon pixels, dynamic dimensions, source strata,
+  optional LUHK/shadow/ambient, target boundaries, unknown and failed pixels,
+  unavailable panels, PNG/PDF output, and file-level completeness validation.
+- Extended the formal Part E runner through `spatial-figures`; an empty spatial
+  directory can no longer be cached as complete.
+- Added a single capture-level temporal implementation. Pixels, polygon pixels,
+  TAT3 points, and TAT3 regions are first summarized within image; cross-time
+  outputs weight each image/capture once.
+- Added deterministic time parsing, explicit timezone assumptions, duplicate
+  diagnostics, irregular intervals, stable target linkage, missing-ambient
+  exclusions, compatibility strata, PNG/PDF figures, QA, and cache invalidation.
+- Added optional `target_id` and mapped temperature/ambient definition fields.
+  They are additive metadata, so a schema bump is not justified; schema-0.2 and
+  schema-0.1 readers remain compatible.
+- The professor's approximately 26°C soccer-field ΔT is not hard-coded or
+  claimed. Accessible conversation text identifies a 2026-02-02 full-day,
+  noon-peak, HKUST soccer-field ad-hoc result, but does not uniquely define its
+  statistic, ambient source, screenshots, or TAT3 parameters.
+
 ## 2026-07-17 Version 0.1 modular local MVP
 
 The verified five-image workflow is now exposed through

@@ -186,3 +186,22 @@ figures and equal-image dashboards keep image/capture time as the temporal unit.
 Pixels, manual points, and region statistics remain within-image observations.
 No default formal inference silently pools sources; any pooled sensitivity file
 must be explicitly requested and labelled.
+
+## Version 0.3 spatial and temporal extension
+
+The v0.3 formal runner preserves the sampled-pixel statistics, effect sizes,
+stability analysis, and KDE spectra, then runs schema-aware spatial figures
+from the same canonical Parquet. Normal and polygon pixels retain native dynamic
+dimensions, source/measurement provenance, target boundaries, eligibility, and
+unknown/unavailable layer semantics. Spatial completeness is checked against
+the canonical SHA-256 and an explicit file manifest.
+
+Temporal analysis is capture-level. One image/capture time is one temporal
+observation; pixels, polygon pixels, TAT3 points, and TAT3 regions are
+within-image spatial measurements. Per-capture min/max/mean/median/q01/q95/q99
+are calculated first, and cross-time summaries use equal capture weighting.
+Measurement type, temperature source/definition, ambient source/definition,
+target ID, provenance, and QA remain separate compatibility strata. Missing
+ambient values are not imputed. No interpolation is performed; one capture is
+descriptive but not a trend, and all multi-capture interpretation remains
+exploratory. Descriptive quantile bands are not confidence intervals.
