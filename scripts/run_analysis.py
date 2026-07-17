@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the persistent heat-index-urop version 0.2 A–E workflow."""
+"""Run the persistent heat-index-urop version 0.3 A-E workflow."""
 
 from __future__ import annotations
 
@@ -230,7 +230,7 @@ def polygon_payload_for_image(payload: dict[str, Any], image_id: str) -> dict[st
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", default="config/workflow_v0_2.json")
+    parser.add_argument("--config", default="config/workflow_v0_3.json")
     parser.add_argument("--part-b0-review", help="Explicit Part B0 accept/reject/cancel decisions by group/image ID.")
     parser.add_argument("--part-b-review", help="Final full-Part-B decisions; automatic candidates never accept alignment.")
     parser.add_argument("--part-c-review", action="append", help="IMAGE_ID=accepted/draft superpixel review JSON.")
@@ -238,6 +238,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--polygon-json", help="Per-image polygon coordinates and target/LUHK/cover context.")
     parser.add_argument("--surface-cover", default="", help="Part C* physical category fallback.")
     parser.add_argument("--target-name", default="")
+    parser.add_argument("--target-id", default="", help="Stable cross-capture target identifier for temporal linkage.")
     parser.add_argument("--luhk", default="", help="Part C* controlled LUHK category fallback.")
     parser.add_argument("--luhk-provenance", choices=["official_luhk_lookup", "user_supplied_luhk", "unknown"], default="unknown")
     parser.add_argument("--reviewer-confidence", choices=["", "low", "medium", "high"], default="")
@@ -335,7 +336,7 @@ def main() -> int:
         selected_b0 = part_b0_reviews.get(group.group_id) or part_b0_reviews.get(image_id)
         group_configuration = {
             "schema_version": config.get("schema_version", "0.2.0"),
-            "processing_version": config.get("processing_version", "heat-index-urop-0.2"),
+            "processing_version": config.get("processing_version", "heat-index-urop-0.3"),
             "part_b0": config.get("part_b0", {}),
             "part_b0_review": selected_b0.value if selected_b0 else "",
             "part_b_review": selected_part_b.to_dict() if selected_part_b else {},
@@ -343,6 +344,7 @@ def main() -> int:
             "polygon": polygon_input,
             "surface_cover": args.surface_cover,
             "target_name": args.target_name,
+            "target_id": args.target_id,
             "luhk": args.luhk,
             "luhk_provenance": args.luhk_provenance,
             "ambient": ambient_for_image(ambient_payload, image_id),
@@ -564,6 +566,7 @@ def main() -> int:
                     args=args,
                 )
                 target_name = str(polygon_input.get("target_name", args.target_name)).strip()
+                target_id = str(polygon_input.get("target_id", args.target_id)).strip()
                 surface_value = str(polygon_input.get("surface_cover", args.surface_cover))
                 class_id, class_name = resolve_cover(surface_value, cover_names, cover_ids)
                 luhk = resolve_luhk_context(
@@ -631,6 +634,7 @@ def main() -> int:
                     surface_cover_names=cover_names,
                     surface_cover_class_id=class_id,
                     surface_cover_category=class_name,
+                    target_id=target_id,
                     target_name=target_name,
                     polygon_coordinates=coordinates,
                     reviewer_confidence=confidence,

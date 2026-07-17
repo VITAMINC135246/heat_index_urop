@@ -1,4 +1,9 @@
-"""Build, load, and validate canonical per-thermal-image schema-0.2 results."""
+"""Build, load, and validate canonical per-thermal-image schema-0.2 results.
+
+Version 0.3 intentionally keeps schema 0.2.0. The added target identifier is
+optional metadata: older schema-0.2/0.1 results remain readable, while temporal
+target linkage requires an explicit identifier before cross-capture analysis.
+"""
 
 from __future__ import annotations
 
@@ -98,6 +103,7 @@ def pixel_frame(
     review_status: ManualReviewStatus,
     qa_status: QAStatus = QAStatus.PASS,
     surface_cover_names: dict[int, str] | None = None,
+    target_id: str = "",
     target_name: str = "",
     target_mask: np.ndarray | None = None,
     shadow_mask: np.ndarray | None = None,
@@ -166,6 +172,7 @@ def pixel_frame(
             "target_mask": selected,
             "analysis_eligible": eligible,
             "exclusion_reason": exclusion,
+            "target_id": target_id,
             "target_name": target_name,
             "qa_status": qa_status.value,
             "annotation_review_status": review_status.value,
@@ -201,6 +208,7 @@ def write_canonical_result(
     surface_cover_names: dict[int, str] | None = None,
     surface_cover_class_id: int | None = None,
     surface_cover_category: str | None = None,
+    target_id: str = "",
     target_name: str = "",
     polygon_coordinates: list[list[float]] | None = None,
     reviewer_confidence: str = "",
@@ -313,6 +321,7 @@ def write_canonical_result(
         review_status=review_status,
         qa_status=qa_status,
         surface_cover_names=surface_cover_names,
+        target_id=target_id,
         target_name=target_name,
         target_mask=target,
         shadow_mask=shadow,
@@ -377,7 +386,9 @@ def write_canonical_result(
         luhk_code=luhk_code,
         surface_cover_class_id=surface_cover_class_id,
         surface_cover_category=surface_cover_category,
+        target_id=target_id or None,
         target_name=target_name or None,
+        capture_timezone=str((temperature_metadata or {}).get("capture_timezone", "")),
         polygon_coordinates=polygon_coordinates or [],
         known_pixel_count=int(known.sum()),
         unknown_pixel_count=int(known.size - known.sum()),

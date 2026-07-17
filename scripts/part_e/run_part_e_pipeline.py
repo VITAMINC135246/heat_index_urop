@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -152,15 +153,21 @@ def stage_definitions() -> list[Stage]:
         return [py("11_generate_part_e_report.py", args)]
 
     def spatial_outputs(args: argparse.Namespace, config: dict) -> list[Path]:
-        ids = [args.image_id] if args.image_id else list(config["pilot_image_ids"])
-        stems = [
-            "temperature_map", "delta_t_map", "luhk_overlay", "surface_cover_overlay",
-            "shadow_overlay", "combined_qa_panel",
+        directory = output(config, "spatial_maps")
+        validation = directory / "spatial_figure_validation.json"
+        controls = [
+            validation,
+            directory / "spatial_figure_manifest.csv",
+            directory / "spatial_figure_exclusions.csv",
         ]
-        return [
-            output(config, "spatial_maps", f"{image_id}_{stem}.{suffix}")
-            for image_id in ids for stem in stems for suffix in ("png", "pdf")
-        ]
+        if not validation.is_file():
+            return controls
+        try:
+            payload = json.loads(validation.read_text(encoding="utf-8"))
+            figures = [directory / str(value) for value in payload.get("expected_figure_files", [])]
+        except (OSError, ValueError, TypeError):
+            return controls
+        return [*controls, *figures]
 
     def excel_outputs(args: argparse.Namespace, config: dict) -> list[Path]:
         ids = [args.image_id] if args.image_id else list(config["pilot_image_ids"])

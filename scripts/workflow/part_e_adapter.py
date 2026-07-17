@@ -27,6 +27,7 @@ PROVENANCE_COLUMNS = [
     "label_known",
     "analysis_eligible",
     "exclusion_reason",
+    "target_id",
     "target_name",
     "qa_status",
     "annotation_review_status",
@@ -41,6 +42,7 @@ def _compatible_frame(frame: pd.DataFrame, manifest: CanonicalManifest) -> pd.Da
         "source_method": manifest.source_method.value,
         "surface_cover_provenance": manifest.surface_cover_provenance,
         "luhk_provenance": manifest.luhk_provenance,
+        "target_id": manifest.target_id or "",
         "target_name": manifest.target_name or "",
         "qa_status": manifest.qa_status.value,
         "annotation_review_status": manifest.review_status.value,
@@ -77,6 +79,18 @@ def _compatible_frame(frame: pd.DataFrame, manifest: CanonicalManifest) -> pd.Da
     defaults = {
         "flight_id": manifest.group_id,
         "capture_datetime": str(manifest.temperature_metadata.get("capture_time", "")),
+        "capture_timezone": manifest.capture_timezone or str(manifest.temperature_metadata.get("capture_timezone", "")),
+        "ambient_source": str(manifest.ambient_metadata.get("source", "")),
+        "ambient_definition": str(
+            manifest.ambient_metadata.get(
+                "definition", manifest.ambient_metadata.get("measurement_definition", "")
+            )
+        ),
+        "canonical_schema_version": manifest.schema_version,
+        "processing_version": manifest.processing_version,
+        "selection_scope": manifest.selection_scope,
+        "image_height": manifest.image_height,
+        "image_width": manifest.image_width,
         "luhk_cell_id": "",
         "luhk_class_code": str(manifest.luhk_code or ""),
         "luhk_class_name": manifest.luhk_category or "",
@@ -172,6 +186,11 @@ def aggregate_canonical_results(
                 "eligible_temperature_median_c": float(eligible_temperature.median()),
                 "eligible_delta_t_mean_c": float(eligible_delta_t.mean()),
                 "missing_ambient": bool(not frame["delta_temperature_available"].any()),
+                "capture_datetime": str(frame["capture_datetime"].iloc[0]),
+                "capture_timezone": str(frame["capture_timezone"].iloc[0]),
+                "ambient_source": str(frame["ambient_source"].iloc[0]),
+                "ambient_definition": str(frame["ambient_definition"].iloc[0]),
+                "target_id": manifest.target_id or "",
                 "target_name": manifest.target_name or "",
                 "surface_cover_category": manifest.surface_cover_category or "",
             }
@@ -203,7 +222,7 @@ def write_source_dashboard(summary: pd.DataFrame, directory: Path, include_poole
     directory.mkdir(parents=True, exist_ok=True)
     strata = [
         "measurement_type", "temperature_source", "source_method", "surface_cover_provenance",
-        "luhk_provenance", "target_name", "qa_status",
+        "luhk_provenance", "target_id", "target_name", "qa_status",
     ]
     grouped = (
         summary.groupby(strata, dropna=False, observed=True)

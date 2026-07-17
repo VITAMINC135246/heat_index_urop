@@ -1,4 +1,4 @@
-"""Versioned workflow contracts shared by the persistent v0.2 entry points."""
+"""Versioned workflow contracts shared by the persistent v0.3 entry points."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from typing import Any
 
 CANONICAL_SCHEMA_VERSION = "0.2.0"
 LEGACY_CANONICAL_SCHEMA_VERSION = "0.1.0"
-PROCESSING_VERSION = "heat-index-urop-0.2"
+PROCESSING_VERSION = "heat-index-urop-0.3"
 
 
 class StrEnum(str, Enum):
@@ -248,7 +248,9 @@ class CanonicalManifest:
     luhk_code: str | None = None
     surface_cover_class_id: int | None = None
     surface_cover_category: str | None = None
+    target_id: str | None = None
     target_name: str | None = None
+    capture_timezone: str = ""
     polygon_coordinates: list[list[float]] = field(default_factory=list)
     known_pixel_count: int = 0
     unknown_pixel_count: int = 0
