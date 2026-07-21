@@ -327,6 +327,12 @@ class SuperpixelReviewGUI:
         plt = interactive_pyplot()
         from matplotlib.widgets import Button, RadioButtons, TextBox
 
+        class ResizeSafeTextBox(TextBox):
+            """Work around Matplotlib 3.11 wrapping ResizeEvent as a location event."""
+
+            def _resize(self, _event: Any) -> None:
+                self.stop_typing()
+
         visible = np.asarray(Image.open(self.controller.visible_roi_path).convert("RGB"))
         if visible.shape[:2] != self.controller.segment_labels.shape:
             visible = np.asarray(Image.fromarray(visible).resize(
@@ -420,7 +426,9 @@ class SuperpixelReviewGUI:
             self.controller.apply_suggestions_to_unreviewed, "Suggestions applied to unreviewed regions"
         ))
         button(0.720, 0.055, 0.07, "Save", action(lambda: self.controller.save_draft(self.draft_path), "Draft saved."))
-        notes_box = TextBox(figure.add_axes((0.11, 0.005, 0.51, 0.033)), "Notes", initial=self.controller.state.notes)
+        notes_box = ResizeSafeTextBox(
+            figure.add_axes((0.11, 0.005, 0.51, 0.033)), "Notes", initial=self.controller.state.notes
+        )
         notes_box.on_submit(lambda value: self.controller.set_review_metadata(notes=value))
         self._widgets.append(notes_box)
 

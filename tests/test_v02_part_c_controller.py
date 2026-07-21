@@ -125,6 +125,10 @@ class PartCControllerTests(unittest.TestCase):
                 patch.object(plt, "show"),
             ):
                 self.assertEqual(gui.run(), "draft")
+            from matplotlib.backend_bases import ResizeEvent
+
+            canvas = gui._widgets[-1].ax.figure.canvas
+            canvas.callbacks.process("resize_event", ResizeEvent("resize_event", canvas))
             self.assertGreaterEqual(len(gui._widgets), 10)
             self.assertTrue(gui._boundaries(controller.segment_labels).any())
             self.assertEqual(gui._review_overlay().shape, (2, 3, 4))
