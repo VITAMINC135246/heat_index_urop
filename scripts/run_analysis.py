@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -30,6 +31,7 @@ from scripts.workflow.luhk_context import resolve_luhk_context
 from scripts.workflow.models import (
     ArtifactReference,
     ContentTriageState,
+    CoverageClass,
     GroupInput,
     GroupRunSummary,
     LUHKProvenance,
@@ -37,6 +39,7 @@ from scripts.workflow.models import (
     ProcessingRoute,
     ProcessingStatus,
     QAStatus,
+    SceneCorrespondence,
     SourceMethod,
 )
 from scripts.workflow.part_b_adapter import run_full_part_b
@@ -50,14 +53,15 @@ from scripts.workflow.part_b_review import load_review_decisions, resolve_decisi
 from scripts.workflow.part_c_adapter import load_reviewed_label_override, run_reviewed_part_c
 from scripts.workflow.part_e_adapter import aggregate_canonical_results, write_run_summary
 from scripts.workflow.part_e_runner import run_formal_part_e
-from scripts.workflow.pilot_adapter import adapt_pilot_image, pilot_image_ids
-from scripts.workflow.polygon_annotation import PolygonAnnotationUI, polygon_context_arrays
+from scripts.workflow.pilot_adapter import adapt_pilot_image, pilot_image_ids, pilot_source_paths
+from scripts.workflow.polygon_annotation import polygon_context_arrays, run_polygon_gui_subprocess
 from scripts.workflow.result_index import ResultIndex, configuration_hash, sha256_file, source_hashes
-from scripts.workflow.routing import route_after_part_a, route_after_part_b0, route_group
+from scripts.workflow.routing import finalize_part_b, route_after_part_a, route_after_part_b0, route_group
 from scripts.workflow.temperature_extraction import (
     TemperatureResult,
     extract_temperature,
     load_parameter_row,
+    load_report_parameter_row,
     load_temperature_override,
     resolve_irp_exe,
 )
@@ -85,6 +89,24 @@ def parse_key_paths(values: list[str] | None, option: str) -> dict[str, Path]:
             raise ValueError(f"{option} expects non-empty IMAGE_ID=PATH values.")
         result[image_id.strip()] = project_path(path_text.strip())
     return result
+
+
+def prompt_review(label: str) -> ManualReviewStatus:
+    while True:
+        answer = input(f"{label} [a=accept / r=reject to polygon / c=cancel]: ").strip().casefold()
+        if answer in {"a", "accept", "accepted"}:
+            return ManualReviewStatus.ACCEPTED
+        if answer in {"r", "reject", "rejected"}:
+            return ManualReviewStatus.REJECTED
+        if answer in {"c", "cancel", "cancelled", "canceled"}:
+            return ManualReviewStatus.CANCELLED
+        print("Please enter a, r, or c.", flush=True)
+
+
+def prompt_text(label: str, default: str = "") -> str:
+    suffix = f" [{default}]" if default else ""
+    value = input(f"{label}{suffix}: ").strip()
+    return value or default
 
 
 def load_json(path: Path | None) -> dict[str, Any]:
@@ -157,6 +179,31 @@ def ambient_for_image(payload: dict[str, Any], image_id: str) -> dict[str, Any]:
     return {"ambient_temperature_c": value, "source": "explicit_ambient_json"}
 
 
+def report_ambient(parameters: dict[str, Any]) -> dict[str, Any]:
+    if not parameters:
+        return {}
+    return {
+        "ambient_temperature_c": parameters.get("ambient_temperature_c"),
+        "source": "TAT3 exported ambient parameter",
+        "definition": "TAT3 exported ambient parameter; not independently validated meteorological air temperature",
+        "source_record": parameters.get("source_report", ""),
+        "timezone": "Asia/Hong_Kong",
+        "validation_status": "provisional_user_supplied_report_parameter",
+    }
+
+
+def ambient_context(args: argparse.Namespace, payload: dict[str, Any], image_id: str) -> dict[str, Any]:
+    explicit = ambient_for_image(payload, image_id)
+    if explicit:
+        return explicit
+    if args.tat3_report:
+        try:
+            return report_ambient(load_report_parameter_row(project_path(args.tat3_report), image_id))
+        except ValueError:
+            return {}
+    return {}
+
+
 def temperature_for_group(
     *,
     image_id: str,
@@ -177,9 +224,15 @@ def temperature_for_group(
         if legacy.matrix.shape != native_shape:
             raise ValueError(f"Legacy temperature shape {legacy.matrix.shape} does not match native thermal grid {native_shape}.")
         return legacy
-    if not args.tat3_params_csv:
-        raise ValueError("temperature_matrix_unavailable: provide --temperature-npy or --tat3-params-csv with DJI SDK options")
-    parameters = load_parameter_row(project_path(args.tat3_params_csv), image_id)
+    if args.tat3_report:
+        parameters = load_report_parameter_row(project_path(args.tat3_report), image_id)
+    elif args.tat3_params_csv:
+        parameters = load_parameter_row(project_path(args.tat3_params_csv), image_id)
+    else:
+        raise ValueError(
+            "temperature_matrix_unavailable: provide --temperature-npy, --tat3-report, "
+            "or --tat3-params-csv with DJI SDK options"
+        )
     irp = resolve_irp_exe(
         irp_exe=args.irp_exe,
         sdk_root=args.sdk_root,
@@ -248,6 +301,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--normal-labels-npy", action="append", help="Compatibility IMAGE_ID=PATH; requires review manifest.")
     parser.add_argument("--normal-review-manifest", action="append", help="IMAGE_ID=PATH companion for --normal-labels-npy.")
     parser.add_argument("--tat3-params-csv", default="")
+    parser.add_argument("--tat3-report", default="", help="TAT3 DOCX report; parameters are selected by thermal image ID.")
     parser.add_argument("--sdk-config", default="config/part_d_sdk.local.json")
     parser.add_argument("--sdk-root", default="")
     parser.add_argument("--irp-exe", default="")
@@ -257,6 +311,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--no-part-e", action="store_true")
     parser.add_argument("--part-e-dry-run", action="store_true")
     parser.add_argument("--write-full-pixel-csv", action="store_true")
+    parser.add_argument("--polygon-image-id", action="append", default=[], help="Route this image to Part C* without a review JSON.")
+    parser.add_argument("--require-all-success", action="store_true", help="Return failure unless every requested image succeeds or is a cache hit.")
+    parser.add_argument("--interactive", action="store_true", help="Ask for review/context decisions at workflow gates.")
     subparsers = parser.add_subparsers(dest="mode", required=True)
     selected = subparsers.add_parser("selected", help="Process explicit V/T groups.")
     selected.add_argument("--group", nargs=2, metavar=("VISIBLE", "THERMAL"), action="append", required=True)
@@ -300,6 +357,76 @@ def attach_extreme_outputs(manifest: Any, manifest_path: Path) -> None:
     temporary.replace(manifest_path)
 
 
+def write_user_run_report(
+    path: Path,
+    *,
+    summaries: list[GroupRunSummary],
+    run_summary_path: Path,
+    output_root: Path,
+    part_e_outputs: dict[str, str],
+    part_e_root: Path | None,
+) -> Path:
+    lines = [
+        "# User workflow result",
+        "",
+        "## Image results",
+        "",
+        "| Image | Status | Route | Result |",
+        "|---|---|---|---|",
+    ]
+    for row in summaries:
+        lines.append(f"| {row.image_id} | {row.status.value} | {row.route.value} | {row.reason} |")
+    source_summary_value = part_e_outputs.get("source_summary", "")
+    source_summary_path = Path(source_summary_value) if source_summary_value else None
+    if source_summary_path and source_summary_path.is_file():
+        analysis = pd.read_csv(source_summary_path)
+        lines.extend(
+            [
+                "",
+                "## Analysis summary",
+                "",
+                f"- Images included in Part E: {analysis['image_id'].nunique()}",
+                f"- Analysis-eligible pixels: {int(analysis['analysis_eligible_pixel_count'].sum()):,}",
+                f"- Excluded pixels: {int(analysis['excluded_pixel_count'].sum()):,}",
+                "- Weighting/interpretation: image or capture time is the temporal unit; formal comparisons are exploratory and source-stratified.",
+                "",
+                "| Image | Source | Eligible pixels | Mean temperature °C | Mean ΔT °C | QA |",
+                "|---|---|---:|---:|---:|---|",
+            ]
+        )
+        for row in analysis.itertuples(index=False):
+            delta = pd.to_numeric(getattr(row, "eligible_delta_t_mean_c", None), errors="coerce")
+            delta_text = "unavailable" if pd.isna(delta) else f"{float(delta):.3f}"
+            lines.append(
+                f"| {row.image_id} | {row.source_method} / {row.measurement_type} | "
+                f"{int(row.analysis_eligible_pixel_count):,} | {float(row.eligible_temperature_mean_c):.3f} | "
+                f"{delta_text} | {row.qa_status} |"
+            )
+    lines.extend(
+        [
+            "",
+            "## Output locations",
+            "",
+            f"- Run summary: `{run_summary_path.resolve().as_posix()}`",
+            f"- Canonical image results: `{output_root.resolve().as_posix()}`",
+        ]
+    )
+    if part_e_root:
+        lines.extend(
+            [
+                f"- Spectrum figures: `{(part_e_root / 'figures' / 'spectrum').resolve().as_posix()}`",
+                f"- Spatial figures: `{(part_e_root / 'figures' / 'spatial').resolve().as_posix()}`",
+                f"- Temporal results: `{(part_e_root / 'temporal').resolve().as_posix()}`",
+                f"- Statistical tables: `{(part_e_root / 'tables').resolve().as_posix()}`",
+                f"- Part E QA: `{part_e_outputs.get('qa', (part_e_root / 'qa').resolve().as_posix())}`",
+            ]
+        )
+    else:
+        lines.append("- Part E: not run (no accepted/cached canonical inputs, validation-only, or explicitly disabled).")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
 def main() -> int:
     args = parse_args()
     config = load_json(project_path(args.config))
@@ -328,12 +455,19 @@ def main() -> int:
     summaries: list[GroupRunSummary] = []
     successful_manifests: list[Path] = []
 
-    for group in groups:
+    print(f"Workflow started: {len(groups)} image group(s)", flush=True)
+    print(f"Run workspace: {display_path(run_directory)}", flush=True)
+
+    for group_number, group in enumerate(groups, start=1):
         image_id = image_identifier(Path(group.thermal_path))
+        print(f"[{group_number}/{len(groups)}] {image_id}: validating inputs (Part A)", flush=True)
         group_dir = run_directory / "groups" / image_id
         polygon_input = polygon_payload_for_image(polygons, image_id)
         selected_part_b = explicit_part_b.get(group.group_id) or explicit_part_b.get(image_id)
         selected_b0 = part_b0_reviews.get(group.group_id) or part_b0_reviews.get(image_id)
+        if image_id in set(args.polygon_image_id):
+            selected_b0 = ManualReviewStatus.REJECTED
+        polygon_context_relevant = image_id in set(args.polygon_image_id) or bool(polygon_input) or image_id not in pilot_ids
         group_configuration = {
             "schema_version": config.get("schema_version", "0.2.0"),
             "processing_version": config.get("processing_version", "heat-index-urop-0.3"),
@@ -341,23 +475,32 @@ def main() -> int:
             "part_b0_review": selected_b0.value if selected_b0 else "",
             "part_b_review": selected_part_b.to_dict() if selected_part_b else {},
             "part_c_review": part_c_reviews.get(image_id).resolve().as_posix() if image_id in part_c_reviews else "",
-            "polygon": polygon_input,
-            "surface_cover": args.surface_cover,
-            "target_name": args.target_name,
-            "target_id": args.target_id,
-            "luhk": args.luhk,
-            "luhk_provenance": args.luhk_provenance,
-            "ambient": ambient_for_image(ambient_payload, image_id),
+            "polygon": polygon_input if polygon_context_relevant else {},
+            "surface_cover": args.surface_cover if polygon_context_relevant else "",
+            "target_name": args.target_name if polygon_context_relevant else "",
+            "target_id": args.target_id if polygon_context_relevant else "",
+            "luhk": args.luhk if polygon_context_relevant else "",
+            "luhk_provenance": args.luhk_provenance if polygon_context_relevant else "unknown",
+            "ambient": ambient_context(args, ambient_payload, image_id),
         }
         group_config_hash = configuration_hash(group_configuration)
         source_paths = [Path(group.visible_path), Path(group.thermal_path), cover_mapping_path]
-        for mapping in (temperature_overrides, label_overrides, label_manifests, part_c_reviews):
+        for mapping in (label_overrides, label_manifests, part_c_reviews):
             if image_id in mapping:
                 source_paths.append(mapping[image_id])
-        if args.tat3_params_csv:
-            source_paths.append(project_path(args.tat3_params_csv))
-        if args.sdk_config and project_path(args.sdk_config).is_file():
-            source_paths.append(project_path(args.sdk_config))
+        if image_id in temperature_overrides:
+            source_paths.append(temperature_overrides[image_id])
+            if args.ambient_json:
+                source_paths.append(project_path(args.ambient_json))
+        elif image_id in pilot_ids:
+            source_paths.extend(pilot_source_paths(PROJECT_ROOT, image_id))
+        else:
+            if args.tat3_report:
+                source_paths.append(project_path(args.tat3_report))
+            elif args.tat3_params_csv:
+                source_paths.append(project_path(args.tat3_params_csv))
+            if args.sdk_config and project_path(args.sdk_config).is_file():
+                source_paths.append(project_path(args.sdk_config))
         hashes = source_hashes(source_paths)
         dependencies = {
             "group_configuration": group_config_hash,
@@ -370,6 +513,7 @@ def main() -> int:
             dependency_fingerprints=dependencies,
         )
         if cache.compatible:
+            print(f"[{group_number}/{len(groups)}] {image_id}: compatible canonical result found (cache hit)", flush=True)
             successful_manifests.append(Path(cache.manifest_path))
             summaries.append(GroupRunSummary(
                 group.group_id, image_id, ProcessingRoute.CACHE, ProcessingStatus.CACHE_HIT,
@@ -403,6 +547,7 @@ def main() -> int:
         part_b = None
         route = part_a_route
         if part_a_route.reason == "run_part_b0":
+            print(f"[{group_number}/{len(groups)}] {image_id}: checking visible/thermal correspondence (Part B0)", flush=True)
             part_b0 = triage_content_correspondence(
                 group_id=group.group_id,
                 image_id=image_id,
@@ -416,6 +561,13 @@ def main() -> int:
                 part_b0.reasons.append("part_a_pairing_uncertainty_requires_explicit_part_b0_review")
             if selected_b0 is None and image_id in pilot_reviews:
                 selected_b0 = ManualReviewStatus.ACCEPTED
+            if args.interactive and selected_b0 is None and part_b0.triage_state == ContentTriageState.NEEDS_MANUAL_REVIEW:
+                print(
+                    f"Part B0 needs your decision: score={part_b0.overall_score:.3f}, "
+                    f"confidence={part_b0.confidence}, reasons={'; '.join(part_b0.reasons)}",
+                    flush=True,
+                )
+                selected_b0 = prompt_review("Does the visible image show the same scene as the thermal image?")
             part_b0 = apply_part_b0_review(part_b0, selected_b0)
             write_part_b0_result(part_b0, group_dir / "part_b0" / "part_b0.json")
             route = route_after_part_b0(part_b0)
@@ -427,6 +579,7 @@ def main() -> int:
                 ))
                 continue
             if route.reason.endswith("run_full_part_b") or route.reason == "part_b0_match_candidate_run_full_part_b":
+                print(f"[{group_number}/{len(groups)}] {image_id}: refining visible/thermal alignment (Part B)", flush=True)
                 final_review = resolve_decision(
                     group_id=group.group_id,
                     image_id=image_id,
@@ -443,6 +596,27 @@ def main() -> int:
                     review_decision=final_review,
                 )
                 route = route_group(part_b, thermal_valid=validation.thermal_valid)
+                if args.interactive and route.status == ProcessingStatus.AWAITING_PART_B_REVIEW:
+                    print(f"Part B candidate review image: {part_b.review_evidence_path}", flush=True)
+                    if os.name == "nt" and Path(part_b.review_evidence_path).is_file():
+                        os.startfile(part_b.review_evidence_path)  # type: ignore[attr-defined]
+                    decision = prompt_review(
+                        "After viewing the contact sheet, is correspondence accepted with full thermal coverage?"
+                    )
+                    part_b.manual_review_status = decision
+                    if decision == ManualReviewStatus.ACCEPTED:
+                        part_b.scene_correspondence = SceneCorrespondence.ACCEPTED
+                        part_b.coverage_class = CoverageClass.THERMAL_FULLY_SUPPORTED_BY_VISIBLE
+                        print("Part B accepted; continuing to normal Part C.", flush=True)
+                    elif decision == ManualReviewStatus.REJECTED:
+                        part_b.scene_correspondence = SceneCorrespondence.REJECTED
+                        part_b.coverage_class = CoverageClass.NO_USABLE_OVERLAP
+                        print("Part B rejected; continuing to Part C* polygon extraction.", flush=True)
+                    part_b = finalize_part_b(part_b)
+                    (group_dir / "part_b" / "part_b.json").write_text(
+                        json.dumps(part_b.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8"
+                    )
+                    route = route_group(part_b, thermal_valid=validation.thermal_valid)
                 if route.status in {ProcessingStatus.AWAITING_PART_B_REVIEW, ProcessingStatus.CANCELLED}:
                     summaries.append(GroupRunSummary(
                         group.group_id, image_id, route.route, route.status, route.reason,
@@ -458,6 +632,7 @@ def main() -> int:
                 int(validation.thermal_camera_metadata["width"]),
             )
             if route.route == ProcessingRoute.NORMAL_VT and image_id in pilot_ids:
+                print(f"[{group_number}/{len(groups)}] {image_id}: using accepted pilot labels and temperature matrix", flush=True)
                 manifest, manifest_path = adapt_pilot_image(
                     PROJECT_ROOT,
                     image_id,
@@ -473,6 +648,7 @@ def main() -> int:
                 temporary.write_text(json.dumps(manifest.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8")
                 temporary.replace(manifest_path)
             elif route.route == ProcessingRoute.NORMAL_VT:
+                print(f"[{group_number}/{len(groups)}] {image_id}: extracting temperature and opening Part C review", flush=True)
                 temperature = temperature_for_group(
                     image_id=image_id,
                     thermal_path=Path(validation.thermal_path),
@@ -502,7 +678,7 @@ def main() -> int:
                         output_directory=group_dir / "part_c",
                         class_mapping=cover_names,
                         review_artifact_path=part_c_reviews.get(image_id),
-                        launch_gui=args.launch_part_c_gui,
+                        launch_gui=args.launch_part_c_gui or args.interactive,
                     )
                     if part_c_result is None:
                         summaries.append(GroupRunSummary(
@@ -539,7 +715,7 @@ def main() -> int:
                     surface_cover_names=cover_names,
                     shadow_mask=shadow,
                     temperature_metadata={**temperature.metadata, "capture_time": validation.capture_time},
-                    ambient_metadata=ambient_for_image(ambient_payload, image_id),
+                    ambient_metadata=ambient_context(args, ambient_payload, image_id),
                     validation_status=validation.validation_status.value,
                     part_a=validation.to_dict(),
                     part_b0=part_b0.to_dict() if part_b0 else {},
@@ -550,6 +726,7 @@ def main() -> int:
                     notes=args.notes,
                 )
             elif route.route == ProcessingRoute.THERMAL_POLYGON:
+                print(f"[{group_number}/{len(groups)}] {image_id}: extracting temperature for Part C* polygon", flush=True)
                 status = str(polygon_input.get("review_status", "")).casefold()
                 if status in {"cancelled", "canceled"}:
                     summaries.append(GroupRunSummary(
@@ -568,30 +745,51 @@ def main() -> int:
                 target_name = str(polygon_input.get("target_name", args.target_name)).strip()
                 target_id = str(polygon_input.get("target_id", args.target_id)).strip()
                 surface_value = str(polygon_input.get("surface_cover", args.surface_cover))
+                if args.interactive and not surface_value:
+                    surface_value = prompt_text("Surface-cover category", "grass_low_vegetation")
                 class_id, class_name = resolve_cover(surface_value, cover_names, cover_ids)
+                luhk_value = str(polygon_input.get("luhk", args.luhk))
+                provenance_value = str(polygon_input.get("luhk_provenance", args.luhk_provenance))
+                if args.interactive and not luhk_value:
+                    luhk_value = prompt_text("LUHK category", "GIC / open space")
+                    provenance_value = "user_supplied_luhk"
                 luhk = resolve_luhk_context(
-                    str(polygon_input.get("luhk", args.luhk)),
-                    str(polygon_input.get("luhk_provenance", args.luhk_provenance)),
+                    luhk_value,
+                    provenance_value,
                 )
+                if args.interactive and not target_name:
+                    target_name = prompt_text("Target name", image_id)
                 if not target_name:
                     raise ValueError("Part C* requires a target name.")
                 coordinates = polygon_input.get("coordinates", [])
                 confidence = str(polygon_input.get("reviewer_confidence", args.reviewer_confidence))
                 notes = str(polygon_input.get("notes", args.notes))
                 if not coordinates:
-                    annotation = PolygonAnnotationUI(
-                        Path(validation.thermal_path),
-                        class_name,
+                    print(f"[{group_number}/{len(groups)}] {image_id}: opening football-field polygon GUI", flush=True)
+                    annotation = run_polygon_gui_subprocess(
+                        request_path=group_dir / "part_c_star" / "polygon_gui_request.json",
+                        result_path=group_dir / "part_c_star" / "polygon_gui_result.json",
+                        thermal_image_path=Path(validation.thermal_path),
+                        visible_image_path=Path(validation.visible_path),
+                        surface_cover_category=class_name,
                         target_name=target_name,
                         luhk_category=luhk.category,
                         luhk_code=luhk.code,
                         luhk_provenance=luhk.provenance.value,
                         reviewer_confidence=confidence,
-                    ).run()
-                    if annotation.cancelled or not annotation.accepted:
+                    )
+                    if annotation.cancelled:
                         summaries.append(GroupRunSummary(
                             group.group_id, image_id, ProcessingRoute.CANCELLED, ProcessingStatus.CANCELLED,
                             "polygon_annotation_cancelled", part_a_record_path=part_a_path.resolve().as_posix(),
+                        ))
+                        continue
+                    if not annotation.accepted:
+                        summaries.append(GroupRunSummary(
+                            group.group_id, image_id, ProcessingRoute.AWAITING_REVIEW,
+                            ProcessingStatus.AWAITING_PART_C_REVIEW,
+                            "polygon_annotation_closed_without_acceptance",
+                            part_a_record_path=part_a_path.resolve().as_posix(),
                         ))
                         continue
                     coordinates = [[x, y] for x, y in annotation.coordinates]
@@ -642,7 +840,7 @@ def main() -> int:
                     luhk_code=luhk.code,
                     luhk_provenance=luhk.provenance.value,
                     temperature_metadata={**temperature.metadata, "capture_time": validation.capture_time},
-                    ambient_metadata=ambient_for_image(ambient_payload, image_id),
+                    ambient_metadata=ambient_context(args, ambient_payload, image_id),
                     validation_status=validation.validation_status.value,
                     part_a=validation.to_dict(),
                     part_b0=part_b0.to_dict() if part_b0 else {},
@@ -681,8 +879,11 @@ def main() -> int:
     index.save()
     run_summary_path = run_directory / "run_summary.json"
     write_run_summary(run_summary_path, summaries)
+    part_e_outputs: dict[str, str] = {}
+    part_e_root: Path | None = None
     if successful_manifests and not args.no_part_e and not args.validate_only:
         part_e = config["part_e"]
+        print(f"Part E: aggregating {len(successful_manifests)} accepted/cached image(s)", flush=True)
         aggregate_canonical_results(
             successful_manifests,
             output_parquet=project_path(part_e["canonical_parquet"]),
@@ -691,19 +892,44 @@ def main() -> int:
             dashboard_directory=project_path(part_e.get("dashboard_directory", "outputs/part_e/source_dashboard")),
         )
         if bool(part_e.get("formal_enabled", False)):
-            run_formal_part_e(
+            part_e_root = project_path(part_e.get("formal_output_root", "outputs/part_e/schema_0_2"))
+            print("Part E: running spectrum, spatial, statistical, and temporal stages", flush=True)
+            part_e_outputs = run_formal_part_e(
                 successful_manifests,
-                output_root=project_path(part_e.get("formal_output_root", "outputs/part_e/schema_0_2")),
+                output_root=part_e_root,
                 run_summary_path=run_summary_path,
                 resume=True,
                 dry_run=args.part_e_dry_run,
                 temporal_timezone=str(part_e.get("temporal_timezone", "Asia/Hong_Kong")),
             )
+            if part_e_outputs.get("stage_stdout", "").strip():
+                print(part_e_outputs["stage_stdout"].strip(), flush=True)
+            print("Part E: complete", flush=True)
+    else:
+        print("Part E: not run because no accepted/cached canonical image was available or it was disabled", flush=True)
+    user_report_path = write_user_run_report(
+        run_directory / "USER_RESULTS.md",
+        summaries=summaries,
+        run_summary_path=run_summary_path,
+        output_root=output_root,
+        part_e_outputs=part_e_outputs,
+        part_e_root=part_e_root,
+    )
     print(f"Groups requested: {len(groups)}")
     for summary in summaries:
         print(f"{summary.group_id}: {summary.status.value} via {summary.route.value} - {summary.reason}")
     print(f"Run summary: {display_path(run_summary_path)}")
+    print(f"User result guide: {display_path(user_report_path)}")
+    print(f"Canonical results: {display_path(output_root)}")
+    if part_e_root:
+        print(f"Spectrum figures: {display_path(part_e_root / 'figures' / 'spectrum')}")
+        print(f"Spatial figures: {display_path(part_e_root / 'figures' / 'spatial')}")
+        print(f"Temporal results: {display_path(part_e_root / 'temporal')}")
+        print(f"Statistical tables: {display_path(part_e_root / 'tables')}")
+        print(f"Part E QA: {part_e_outputs.get('qa', display_path(part_e_root / 'qa'))}")
     failed = sum(row.status in {ProcessingStatus.FAILED, ProcessingStatus.INCOMPLETE} for row in summaries)
+    if args.require_all_success:
+        failed += sum(row.status not in {ProcessingStatus.SUCCESS, ProcessingStatus.CACHE_HIT} for row in summaries)
     return 1 if failed else 0
 
 

@@ -1,13 +1,19 @@
-"""Part C* polygon rasterization and minimal local Matplotlib drawing UI."""
+"""Part C* polygon rasterization and isolated desktop drawing UI."""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import json
+import os
+import subprocess
+import sys
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Sequence
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageOps
+
+from .gui_backend import interactive_pyplot
 
 
 Point = tuple[float, float]
@@ -69,11 +75,7 @@ def labelled_polygon_arrays(
     *,
     unknown_value: int = -1,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Return labels and the authoritative known mask for Part C*.
-
-    Outside values use a storage sentinel, but the boolean known mask is the
-    authority. The sentinel is never a physical surface-cover class.
-    """
+    """Return labels and the authoritative known mask for Part C*."""
     known = rasterize_polygon(vertices, shape)
     labels = np.full(shape, int(unknown_value), dtype=np.int16)
     labels[known] = int(surface_cover_class_id)
@@ -96,13 +98,14 @@ def polygon_context_arrays(
 
 
 class PolygonAnnotationUI:
-    """Small blocking Matplotlib UI with Draw/Clear/Accept/Cancel behavior."""
+    """Blocking desktop UI with visible context and thermal-grid polygon drawing."""
 
     def __init__(
         self,
         thermal_image_path: Path,
         surface_cover_category: str,
         *,
+        visible_image_path: Path | None = None,
         target_name: str = "",
         luhk_category: str,
         luhk_code: str = "",
@@ -116,6 +119,7 @@ class PolygonAnnotationUI:
         if luhk_provenance not in {"official_luhk_lookup", "user_supplied_luhk"}:
             raise ValueError("Accepted polygon LUHK provenance must be official lookup or user supplied.")
         self.thermal_image_path = thermal_image_path
+        self.visible_image_path = visible_image_path
         self.surface_cover_category = surface_cover_category.strip()
         self.target_name = target_name.strip()
         self.luhk_category = luhk_category.strip()
@@ -125,42 +129,63 @@ class PolygonAnnotationUI:
         self.vertices: list[Point] = []
         self.accepted = False
         self.cancelled = False
+        self._widgets: list[object] = []
 
     def run(self) -> PolygonAnnotation:
-        import matplotlib.pyplot as plt
+        plt = interactive_pyplot("Part C* polygon GUI")
         from matplotlib.widgets import Button, PolygonSelector
 
         with Image.open(self.thermal_image_path) as source:
             image = ImageOps.exif_transpose(source).convert("RGB")
-        figure, axis = plt.subplots(figsize=(11, 8))
-        figure.subplots_adjust(bottom=0.14)
+        if self.visible_image_path:
+            with Image.open(self.visible_image_path) as source:
+                visible = ImageOps.exif_transpose(source).convert("RGB")
+            figure, axes = plt.subplots(1, 2, figsize=(13, 7))
+            axes[0].imshow(visible)
+            axes[0].set_title("Visible reference (context only)")
+            axes[0].set_axis_off()
+            axis = axes[1]
+        else:
+            figure, axis = plt.subplots(figsize=(9, 7))
+        figure.subplots_adjust(bottom=0.16)
         axis.imshow(image)
         axis.set_title(
-            f"Part C* — {self.surface_cover_category}\nDraw polygon, then Accept; outside remains unknown"
+            f"Part C* — {self.target_name or 'target'} / {self.surface_cover_category}\n"
+            "Draw on this thermal image; outside remains unknown"
         )
         axis.set_axis_off()
+        status = figure.text(
+            0.04,
+            0.105,
+            f"LUHK: {self.luhk_category} | Click around the target; Accept closes the polygon automatically.",
+            fontsize=10,
+        )
 
         def selected(vertices: list[Point]) -> None:
             self.vertices = [(float(x), float(y)) for x, y in vertices]
+            status.set_text(f"Polygon updated: {len(self.vertices)} vertices. Click Accept to validate.")
+            figure.canvas.draw_idle()
 
         selector = PolygonSelector(axis, selected, useblit=True)
-        clear_axis = figure.add_axes((0.48, 0.03, 0.12, 0.055))
-        accept_axis = figure.add_axes((0.62, 0.03, 0.12, 0.055))
-        cancel_axis = figure.add_axes((0.76, 0.03, 0.12, 0.055))
-        clear_button = Button(clear_axis, "Clear / Redraw")
-        accept_button = Button(accept_axis, "Accept")
-        cancel_button = Button(cancel_axis, "Cancel")
+        clear_button = Button(figure.add_axes((0.48, 0.03, 0.12, 0.055)), "Clear / Redraw")
+        accept_button = Button(figure.add_axes((0.62, 0.03, 0.12, 0.055)), "Accept")
+        cancel_button = Button(figure.add_axes((0.76, 0.03, 0.12, 0.055)), "Cancel")
+        self._widgets.extend([selector, clear_button, accept_button, cancel_button])
 
         def clear(_event: object) -> None:
             self.vertices = []
             selector.clear()
+            status.set_text("Polygon cleared. Draw a new boundary on the thermal image.")
             figure.canvas.draw_idle()
 
         def accept(_event: object) -> None:
             try:
-                validate_polygon(self.vertices, image.width, image.height)
+                current = self.vertices or [
+                    (float(x), float(y)) for x, y in getattr(selector, "verts", [])
+                ]
+                self.vertices = validate_polygon(current, image.width, image.height)
             except ValueError as exc:
-                axis.set_title(f"Cannot accept: {exc}\nDraw a valid polygon; outside remains unknown")
+                status.set_text(f"Cannot accept: {exc}")
                 figure.canvas.draw_idle()
                 return
             self.accepted = True
@@ -174,8 +199,6 @@ class PolygonAnnotationUI:
         accept_button.on_clicked(accept)
         cancel_button.on_clicked(cancel)
         plt.show()
-        if not self.accepted and not self.cancelled:
-            self.cancelled = True
         return PolygonAnnotation(
             accepted=self.accepted,
             cancelled=self.cancelled,
@@ -187,3 +210,100 @@ class PolygonAnnotationUI:
             target_name=self.target_name,
             reviewer_confidence=self.reviewer_confidence,
         )
+
+
+def run_polygon_gui_subprocess(
+    *,
+    request_path: Path,
+    result_path: Path,
+    thermal_image_path: Path,
+    visible_image_path: Path | None,
+    surface_cover_category: str,
+    target_name: str,
+    luhk_category: str,
+    luhk_code: str,
+    luhk_provenance: str,
+    reviewer_confidence: str,
+) -> PolygonAnnotation:
+    """Launch review in a clean process isolated from headless report plots."""
+    request_path.parent.mkdir(parents=True, exist_ok=True)
+    request_path.write_text(
+        json.dumps(
+            {
+                "thermal_image_path": thermal_image_path.resolve().as_posix(),
+                "visible_image_path": visible_image_path.resolve().as_posix() if visible_image_path else "",
+                "surface_cover_category": surface_cover_category,
+                "target_name": target_name,
+                "luhk_category": luhk_category,
+                "luhk_code": luhk_code,
+                "luhk_provenance": luhk_provenance,
+                "reviewer_confidence": reviewer_confidence,
+            },
+            indent=2,
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    environment = os.environ.copy()
+    if os.name == "nt":
+        # Applied before process startup; unlike a late Tk call this prevents
+        # Windows 150% scaling from placing controls outside the window.
+        environment["__COMPAT_LAYER"] = "HIGHDPIAWARE"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "scripts.workflow.polygon_annotation",
+            "--request",
+            str(request_path),
+            "--result",
+            str(result_path),
+        ],
+        cwd=Path(__file__).resolve().parents[2],
+        env=environment,
+        check=False,
+    )
+    if completed.returncode:
+        raise RuntimeError(f"Part C* polygon GUI exited with code {completed.returncode}.")
+    if not result_path.is_file():
+        return PolygonAnnotation(False, False, [], surface_cover_category, luhk_category)
+    payload = json.loads(result_path.read_text(encoding="utf-8"))
+    return PolygonAnnotation(
+        accepted=bool(payload.get("accepted")),
+        cancelled=bool(payload.get("cancelled")),
+        coordinates=[(float(x), float(y)) for x, y in payload.get("coordinates", [])],
+        surface_cover_category=str(payload.get("surface_cover_category", surface_cover_category)),
+        luhk_category=str(payload.get("luhk_category", luhk_category)),
+        luhk_code=str(payload.get("luhk_code", luhk_code)),
+        luhk_provenance=str(payload.get("luhk_provenance", luhk_provenance)),
+        target_name=str(payload.get("target_name", target_name)),
+        reviewer_confidence=str(payload.get("reviewer_confidence", reviewer_confidence)),
+    )
+
+
+def _main() -> int:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Launch the Part C* polygon GUI.")
+    parser.add_argument("--request", required=True)
+    parser.add_argument("--result", required=True)
+    args = parser.parse_args()
+    payload = json.loads(Path(args.request).read_text(encoding="utf-8"))
+    annotation = PolygonAnnotationUI(
+        Path(payload["thermal_image_path"]),
+        str(payload["surface_cover_category"]),
+        visible_image_path=Path(payload["visible_image_path"]) if payload.get("visible_image_path") else None,
+        target_name=str(payload.get("target_name", "")),
+        luhk_category=str(payload["luhk_category"]),
+        luhk_code=str(payload.get("luhk_code", "")),
+        luhk_provenance=str(payload.get("luhk_provenance", "user_supplied_luhk")),
+        reviewer_confidence=str(payload.get("reviewer_confidence", "")),
+    ).run()
+    result_path = Path(args.result)
+    result_path.parent.mkdir(parents=True, exist_ok=True)
+    result_path.write_text(json.dumps(asdict(annotation), indent=2, ensure_ascii=False), encoding="utf-8")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(_main())

@@ -279,7 +279,15 @@ def write_run_summary(path: Path, rows: list[GroupRunSummary]) -> None:
             "included": [row.image_id for row in rows if row.status in {ProcessingStatus.SUCCESS, ProcessingStatus.CACHE_HIT}],
             "failed": [row.image_id for row in rows if row.status == ProcessingStatus.FAILED],
             "cancelled": [row.image_id for row in rows if row.status == ProcessingStatus.CANCELLED],
-            "awaiting_review": [row.image_id for row in rows if row.status in {ProcessingStatus.AWAITING_PART_B0_REVIEW, ProcessingStatus.AWAITING_PART_B_REVIEW}],
+            "awaiting_review": [
+                row.image_id
+                for row in rows
+                if row.status in {
+                    ProcessingStatus.AWAITING_PART_B0_REVIEW,
+                    ProcessingStatus.AWAITING_PART_B_REVIEW,
+                    ProcessingStatus.AWAITING_PART_C_REVIEW,
+                }
+            ],
             "excluded": [row.image_id for row in rows if row.status == ProcessingStatus.EXCLUDED],
             "incomplete": [row.image_id for row in rows if row.status == ProcessingStatus.INCOMPLETE],
         },

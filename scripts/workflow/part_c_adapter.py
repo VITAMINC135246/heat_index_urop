@@ -14,7 +14,7 @@ from PIL import Image, ImageOps
 from scripts.part_b.b05_refine_vt_alignment import crop_for_alignment
 
 from .legacy_loader import load_numbered_script
-from .part_c_review_gui import SuperpixelReviewController, SuperpixelReviewGUI
+from .part_c_review_gui import SuperpixelReviewController, run_review_gui_subprocess
 from .result_index import sha256_file
 
 
@@ -107,7 +107,7 @@ def run_reviewed_part_c(
             expected_image_id=image_id,
         )
     if launch_gui:
-        SuperpixelReviewGUI(controller, artifact).run()
+        run_review_gui_subprocess(controller, artifact, output_directory / "superpixel_labels.npy")
     if not artifact.is_file():
         controller.save_draft(artifact)
         return None

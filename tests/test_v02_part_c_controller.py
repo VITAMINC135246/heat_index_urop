@@ -4,11 +4,12 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 
 from scripts.workflow.part_c_adapter import load_reviewed_label_override
-from scripts.workflow.part_c_review_gui import SuperpixelReviewController
+from scripts.workflow.part_c_review_gui import SuperpixelReviewController, SuperpixelReviewGUI, interactive_pyplot
 from scripts.workflow.result_index import sha256_file
 
 
@@ -81,6 +82,70 @@ class PartCControllerTests(unittest.TestCase):
             self.assertTrue(known.all())
             self.assertEqual(payload["reviewer"], "tester")
             self.assertTrue(np.all(loaded == 1))
+
+    def test_gui_switches_from_headless_agg_to_tk_backend(self) -> None:
+        with (
+            patch("matplotlib.pyplot.get_backend", return_value="Agg"),
+            patch("matplotlib.pyplot.switch_backend") as switch_backend,
+        ):
+            interactive_pyplot()
+        switch_backend.assert_called_once_with("TkAgg")
+
+    def test_gui_keeps_an_existing_interactive_backend(self) -> None:
+        with (
+            patch("matplotlib.pyplot.get_backend", return_value="TkAgg"),
+            patch("matplotlib.pyplot.switch_backend") as switch_backend,
+        ):
+            interactive_pyplot()
+        switch_backend.assert_not_called()
+
+    def test_suggestion_prefill_is_visible_undoable_and_gui_retains_widgets(self) -> None:
+        controller = self.controller()
+        controller.suggestions[3] = "unclear_ignore"
+        self.assertEqual(controller.apply_suggestions_to_unreviewed(), 3)
+        self.assertFalse(controller.unreviewed_segments)
+        self.assertEqual(controller.state.labels[3], "__unknown__")
+        self.assertTrue(controller.undo())
+        self.assertEqual(controller.unreviewed_segments, {1, 2, 3})
+        with tempfile.TemporaryDirectory() as directory:
+            from PIL import Image
+            import matplotlib.pyplot as plt
+
+            plt.switch_backend("Agg")
+            root = Path(directory)
+            visible = root / "visible.png"
+            thermal = root / "thermal.png"
+            Image.new("RGB", (3, 2), "green").save(visible)
+            Image.new("RGB", (3, 2), "gray").save(thermal)
+            controller.visible_roi_path = str(visible)
+            controller.thermal_path = str(thermal)
+            gui = SuperpixelReviewGUI(controller, root / "review.json")
+            with (
+                patch("scripts.workflow.part_c_review_gui.interactive_pyplot", return_value=plt),
+                patch.object(plt, "show"),
+            ):
+                self.assertEqual(gui.run(), "draft")
+            self.assertGreaterEqual(len(gui._widgets), 10)
+            self.assertTrue(gui._boundaries(controller.segment_labels).any())
+            self.assertEqual(gui._review_overlay().shape, (2, 3, 4))
+            buttons = {
+                widget.label.get_text(): widget
+                for widget in gui._widgets
+                if hasattr(widget, "label") and hasattr(widget.label, "get_text")
+            }
+            controller.select(1)
+            buttons["Assign"]._observers.process("clicked", None)
+            self.assertIn(controller.state.labels[1], controller.allowed_classes)
+            buttons["Mark unknown"]._observers.process("clicked", None)
+            self.assertEqual(controller.state.labels[1], "__unknown__")
+            buttons["Shadow"]._observers.process("clicked", None)
+            self.assertTrue(controller.state.shadow[1])
+            buttons["No shadow"]._observers.process("clicked", None)
+            self.assertFalse(controller.state.shadow[1])
+            buttons["Undo"]._observers.process("clicked", None)
+            self.assertTrue(controller.state.shadow[1])
+            buttons["Redo"]._observers.process("clicked", None)
+            self.assertFalse(controller.state.shadow[1])
 
 
 if __name__ == "__main__":

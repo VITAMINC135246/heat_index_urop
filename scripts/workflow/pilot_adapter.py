@@ -23,6 +23,36 @@ def pilot_image_ids(project_root: Path) -> list[str]:
     return pairs["image_id"].astype(str).tolist()
 
 
+def pilot_source_paths(project_root: Path, image_id: str) -> list[Path]:
+    """Return every mutable reviewed artifact that determines one pilot result."""
+    pairs_path = project_root / "data" / "metadata" / "part_b_pilot_pairs.xlsx"
+    masks_path = project_root / "outputs" / "part_c" / "summaries" / "part_c_final_mask_manifest.xlsx"
+    temperatures_path = (
+        project_root / "outputs" / "part_d" / "summaries" / "part_d_tat3_parameter_temperature_extraction_summary.csv"
+    )
+    pairs = pd.read_excel(pairs_path)
+    masks = pd.read_excel(masks_path)
+    temperatures = pd.read_csv(temperatures_path, keep_default_na=False)
+    pair_rows = pairs.loc[pairs["image_id"].astype(str).eq(image_id)]
+    mask_rows = masks.loc[masks["image_id"].astype(str).eq(image_id)]
+    temperature_rows = temperatures.loc[temperatures["image_id"].astype(str).eq(image_id)]
+    if len(pair_rows) != 1 or len(mask_rows) != 1 or len(temperature_rows) != 1:
+        raise ValueError(f"Pilot source artifacts do not map one-to-one for {image_id}.")
+    mask_row = mask_rows.iloc[0]
+    temperature_row = temperature_rows.iloc[0]
+    paths = [
+        pairs_path,
+        masks_path,
+        temperatures_path,
+        _project_path(project_root, mask_row["class_mask_thermal_grid_npy_path"]),
+        _project_path(project_root, temperature_row["npy_path"]),
+    ]
+    shadow_path = _project_path(project_root, mask_row["shadow_mask_thermal_grid_npy_path"])
+    if shadow_path.is_file():
+        paths.append(shadow_path)
+    return paths
+
+
 def adapt_pilot_image(
     project_root: Path,
     image_id: str,

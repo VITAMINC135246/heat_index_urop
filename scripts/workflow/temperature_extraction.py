@@ -65,6 +65,37 @@ def load_parameter_row(path: Path, image_id: str) -> dict[str, Any]:
     return result
 
 
+def load_report_parameter_row(path: Path, image_id: str) -> dict[str, Any]:
+    """Read one image's SDK parameters directly from a user-supplied TAT3 report."""
+    if not path.is_file():
+        raise FileNotFoundError(f"TAT3 report does not exist: {path}")
+    from .tat3_manual_measurement import _ambient_entries
+
+    entries = _ambient_entries(path)
+    rows = [entry for entry in entries if str(entry.get("image_id", "")).casefold() == image_id.casefold()]
+    if len(rows) != 1:
+        raise ValueError(f"Expected exactly one TAT3 report entry for {image_id}; found {len(rows)}.")
+    row = rows[0]
+    if str(row.get("ambient_parse_status", "")).casefold() != "ok":
+        raise ValueError(f"TAT3 ambient_parse_status is not ok for {image_id}.")
+    result: dict[str, Any] = {}
+    for source, target in (
+        ("distance_m", "distance_m"),
+        ("humidity_percent", "relative_humidity_percent"),
+        ("emissivity", "emissivity"),
+        ("ambient_temperature_c", "ambient_temperature_c"),
+        ("reflected_temperature_c", "reflected_temperature_c"),
+    ):
+        try:
+            result[target] = float(row[source])
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"TAT3 report parameter {source} is not numeric for {image_id}.") from exc
+    result["source_report"] = path.resolve().as_posix()
+    result["report_capture_datetime"] = str(row.get("report_capture_datetime", ""))
+    result["humidity_use_status"] = str(row.get("humidity_use_status", ""))
+    return result
+
+
 def resolve_irp_exe(
     *,
     irp_exe: str = "",

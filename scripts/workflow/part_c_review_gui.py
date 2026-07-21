@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import subprocess
+import sys
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -13,10 +16,16 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
+from .gui_backend import interactive_pyplot as _interactive_pyplot
 from .legacy_loader import load_numbered_script
 
 
 UNKNOWN_REGION = "__unknown__"
+
+
+def interactive_pyplot() -> Any:
+    """Compatibility wrapper used by Part C and its regression tests."""
+    return _interactive_pyplot("Part C GUI")
 
 
 def array_sha256(array: np.ndarray) -> str:
@@ -91,6 +100,19 @@ class SuperpixelReviewController:
         self._checkpoint()
         for segment_id in self.state.selected:
             self.state.labels[segment_id] = UNKNOWN_REGION
+
+    def apply_suggestions_to_unreviewed(self) -> int:
+        """Apply valid machine suggestions as a visible, undoable review starting point."""
+        assignments = {
+            segment_id: category if category in self.allowed_classes else UNKNOWN_REGION
+            for segment_id, category in self.suggestions.items()
+            if segment_id in self.unreviewed_segments
+        }
+        if not assignments:
+            return 0
+        self._checkpoint()
+        self.state.labels.update(assignments)
+        return len(assignments)
 
     def set_shadow(self, value: bool) -> None:
         if not self.state.selected:
@@ -262,9 +284,47 @@ class SuperpixelReviewGUI:
         self.controller = controller
         self.draft_path = draft_path
         self.current_category = next(iter(sorted(controller.allowed_classes)), UNKNOWN_REGION)
+        self._widgets: list[Any] = []
+
+    @staticmethod
+    def _boundaries(labels: np.ndarray) -> np.ndarray:
+        boundary = np.zeros(labels.shape, dtype=bool)
+        boundary[1:, :] |= labels[1:, :] != labels[:-1, :]
+        boundary[:-1, :] |= labels[:-1, :] != labels[1:, :]
+        boundary[:, 1:] |= labels[:, 1:] != labels[:, :-1]
+        boundary[:, :-1] |= labels[:, :-1] != labels[:, 1:]
+        return boundary
+
+    def _review_overlay(self) -> np.ndarray:
+        labels = self.controller.segment_labels
+        overlay = np.zeros((*labels.shape, 4), dtype=np.float32)
+        palette = (
+            (0.12, 0.47, 0.71), (1.00, 0.50, 0.05), (0.17, 0.63, 0.17),
+            (0.84, 0.15, 0.16), (0.58, 0.40, 0.74), (0.55, 0.34, 0.29),
+            (0.89, 0.47, 0.76), (0.50, 0.50, 0.50), (0.74, 0.74, 0.13),
+            (0.09, 0.75, 0.81),
+        )
+        colors = {name: palette[index % len(palette)] for index, name in enumerate(sorted(self.controller.allowed_classes))}
+        for segment_id in self.controller.segment_ids:
+            mask = labels == segment_id
+            category = self.controller.state.labels.get(segment_id)
+            if category == UNKNOWN_REGION:
+                overlay[mask] = (0.45, 0.45, 0.45, 0.58)
+            elif category in colors:
+                overlay[mask] = (*colors[category], 0.48)
+            elif self.controller.suggestions.get(segment_id) in colors:
+                overlay[mask] = (*colors[self.controller.suggestions[segment_id]], 0.12)
+            if self.controller.state.shadow.get(segment_id, False):
+                overlay[mask, :3] = (0.08, 0.15, 0.48)
+                overlay[mask, 3] = 0.58
+        for segment_id in self.controller.state.selected:
+            mask = labels == segment_id
+            overlay[mask, :3] = (1.0, 0.92, 0.05)
+            overlay[mask, 3] = 0.62
+        return overlay
 
     def run(self) -> str:
-        import matplotlib.pyplot as plt
+        plt = interactive_pyplot()
         from matplotlib.widgets import Button, RadioButtons, TextBox
 
         visible = np.asarray(Image.open(self.controller.visible_roi_path).convert("RGB"))
@@ -273,62 +333,102 @@ class SuperpixelReviewGUI:
                 (self.controller.segment_labels.shape[1], self.controller.segment_labels.shape[0]),
                 Image.Resampling.LANCZOS,
             ))
-        figure, axes = plt.subplots(1, 2 if self.controller.thermal_path else 1, figsize=(14, 8), squeeze=False)
-        figure.subplots_adjust(left=0.05, right=0.78, bottom=0.17)
+        panel_count = 3 if self.controller.thermal_path else 2
+        figure, axes = plt.subplots(1, panel_count, figsize=(14, 7.5), squeeze=False)
+        figure.subplots_adjust(left=0.035, right=0.79, bottom=0.20, top=0.91, wspace=0.06)
         axis = axes[0, 0]
+        review_axis = axes[0, 1]
+        boundaries = self._boundaries(self.controller.segment_labels)
+        boundary_rgba = np.zeros((*boundaries.shape, 4), dtype=np.float32)
+        boundary_rgba[boundaries] = (1.0, 1.0, 1.0, 0.90)
         axis.imshow(visible)
-        axis.contour(self.controller.segment_labels, levels=np.unique(self.controller.segment_labels), colors="white", linewidths=0.25)
-        axis.set_title("Click superpixels; Ctrl-click selects several")
+        axis.imshow(boundary_rgba, interpolation="nearest")
+        axis.set_title("Visible image + superpixel boundaries")
         axis.set_axis_off()
+        review_axis.imshow(visible)
+        review_artist = review_axis.imshow(self._review_overlay(), interpolation="nearest")
+        review_axis.imshow(boundary_rgba, interpolation="nearest")
+        review_axis.set_title("Live review mask (click here or visible image)")
+        review_axis.set_axis_off()
         if self.controller.thermal_path:
-            axes[0, 1].imshow(Image.open(self.controller.thermal_path))
-            axes[0, 1].set_title("Corresponding thermal image")
-            axes[0, 1].set_axis_off()
-        status = figure.text(0.05, 0.05, "Unreviewed regions are not labels.")
-        radio_axis = figure.add_axes((0.80, 0.35, 0.19, 0.55))
+            axes[0, 2].imshow(Image.open(self.controller.thermal_path))
+            axes[0, 2].set_title("Corresponding thermal image")
+            axes[0, 2].set_axis_off()
+        status = figure.text(0.035, 0.105, "", fontsize=10)
+        figure.text(
+            0.035, 0.155,
+            "1 Click region  2 Choose cover  3 Assign  |  Ctrl-click: multi-select  |  Pale colors: suggestions",
+            fontsize=10,
+        )
+        radio_axis = figure.add_axes((0.805, 0.33, 0.19, 0.58))
         choices = [*sorted(self.controller.allowed_classes), "unknown/unclear"]
         radio = RadioButtons(radio_axis, choices)
         radio.on_clicked(lambda value: setattr(self, "current_category", UNKNOWN_REGION if value == "unknown/unclear" else value))
+        self._widgets.append(radio)
+
+        def refresh(message: str = "") -> None:
+            review_artist.set_data(self._review_overlay())
+            selected = sorted(self.controller.state.selected)
+            status.set_text(
+                f"{message}  Selected={selected or 'none'}  "
+                f"Unreviewed={len(self.controller.unreviewed_segments)}  "
+                f"Unknown={len(self.controller.unknown_segments)}  "
+                f"Undo={len(self.controller._undo)}  Redo={len(self.controller._redo)}"
+            )
+            figure.canvas.draw_idle()
+
+        def action(operation: Any, success: str) -> Any:
+            def callback(_event: Any) -> None:
+                try:
+                    result = operation()
+                    if isinstance(result, bool) and not result:
+                        refresh("No matching history entry; state unchanged.")
+                    else:
+                        suffix = f" ({result})" if isinstance(result, int) and not isinstance(result, bool) else ""
+                        refresh(success + suffix)
+                except (OSError, ValueError, RuntimeError) as exc:
+                    refresh(f"Cannot complete action: {exc}")
+            return callback
 
         def click(event: Any) -> None:
-            if event.inaxes is not axis or event.xdata is None or event.ydata is None:
+            if event.inaxes not in {axis, review_axis} or event.xdata is None or event.ydata is None:
                 return
             row, col = int(event.ydata), int(event.xdata)
             if 0 <= row < self.controller.segment_labels.shape[0] and 0 <= col < self.controller.segment_labels.shape[1]:
                 append = bool(event.key and "control" in str(event.key).casefold())
                 self.controller.select(int(self.controller.segment_labels[row, col]), append=append)
-                status.set_text(f"Selected: {sorted(self.controller.state.selected)}")
-                figure.canvas.draw_idle()
+                refresh("Selection changed.")
 
         figure.canvas.mpl_connect("button_press_event", click)
 
-        def button(x: float, label: str, callback: Any) -> None:
-            item = Button(figure.add_axes((x, 0.11, 0.095, 0.045)), label)
+        def button(x: float, y: float, width: float, label: str, callback: Any) -> None:
+            item = Button(figure.add_axes((x, y, width, 0.042)), label)
             item.on_clicked(callback)
+            self._widgets.append(item)
 
-        def assign(_event: Any) -> None:
-            if self.current_category == UNKNOWN_REGION:
-                self.controller.mark_unknown()
-            else:
-                self.controller.assign(self.current_category)
-            status.set_text(f"Unreviewed: {len(self.controller.unreviewed_segments)}; unknown: {len(self.controller.unknown_segments)}")
-
-        button(0.05, "Assign", assign)
-        button(0.15, "Shadow", lambda event: self.controller.set_shadow(True))
-        button(0.25, "No shadow", lambda event: self.controller.set_shadow(False))
-        button(0.35, "Clear", lambda event: self.controller.clear_selected_labels())
-        button(0.45, "Undo", lambda event: self.controller.undo())
-        button(0.55, "Redo", lambda event: self.controller.redo())
-        button(0.65, "Save draft", lambda event: self.controller.save_draft(self.draft_path))
-        notes_box = TextBox(figure.add_axes((0.12, 0.01, 0.55, 0.035)), "Notes", initial=self.controller.state.notes)
+        button(0.035, 0.055, 0.085, "Assign", action(
+            lambda: self.controller.mark_unknown() if self.current_category == UNKNOWN_REGION else self.controller.assign(self.current_category),
+            "Assignment applied.",
+        ))
+        button(0.125, 0.055, 0.095, "Mark unknown", action(self.controller.mark_unknown, "Marked unknown."))
+        button(0.225, 0.055, 0.075, "Shadow", action(lambda: self.controller.set_shadow(True), "Shadow applied."))
+        button(0.305, 0.055, 0.085, "No shadow", action(lambda: self.controller.set_shadow(False), "Shadow cleared."))
+        button(0.395, 0.055, 0.065, "Clear", action(self.controller.clear_selected_labels, "Selection cleared."))
+        button(0.465, 0.055, 0.06, "Undo", action(self.controller.undo, "Undo."))
+        button(0.530, 0.055, 0.06, "Redo", action(self.controller.redo, "Redo."))
+        button(0.595, 0.055, 0.12, "Fill suggestions", action(
+            self.controller.apply_suggestions_to_unreviewed, "Suggestions applied to unreviewed regions"
+        ))
+        button(0.720, 0.055, 0.07, "Save", action(lambda: self.controller.save_draft(self.draft_path), "Draft saved."))
+        notes_box = TextBox(figure.add_axes((0.11, 0.005, 0.51, 0.033)), "Notes", initial=self.controller.state.notes)
         notes_box.on_submit(lambda value: self.controller.set_review_metadata(notes=value))
+        self._widgets.append(notes_box)
 
         def accept(_event: Any) -> None:
             try:
                 self.controller.accept(self.draft_path)
             except ValueError as exc:
-                status.set_text(str(exc))
-                figure.canvas.draw_idle()
+                refresh(str(exc) + " Use Fill suggestions or review remaining regions.")
                 return
             plt.close(figure)
 
@@ -336,9 +436,75 @@ class SuperpixelReviewGUI:
             self.controller.cancel(self.draft_path)
             plt.close(figure)
 
-        button(0.80, "Accept", accept)
-        button(0.90, "Cancel", cancel)
+        button(0.805, 0.20, 0.09, "Accept", accept)
+        button(0.900, 0.20, 0.09, "Cancel", cancel)
+        refresh("Ready.")
         plt.show()
         if self.controller.state.review_status not in {"accepted", "cancelled"}:
             self.controller.save_draft(self.draft_path)
         return self.controller.state.review_status
+
+
+def run_review_gui_subprocess(controller: SuperpixelReviewController, draft_path: Path, segment_path: Path) -> str:
+    """Run the GUI in a clean process so prior headless Part A/B plots cannot break Tk events."""
+    session_path = draft_path.parent / "superpixel_review_session.json"
+    session_path.write_text(
+        json.dumps(
+            {
+                "image_id": controller.image_id,
+                "segment_path": segment_path.resolve().as_posix(),
+                "class_mapping": {str(key): value for key, value in controller.class_mapping.items()},
+                "suggestions": {str(key): value for key, value in controller.suggestions.items()},
+                "visible_roi_path": controller.visible_roi_path,
+                "thermal_path": controller.thermal_path,
+                "draft_path": draft_path.resolve().as_posix(),
+            },
+            indent=2,
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    environment = os.environ.copy()
+    if os.name == "nt":
+        environment["__COMPAT_LAYER"] = "HIGHDPIAWARE"
+    completed = subprocess.run(
+        [sys.executable, "-m", "scripts.workflow.part_c_review_gui", "--session", str(session_path)],
+        cwd=Path(__file__).resolve().parents[2],
+        env=environment,
+        check=False,
+    )
+    if completed.returncode:
+        raise RuntimeError(f"Part C review GUI exited with code {completed.returncode}.")
+    if not draft_path.is_file():
+        return "draft"
+    return str(json.loads(draft_path.read_text(encoding="utf-8")).get("review_status", "draft"))
+
+
+def _main() -> int:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Launch the Part C desktop review GUI.")
+    parser.add_argument("--session", required=True)
+    args = parser.parse_args()
+    payload = json.loads(Path(args.session).read_text(encoding="utf-8"))
+    segment_labels = np.load(payload["segment_path"], allow_pickle=False)
+    artifact = Path(payload["draft_path"])
+    if artifact.is_file():
+        controller = SuperpixelReviewController.resume(
+            artifact, segment_labels=segment_labels, expected_image_id=str(payload["image_id"])
+        )
+    else:
+        controller = SuperpixelReviewController(
+            image_id=str(payload["image_id"]),
+            segment_labels=segment_labels,
+            class_mapping={int(key): value for key, value in payload["class_mapping"].items()},
+            suggestions={int(key): value for key, value in payload.get("suggestions", {}).items()},
+            visible_roi_path=str(payload["visible_roi_path"]),
+            thermal_path=str(payload.get("thermal_path", "")),
+        )
+    SuperpixelReviewGUI(controller, artifact).run()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(_main())

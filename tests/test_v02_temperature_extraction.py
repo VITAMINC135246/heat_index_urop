@@ -12,6 +12,7 @@ from scripts.workflow.temperature_extraction import (
     build_sdk_command,
     extract_temperature,
     load_temperature_override,
+    load_report_parameter_row,
     temperature_qa,
 )
 
@@ -63,6 +64,29 @@ class TemperatureExtractionTests(unittest.TestCase):
         status, flags = temperature_qa(np.ones((3, 3), dtype=np.float32))
         self.assertEqual(status, "fail")
         self.assertIn("all_constant", flags)
+
+    def test_report_parameters_are_selected_by_image_without_intermediate_csv(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            report = Path(directory) / "report.docx"
+            report.write_bytes(b"fixture")
+            row = {
+                "image_id": "DJI_20260202091128_0058",
+                "ambient_parse_status": "ok",
+                "ambient_temperature_c": 10.8,
+                "reflected_temperature_c": 10.8,
+                "distance_m": 5,
+                "emissivity": 0.95,
+                "humidity_percent": 50,
+                "humidity_use_status": "not_used_unreliable_tat3_export",
+                "report_capture_datetime": "2026-02-02 09:11:28",
+            }
+            from unittest.mock import patch
+
+            with patch("scripts.workflow.tat3_manual_measurement._ambient_entries", return_value=[row]):
+                result = load_report_parameter_row(report, row["image_id"])
+            self.assertEqual(result["ambient_temperature_c"], 10.8)
+            self.assertEqual(result["relative_humidity_percent"], 50.0)
+            self.assertEqual(result["distance_m"], 5.0)
 
 
 if __name__ == "__main__":
