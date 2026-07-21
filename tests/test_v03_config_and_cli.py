@@ -23,7 +23,7 @@ class V03ConfigAndCliTests(unittest.TestCase):
         polygon = json.loads((PROJECT_ROOT / "config" / "acceptance" / "v0_3_soccer_polygon_template.json").read_text(encoding="utf-8"))
         ambient = json.loads((PROJECT_ROOT / "config" / "acceptance" / "v0_3_soccer_ambient_template.json").read_text(encoding="utf-8"))
         self.assertEqual(production["schema_version"], "0.2.0")
-        self.assertEqual(production["processing_version"], "heat-index-urop-0.3")
+        self.assertEqual(production["processing_version"], "heat-index-urop-0.3.1")
         self.assertEqual(production["part_e"]["temporal_timezone"], "Asia/Hong_Kong")
         self.assertIn("outputs/runs/v0_3_user_acceptance", acceptance["canonical_output_root"].replace("\\", "/"))
         polygon_entry = next(iter(polygon.values()))

@@ -88,7 +88,7 @@ def _atomic_text(path: Path, text: str) -> None:
 
 def _config_hash(default_timezone: str) -> str:
     payload = {
-        "processing_version": "heat-index-urop-0.3",
+        "processing_version": "heat-index-urop-0.3.1",
         "method_sha256": sha256_file(Path(__file__).resolve()),
         "default_timezone": default_timezone,
         "interpolation": "disabled",

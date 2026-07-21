@@ -121,7 +121,7 @@ def main() -> int:
     temporal_resume_seconds = time.perf_counter() - started
     payload = {
         "fixture_policy": "non-scientific synthetic temperature and ambient matrices; never use for a 26C claim",
-        "processing_version": "heat-index-urop-0.3",
+        "processing_version": "heat-index-urop-0.3.1",
         "canonical_rows": 4 * 32 * 40,
         "spatial_seconds": spatial_seconds,
         "temporal_seconds": temporal_seconds,

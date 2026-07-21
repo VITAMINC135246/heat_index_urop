@@ -3,7 +3,7 @@
 ## Decision
 
 Version 0.3 keeps canonical schema `0.2.0` and changes only
-`processing_version` to `heat-index-urop-0.3`.
+`processing_version` to `heat-index-urop-0.3.1` for the current maintenance release.
 
 A schema `0.3.0` bump is unnecessary because the required pixel contract did
 not change: image/pixel identity, native coordinates, temperature, cover/LUHK,

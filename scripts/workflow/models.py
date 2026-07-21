@@ -10,7 +10,7 @@ from typing import Any
 
 CANONICAL_SCHEMA_VERSION = "0.2.0"
 LEGACY_CANONICAL_SCHEMA_VERSION = "0.1.0"
-PROCESSING_VERSION = "heat-index-urop-0.3"
+PROCESSING_VERSION = "heat-index-urop-0.3.1"
 
 
 class StrEnum(str, Enum):

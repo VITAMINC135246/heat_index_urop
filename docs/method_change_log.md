@@ -4,7 +4,7 @@
 
 Version 0.3 preserves the validated A–E scientific methods and keeps canonical
 schema `0.2.0`, while changing the processing version to
-`heat-index-urop-0.3`.
+`heat-index-urop-0.3.1` after the GUI and ordinary-user workflow maintenance release.
 
 - Replaced the legacy five-pilot spatial reader with a canonical-Parquet stage
   supporting normal and polygon pixels, dynamic dimensions, source strata,

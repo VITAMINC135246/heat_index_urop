@@ -8,7 +8,7 @@ thermal-polygon Part C*, shared DJI/TAT3 extraction, canonical eligibility,
 spatial thinning, descriptive statistics, effect sizes, KDE spectra, extremes,
 or temporary TAT3 analysis.
 
-The processing version is `heat-index-urop-0.3`; canonical schema remains
+The maintenance release processing version is `heat-index-urop-0.3.1`; canonical schema remains
 `0.2.0`. The supported default configuration is
 `config/workflow_v0_3.json`; acceptance uses the isolated
 `config/workflow_v0_3_acceptance.json`.

@@ -1,6 +1,6 @@
 {
   "schema_version": "0.2.0",
-  "processing_version": "heat-index-urop-0.3",
+  "processing_version": "heat-index-urop-0.3.1",
   "schema_decision": "Keep schema 0.2.0; acceptance outputs are isolated from persistent/local scientific outputs.",
   "dataset_root": "data/raw/HKUST",
   "canonical_output_root": "outputs/runs/v0_3_user_acceptance/canonical/images",

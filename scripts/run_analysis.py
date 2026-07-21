@@ -470,7 +470,7 @@ def main() -> int:
         polygon_context_relevant = image_id in set(args.polygon_image_id) or bool(polygon_input) or image_id not in pilot_ids
         group_configuration = {
             "schema_version": config.get("schema_version", "0.2.0"),
-            "processing_version": config.get("processing_version", "heat-index-urop-0.3"),
+            "processing_version": config.get("processing_version", "heat-index-urop-0.3.1"),
             "part_b0": config.get("part_b0", {}),
             "part_b0_review": selected_b0.value if selected_b0 else "",
             "part_b_review": selected_part_b.to_dict() if selected_part_b else {},

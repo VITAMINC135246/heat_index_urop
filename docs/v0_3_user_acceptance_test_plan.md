@@ -152,7 +152,7 @@ foreach ($Id in $PilotIds) {
 ```
 
 为什么：逐图检查 manifest、schema、native dimension、canonical/extreme；无
-交互。预期 schema `0.2.0`、processing `heat-index-urop-0.3`、normal/full
+交互。预期 schema `0.2.0`、processing `heat-index-urop-0.3.1`、normal/full
 pixel/visible_review、`512x640`、count 327680、三个布尔均 True。下一步 numeric。
 
 ```powershell
