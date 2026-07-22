@@ -1,4 +1,4 @@
-# Version 0.3 canonical spatial figures
+# Version 0.3.2 canonical spatial figures
 
 ## Input and unit
 
@@ -20,7 +20,8 @@ Every generated unit has PNG and PDF versions of:
 1. temperature map;
 2. ΔT map, or an explicit unavailable panel when ambient is invalid;
 3. surface-cover overlay, with unknown pixels retained;
-4. LUHK overlay, or explicit unavailable panel;
+4. read-only official LUHK overlay for normal results, target-scoped provenance
+   for polygons, or an explicit unavailable panel;
 5. target/polygon overlay, or not-applicable panel for unrestricted full image;
 6. shadow overlay, or explicit unavailable panel;
 7. analysis-eligibility/unknown mask;
@@ -31,6 +32,11 @@ surface/LUHK provenance, target ID, and target name. Polygon boundaries are
 derived from the accepted per-capture target mask. Inside target is visibly
 distinguished from outside unknown context; target cover/LUHK is never
 extrapolated outside.
+
+The LUHK panel is context, not a surface-cover control. An official normal-route
+lookup is displayed without modification; a Part C assignment cannot alter it.
+If the official footprint lookup is unavailable, the panel states that reason
+instead of borrowing a cover label or painting a plausible class.
 
 ## Validation and resume
 

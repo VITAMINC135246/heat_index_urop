@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -8,8 +9,9 @@ from unittest.mock import patch
 
 import numpy as np
 
-from scripts.workflow.part_c_adapter import load_reviewed_label_override
+from scripts.workflow.part_c_adapter import load_reviewed_label_override, run_reviewed_part_c
 from scripts.workflow.part_c_review_gui import SuperpixelReviewController, SuperpixelReviewGUI, interactive_pyplot
+from scripts.workflow.gui_backend import _configure_windows_tk_runtime
 from scripts.workflow.result_index import sha256_file
 
 
@@ -83,6 +85,36 @@ class PartCControllerTests(unittest.TestCase):
             self.assertEqual(payload["reviewer"], "tester")
             self.assertTrue(np.all(loaded == 1))
 
+    def test_workflow_distinguishes_explicit_part_c_cancel(self) -> None:
+        controller = self.controller()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+
+            def cancel_gui(active: SuperpixelReviewController, artifact: Path, _segments: Path) -> str:
+                active.cancel(artifact)
+                return "cancelled"
+
+            with (
+                patch("scripts.workflow.part_c_adapter.prepare_part_c_review", return_value=controller),
+                patch("scripts.workflow.part_c_adapter.run_review_gui_subprocess", side_effect=cancel_gui),
+            ):
+                outcome = run_reviewed_part_c(
+                    image_id="image-1",
+                    pair_id="pair-1",
+                    visible_path=root / "visible.jpg",
+                    thermal_path=root / "thermal.jpg",
+                    accepted_crop=[0, 0, 3, 2],
+                    output_directory=root,
+                    class_mapping=controller.class_mapping,
+                    launch_gui=True,
+                )
+            self.assertEqual(outcome.status, "cancelled")
+            self.assertIsNone(outcome.result)
+            self.assertEqual(
+                json.loads((root / "superpixel_review.json").read_text(encoding="utf-8"))["review_status"],
+                "cancelled",
+            )
+
     def test_gui_switches_from_headless_agg_to_tk_backend(self) -> None:
         with (
             patch("matplotlib.pyplot.get_backend", return_value="Agg"),
@@ -98,6 +130,28 @@ class PartCControllerTests(unittest.TestCase):
         ):
             interactive_pyplot()
         switch_backend.assert_not_called()
+
+    @unittest.skipUnless(os.name == "nt", "Windows Tcl bootstrap")
+    def test_embedded_windows_python_uses_repository_tcl_bootstrap(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            runtime = Path(directory)
+            (runtime / "tcl" / "tcl8.6").mkdir(parents=True)
+            (runtime / "tcl" / "tk8.6").mkdir(parents=True)
+            (runtime / "tcl" / "tcl8.6" / "init.tcl").write_text("", encoding="utf-8")
+            (runtime / "tcl" / "tk8.6" / "tk.tcl").write_text("", encoding="utf-8")
+            with (
+                patch("scripts.workflow.gui_backend.sys.base_prefix", str(runtime)),
+                patch.dict(os.environ, {}, clear=True),
+            ):
+                self.assertTrue(_configure_windows_tk_runtime())
+                self.assertEqual(
+                    os.environ["TCL_LIBRARY"],
+                    f"//?/{(runtime / 'tcl' / 'tcl8.6').resolve().as_posix()}",
+                )
+                self.assertEqual(
+                    os.environ["TK_LIBRARY"],
+                    f"//?/{(runtime / 'tcl' / 'tk8.6').resolve().as_posix()}",
+                )
 
     def test_suggestion_prefill_is_visible_undoable_and_gui_retains_widgets(self) -> None:
         controller = self.controller()
@@ -150,6 +204,64 @@ class PartCControllerTests(unittest.TestCase):
             self.assertTrue(controller.state.shadow[1])
             buttons["Redo"]._observers.process("clicked", None)
             self.assertFalse(controller.state.shadow[1])
+
+    def test_reopened_acceptance_requires_fresh_accept_and_gui_buttons_persist_status(self) -> None:
+        from PIL import Image
+        import matplotlib.pyplot as plt
+
+        plt.switch_backend("Agg")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            visible = root / "visible.png"
+            Image.new("RGB", (3, 2), "green").save(visible)
+
+            accepted = self.controller()
+            accepted.visible_roi_path = str(visible)
+            accepted.apply_suggestions_to_unreviewed()
+            accepted.accept(root / "accepted.json")
+            reopened = SuperpixelReviewController.resume(
+                root / "accepted.json", segment_labels=accepted.segment_labels
+            )
+            gui = SuperpixelReviewGUI(reopened, root / "accepted.json")
+            with (
+                patch("scripts.workflow.part_c_review_gui.interactive_pyplot", return_value=plt),
+                patch.object(plt, "show"),
+            ):
+                self.assertEqual(gui.run(), "draft")
+            self.assertEqual(
+                json.loads((root / "accepted.json").read_text(encoding="utf-8"))["review_status"],
+                "draft",
+            )
+
+            buttons = {
+                widget.label.get_text(): widget
+                for widget in gui._widgets
+                if hasattr(widget, "label") and hasattr(widget.label, "get_text")
+            }
+            buttons["Accept"]._observers.process("clicked", None)
+            self.assertEqual(
+                json.loads((root / "accepted.json").read_text(encoding="utf-8"))["review_status"],
+                "accepted",
+            )
+
+            cancelled = self.controller()
+            cancelled.visible_roi_path = str(visible)
+            cancel_gui = SuperpixelReviewGUI(cancelled, root / "cancelled.json")
+            with (
+                patch("scripts.workflow.part_c_review_gui.interactive_pyplot", return_value=plt),
+                patch.object(plt, "show"),
+            ):
+                cancel_gui.run()
+            cancel_buttons = {
+                widget.label.get_text(): widget
+                for widget in cancel_gui._widgets
+                if hasattr(widget, "label") and hasattr(widget.label, "get_text")
+            }
+            cancel_buttons["Cancel"]._observers.process("clicked", None)
+            self.assertEqual(
+                json.loads((root / "cancelled.json").read_text(encoding="utf-8"))["review_status"],
+                "cancelled",
+            )
 
 
 if __name__ == "__main__":

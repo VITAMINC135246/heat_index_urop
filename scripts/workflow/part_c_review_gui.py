@@ -57,6 +57,8 @@ class SuperpixelReviewController:
         suggestions: dict[int, str] | None = None,
         visible_roi_path: str = "",
         thermal_path: str = "",
+        luhk_reference_path: str = "",
+        luhk_metadata: dict[str, Any] | None = None,
     ):
         labels = np.asarray(segment_labels)
         if labels.ndim != 2:
@@ -69,6 +71,8 @@ class SuperpixelReviewController:
         self.suggestions = {int(key): str(value) for key, value in (suggestions or {}).items()}
         self.visible_roi_path = visible_roi_path
         self.thermal_path = thermal_path
+        self.luhk_reference_path = luhk_reference_path
+        self.luhk_metadata = dict(luhk_metadata or {})
         self.segment_ids = {int(value) for value in np.unique(self.segment_labels)}
         self.state = ReviewState()
         self._undo: list[ReviewState] = []
@@ -77,6 +81,11 @@ class SuperpixelReviewController:
     def _checkpoint(self) -> None:
         self._undo.append(deepcopy(self.state))
         self._redo.clear()
+
+    def begin_gui_session(self) -> None:
+        """Require a fresh Accept action whenever the desktop review opens."""
+
+        self.state.review_status = "draft"
 
     def select(self, segment_ids: int | list[int] | set[int], *, append: bool = False) -> None:
         values = {int(segment_ids)} if isinstance(segment_ids, (int, np.integer)) else {int(value) for value in segment_ids}
@@ -179,6 +188,8 @@ class SuperpixelReviewController:
             "segment_labels_sha256": array_sha256(self.segment_labels),
             "visible_roi_path": self.visible_roi_path,
             "thermal_path": self.thermal_path,
+            "luhk_reference_path": self.luhk_reference_path,
+            "luhk_metadata": self.luhk_metadata,
             "class_mapping": {str(key): value for key, value in self.class_mapping.items()},
             "suggestions": {str(key): value for key, value in self.suggestions.items()},
             "labels": {str(key): value for key, value in self.state.labels.items()},
@@ -235,6 +246,8 @@ class SuperpixelReviewController:
             suggestions={int(key): value for key, value in payload.get("suggestions", {}).items()},
             visible_roi_path=str(payload.get("visible_roi_path", "")),
             thermal_path=str(payload.get("thermal_path", "")),
+            luhk_reference_path=str(payload.get("luhk_reference_path", "")),
+            luhk_metadata=dict(payload.get("luhk_metadata", {})),
         )
         controller.state = ReviewState(
             labels={int(key): value for key, value in payload.get("labels", {}).items()},
@@ -324,6 +337,9 @@ class SuperpixelReviewGUI:
         return overlay
 
     def run(self) -> str:
+        # A resumed accepted artifact is useful as editable state, but merely
+        # reopening and closing it must not count as acceptance in this run.
+        self.controller.begin_gui_session()
         plt = interactive_pyplot()
         from matplotlib.widgets import Button, RadioButtons, TextBox
 
@@ -339,11 +355,24 @@ class SuperpixelReviewGUI:
                 (self.controller.segment_labels.shape[1], self.controller.segment_labels.shape[0]),
                 Image.Resampling.LANCZOS,
             ))
-        panel_count = 3 if self.controller.thermal_path else 2
-        figure, axes = plt.subplots(1, panel_count, figsize=(14, 7.5), squeeze=False)
-        figure.subplots_adjust(left=0.035, right=0.79, bottom=0.20, top=0.91, wspace=0.06)
-        axis = axes[0, 0]
-        review_axis = axes[0, 1]
+        panel_count = 2 + int(bool(self.controller.thermal_path)) + int(bool(self.controller.luhk_reference_path))
+        if panel_count >= 4:
+            # Four readable 640×512 panels are more useful than four narrow
+            # strips whose titles and image details overlap on a laptop.
+            # Fit a 125%-scaled Windows laptop display without clipping the
+            # action buttons below the canvas.  The two-by-two layout keeps
+            # each contextual image readable at this smaller physical size.
+            figure, axes_grid = plt.subplots(2, 2, figsize=(10.5, 5.8), squeeze=False)
+            figure.subplots_adjust(
+                left=0.035, right=0.79, bottom=0.21, top=0.93,
+                hspace=0.22, wspace=0.08,
+            )
+        else:
+            figure, axes_grid = plt.subplots(1, panel_count, figsize=(10.5, 5.8), squeeze=False)
+            figure.subplots_adjust(left=0.035, right=0.79, bottom=0.20, top=0.91, wspace=0.08)
+        panel_axes = list(axes_grid.flat)
+        axis = panel_axes[0]
+        review_axis = panel_axes[1]
         boundaries = self._boundaries(self.controller.segment_labels)
         boundary_rgba = np.zeros((*boundaries.shape, 4), dtype=np.float32)
         boundary_rgba[boundaries] = (1.0, 1.0, 1.0, 0.90)
@@ -356,16 +385,39 @@ class SuperpixelReviewGUI:
         review_axis.imshow(boundary_rgba, interpolation="nearest")
         review_axis.set_title("Live review mask (click here or visible image)")
         review_axis.set_axis_off()
+        panel_index = 2
         if self.controller.thermal_path:
-            axes[0, 2].imshow(Image.open(self.controller.thermal_path))
-            axes[0, 2].set_title("Corresponding thermal image")
-            axes[0, 2].set_axis_off()
-        status = figure.text(0.035, 0.105, "", fontsize=10)
+            panel_axes[panel_index].imshow(Image.open(self.controller.thermal_path))
+            panel_axes[panel_index].set_title("Corresponding thermal image")
+            panel_axes[panel_index].set_axis_off()
+            panel_index += 1
+        if self.controller.luhk_reference_path:
+            panel_axes[panel_index].imshow(Image.open(self.controller.luhk_reference_path))
+            panel_axes[panel_index].set_title("Official LUHK context (read-only)")
+            panel_axes[panel_index].set_axis_off()
+        status = figure.text(0.035, 0.100, "", fontsize=9.5)
         figure.text(
-            0.035, 0.155,
+            0.035, 0.165,
             "1 Click region  2 Choose cover  3 Assign  |  Ctrl-click: multi-select  |  Pale colors: suggestions",
             fontsize=10,
         )
+        luhk_status = str(self.controller.luhk_metadata.get("status", "unavailable"))
+        luhk_provenance = str(self.controller.luhk_metadata.get("provenance", "unknown"))
+        luhk_reason = str(self.controller.luhk_metadata.get("unavailable_reason", ""))
+        luhk_uncertainty = str(self.controller.luhk_metadata.get("spatial_uncertainty", "")).strip()
+        if not luhk_uncertainty:
+            luhk_uncertainty = (
+                "Approximate metadata-derived north-up footprint; yaw is not applied; "
+                "Part B alignment does not improve map georegistration."
+            )
+        figure.text(
+            0.035, 0.142,
+            f"LUHK is read-only and separate from surface cover: status={luhk_status}; provenance={luhk_provenance}"
+            + (f"; reason={luhk_reason}" if luhk_reason else ""),
+            fontsize=8.5,
+        )
+        if not luhk_reason:
+            figure.text(0.035, 0.121, f"Spatial precision: {luhk_uncertainty}", fontsize=8.2)
         radio_axis = figure.add_axes((0.805, 0.33, 0.19, 0.58))
         choices = [*sorted(self.controller.allowed_classes), "unknown/unclear"]
         radio = RadioButtons(radio_axis, choices)
@@ -465,6 +517,8 @@ def run_review_gui_subprocess(controller: SuperpixelReviewController, draft_path
                 "suggestions": {str(key): value for key, value in controller.suggestions.items()},
                 "visible_roi_path": controller.visible_roi_path,
                 "thermal_path": controller.thermal_path,
+                "luhk_reference_path": controller.luhk_reference_path,
+                "luhk_metadata": controller.luhk_metadata,
                 "draft_path": draft_path.resolve().as_posix(),
             },
             indent=2,
@@ -501,6 +555,15 @@ def _main() -> int:
         controller = SuperpixelReviewController.resume(
             artifact, segment_labels=segment_labels, expected_image_id=str(payload["image_id"])
         )
+        # Session inputs are freshly prepared for the current run.  Older
+        # drafts predate the real-image/LUHK panels, so do not let an otherwise
+        # valid draft hide the current contextual imagery when it is resumed.
+        controller.visible_roi_path = str(payload.get("visible_roi_path", controller.visible_roi_path))
+        controller.thermal_path = str(payload.get("thermal_path", controller.thermal_path))
+        controller.luhk_reference_path = str(
+            payload.get("luhk_reference_path", controller.luhk_reference_path)
+        )
+        controller.luhk_metadata = dict(payload.get("luhk_metadata", controller.luhk_metadata))
     else:
         controller = SuperpixelReviewController(
             image_id=str(payload["image_id"]),
@@ -509,6 +572,8 @@ def _main() -> int:
             suggestions={int(key): value for key, value in payload.get("suggestions", {}).items()},
             visible_roi_path=str(payload["visible_roi_path"]),
             thermal_path=str(payload.get("thermal_path", "")),
+            luhk_reference_path=str(payload.get("luhk_reference_path", "")),
+            luhk_metadata=dict(payload.get("luhk_metadata", {})),
         )
     SuperpixelReviewGUI(controller, artifact).run()
     return 0

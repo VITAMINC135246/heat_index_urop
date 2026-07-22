@@ -65,6 +65,37 @@ class InputValidationTests(unittest.TestCase):
             self.assertEqual(groups[0].dataset_id, "dataset-a")
             self.assertEqual(groups[1].visible_path, "")
 
+    def test_dataset_discovery_pairs_unique_adjacent_dji_timestamps(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "DJI_202602020853_001"
+            visible = root / "DJI_20260202091127_0058_V.JPG"
+            thermal = root / "DJI_20260202091128_0058_T.JPG"
+            self.make_image(visible)
+            self.make_image(thermal)
+            groups = discover_dataset_groups(root, "real-pattern")
+            self.assertEqual(len(groups), 1)
+            self.assertEqual(Path(groups[0].visible_path), visible)
+            self.assertEqual(Path(groups[0].thermal_path), thermal)
+            self.assertEqual(
+                groups[0].metadata_record["discovery_pairing_method"],
+                "session_sample_unique_timestamp_tolerance",
+            )
+            record = validate_group(groups[0])
+            self.assertTrue(record.visible_valid)
+            self.assertTrue(record.pairing_uncertain)
+
+    def test_dataset_discovery_does_not_guess_between_ambiguous_visible_candidates(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.make_image(root / "DJI_20260202091127_0058_V.JPG")
+            self.make_image(root / "DJI_20260202091129_0058_V.JPG")
+            self.make_image(root / "DJI_20260202091128_0058_T.JPG")
+            groups = discover_dataset_groups(root, "ambiguous")
+            self.assertEqual(len(groups), 1)
+            self.assertEqual(groups[0].visible_path, "")
+            self.assertEqual(groups[0].metadata_record["discovery_pairing_method"], "ambiguous_unpaired")
+            self.assertEqual(groups[0].metadata_record["discovery_visible_candidate_count"], 2)
+
 
 if __name__ == "__main__":
     unittest.main()

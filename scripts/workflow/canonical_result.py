@@ -16,6 +16,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from .capture_time import select_capture_time_bundle
 from .models import (
     ArtifactReference,
     CanonicalManifest,
@@ -105,18 +106,32 @@ def pixel_frame(
     surface_cover_names: dict[int, str] | None = None,
     target_id: str = "",
     target_name: str = "",
+    location_id: str = "",
+    location_name: str = "",
     target_mask: np.ndarray | None = None,
     shadow_mask: np.ndarray | None = None,
     luhk_labels: np.ndarray | None = None,
     luhk_known_mask: np.ndarray | None = None,
+    luhk_class_names: np.ndarray | None = None,
+    luhk_cell_ids: np.ndarray | None = None,
+    luhk_raw_codes: np.ndarray | None = None,
     surface_cover_provenance: str = "unknown",
     luhk_provenance: str = "unknown",
     temperature_source: str = "",
+    temperature_definition: str = "",
+    temperature_unit: str = "degC",
+    capture_metadata: dict[str, Any] | None = None,
 ) -> pd.DataFrame:
     shape = temperature.shape
     target = np.ones(shape, dtype=bool) if target_mask is None else np.asarray(target_mask, dtype=bool)
     luhk_known = np.zeros(shape, dtype=bool) if luhk_known_mask is None else np.asarray(luhk_known_mask, dtype=bool)
     luhk = np.full(shape, "", dtype="<U96") if luhk_labels is None else np.asarray(luhk_labels).astype("<U96")
+    luhk_names = np.full(shape, "", dtype="<U96") if luhk_class_names is None else np.asarray(luhk_class_names).astype("<U96")
+    luhk_cells = np.full(shape, "", dtype="<U96") if luhk_cell_ids is None else np.asarray(luhk_cell_ids).astype("<U96")
+    luhk_raw = np.full(shape, -1, dtype=np.int16) if luhk_raw_codes is None else np.asarray(luhk_raw_codes, dtype=np.int16)
+    for name, array in (("LUHK class names", luhk_names), ("LUHK cell IDs", luhk_cells), ("LUHK raw codes", luhk_raw)):
+        if array.shape != shape:
+            raise ValueError(f"{name} shape must match the native temperature grid.")
     validate_label_layers(
         temperature, labels, known_mask, shadow_mask,
         luhk_labels=luhk, luhk_known_mask=luhk_known, target_mask=target,
@@ -159,6 +174,8 @@ def pixel_frame(
             "temperature_is_finite": finite,
             "measurement_type": measurement_type.value,
             "temperature_source": temperature_source,
+            "temperature_definition": temperature_definition,
+            "temperature_unit": temperature_unit,
             "source_method": source_method.value,
             "label_provenance": surface_cover_provenance,
             "surface_cover_provenance": surface_cover_provenance,
@@ -167,13 +184,20 @@ def pixel_frame(
             "surface_cover_class_id": label_ids,
             "surface_cover_class": label_names,
             "luhk_label": luhk.ravel(order="C"),
+            "luhk_class_code": luhk.ravel(order="C"),
+            "luhk_class_name": luhk_names.ravel(order="C"),
+            "luhk_cell_id": luhk_cells.ravel(order="C"),
+            "luhk_raw_code": luhk_raw.ravel(order="C"),
             "luhk_known": luhk_known.ravel(order="C"),
+            "luhk_label_valid": luhk_known.ravel(order="C"),
             "luhk_provenance": luhk_provenance,
             "target_mask": selected,
             "analysis_eligible": eligible,
             "exclusion_reason": exclusion,
             "target_id": target_id,
             "target_name": target_name,
+            "location_id": location_id,
+            "location_name": location_name,
             "qa_status": qa_status.value,
             "annotation_review_status": review_status.value,
         }
@@ -184,6 +208,14 @@ def pixel_frame(
     else:
         frame["shadow_flag"] = pd.array(np.asarray(shadow_mask, dtype=np.int8).ravel(order="C"), dtype="Int8")
         frame["shadow_valid"] = True
+    capture = capture_metadata or {}
+    frame["capture_datetime"] = str(capture.get("capture_datetime", capture.get("capture_time", "")))
+    frame["capture_time_local"] = str(capture.get("capture_time_local", frame["capture_datetime"].iloc[0]))
+    frame["capture_time_utc"] = str(capture.get("capture_time_utc", ""))
+    frame["capture_timezone"] = str(capture.get("capture_timezone", ""))
+    frame["capture_time_source"] = str(capture.get("capture_time_source", "missing"))
+    frame["timezone_assumption"] = str(capture.get("timezone_assumption", ""))
+    frame["capture_time_valid"] = bool(capture.get("capture_time_valid", bool(frame["capture_datetime"].iloc[0])))
     return frame
 
 
@@ -210,15 +242,21 @@ def write_canonical_result(
     surface_cover_category: str | None = None,
     target_id: str = "",
     target_name: str = "",
+    location_id: str = "",
+    location_name: str = "",
     polygon_coordinates: list[list[float]] | None = None,
     reviewer_confidence: str = "",
     shadow_mask: np.ndarray | None = None,
     target_mask: np.ndarray | None = None,
     luhk_labels: np.ndarray | None = None,
     luhk_known_mask: np.ndarray | None = None,
+    luhk_class_names: np.ndarray | None = None,
+    luhk_cell_ids: np.ndarray | None = None,
+    luhk_raw_codes: np.ndarray | None = None,
     luhk_category: str | None = None,
     luhk_code: str | None = None,
     luhk_provenance: str = LUHKProvenance.UNKNOWN.value,
+    luhk_metadata: dict[str, Any] | None = None,
     temperature_metadata: dict[str, Any] | None = None,
     ambient_metadata: dict[str, Any] | None = None,
     temperature_source: str = "",
@@ -266,6 +304,10 @@ def write_canonical_result(
             raise ValueError("User-supplied polygon LUHK context must be known only inside target_mask.")
         luhk = np.full(temperature.shape, "", dtype="<U96")
         luhk[target] = str(luhk_code or luhk_category)
+        luhk_names = np.full(temperature.shape, "", dtype="<U96")
+        luhk_names[target] = str(luhk_category)
+        luhk_cells = np.full(temperature.shape, "", dtype="<U96")
+        luhk_raw = np.full(temperature.shape, -1, dtype=np.int16)
     elif processing_route == ProcessingRoute.NORMAL_VT:
         measurement_type = MeasurementType.FULL_THERMAL_PIXEL
         selection_scope = "full_native_thermal_grid"
@@ -273,6 +315,9 @@ def write_canonical_result(
         target = np.ones(temperature.shape, dtype=bool) if target_mask is None else np.asarray(target_mask, dtype=bool)
         luhk_known = np.zeros(temperature.shape, dtype=bool) if luhk_known_mask is None else np.asarray(luhk_known_mask, dtype=bool)
         luhk = np.full(temperature.shape, "", dtype="<U96") if luhk_labels is None else np.asarray(luhk_labels).astype("<U96")
+        luhk_names = np.full(temperature.shape, "", dtype="<U96") if luhk_class_names is None else np.asarray(luhk_class_names).astype("<U96")
+        luhk_cells = np.full(temperature.shape, "", dtype="<U96") if luhk_cell_ids is None else np.asarray(luhk_cell_ids).astype("<U96")
+        luhk_raw = np.full(temperature.shape, -1, dtype=np.int16) if luhk_raw_codes is None else np.asarray(luhk_raw_codes, dtype=np.int16)
     else:
         raise ValueError("Canonical results may only be written for successful normal or thermal-polygon routes.")
     validate_label_layers(
@@ -308,6 +353,20 @@ def write_canonical_result(
         _atomic_npy(shadow_path, shadow)
         artifacts["shadow_mask"] = _artifact(shadow_path, shadow)
     resolved_temperature_source = temperature_source or str((temperature_metadata or {}).get("extraction_method", ""))
+    temperature_payload = dict(temperature_metadata or {})
+    part_a_payload = dict(part_a or {})
+    capture_payload = select_capture_time_bundle(
+        (temperature_payload, ""),
+        (part_a_payload, "part_a_capture_time_fallback"),
+        missing_timezone=str(part_a_payload.get("capture_timezone") or ""),
+    )
+    temperature_definition = str(
+        temperature_payload.get("temperature_definition")
+        or temperature_payload.get("definition")
+        or temperature_payload.get("measurement_definition")
+        or ""
+    )
+    temperature_unit = str(temperature_payload.get("temperature_unit") or temperature_payload.get("unit") or "degC")
     frame = pixel_frame(
         image_id=image_id,
         group_id=group_id,
@@ -323,13 +382,21 @@ def write_canonical_result(
         surface_cover_names=surface_cover_names,
         target_id=target_id,
         target_name=target_name,
+        location_id=location_id,
+        location_name=location_name,
         target_mask=target,
         shadow_mask=shadow,
         luhk_labels=luhk,
         luhk_known_mask=luhk_known,
+        luhk_class_names=luhk_names,
+        luhk_cell_ids=luhk_cells,
+        luhk_raw_codes=luhk_raw,
         surface_cover_provenance=surface_provenance,
         luhk_provenance=luhk_provenance,
         temperature_source=resolved_temperature_source,
+        temperature_definition=temperature_definition,
+        temperature_unit=temperature_unit,
+        capture_metadata=capture_payload,
     )
     ambient_value = (temperature_metadata or {}).get(
         "ambient_temperature_c", (ambient_metadata or {}).get("ambient_temperature_c")
@@ -384,20 +451,31 @@ def write_canonical_result(
         luhk_provenance=luhk_provenance,
         luhk_category=luhk_category,
         luhk_code=luhk_code,
+        luhk_metadata=luhk_metadata or {},
         surface_cover_class_id=surface_cover_class_id,
         surface_cover_category=surface_cover_category,
         target_id=target_id or None,
         target_name=target_name or None,
-        capture_timezone=str((temperature_metadata or {}).get("capture_timezone", "")),
+        location_id=location_id or None,
+        location_name=location_name or None,
+        capture_datetime=capture_payload["capture_datetime"],
+        capture_time_local=capture_payload["capture_time_local"],
+        capture_time_utc=capture_payload["capture_time_utc"],
+        capture_timezone=capture_payload["capture_timezone"],
+        capture_time_source=capture_payload["capture_time_source"],
+        timezone_assumption=capture_payload["timezone_assumption"],
+        capture_time_valid=capture_payload["capture_time_valid"],
         polygon_coordinates=polygon_coordinates or [],
         known_pixel_count=int(known.sum()),
         unknown_pixel_count=int(known.size - known.sum()),
+        luhk_known_pixel_count=int(luhk_known.sum()),
+        luhk_unknown_pixel_count=int(luhk_known.size - luhk_known.sum()),
         target_pixel_count=int(target.sum()),
         annotation_source=surface_provenance,
         annotation_review=annotation_review or {},
         reviewer_confidence=reviewer_confidence,
         temperature_source=resolved_temperature_source,
-        temperature_metadata={**(temperature_metadata or {}), "finite_pixel_count": finite_count},
+        temperature_metadata={**temperature_payload, **capture_payload, "finite_pixel_count": finite_count},
         ambient_metadata=ambient_metadata or {},
         artifacts=artifacts,
         exclusions=exclusions or [],

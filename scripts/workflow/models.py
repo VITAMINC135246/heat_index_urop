@@ -10,7 +10,7 @@ from typing import Any
 
 CANONICAL_SCHEMA_VERSION = "0.2.0"
 LEGACY_CANONICAL_SCHEMA_VERSION = "0.1.0"
-PROCESSING_VERSION = "heat-index-urop-0.3.1"
+PROCESSING_VERSION = "heat-index-urop-0.3.2"
 
 
 class StrEnum(str, Enum):
@@ -133,6 +133,13 @@ class ValidationRecord:
     visible_path: str
     thermal_path: str
     capture_time: str = ""
+    capture_datetime: str = ""
+    capture_time_local: str = ""
+    capture_time_utc: str = ""
+    capture_timezone: str = ""
+    capture_time_source: str = "missing"
+    timezone_assumption: str = ""
+    capture_time_valid: bool = False
     session: str = ""
     altitude_m: float | None = None
     gps_latitude: float | None = None
@@ -246,14 +253,25 @@ class CanonicalManifest:
     luhk_provenance: str = LUHKProvenance.UNKNOWN.value
     luhk_category: str | None = None
     luhk_code: str | None = None
+    luhk_metadata: dict[str, Any] = field(default_factory=dict)
     surface_cover_class_id: int | None = None
     surface_cover_category: str | None = None
     target_id: str | None = None
     target_name: str | None = None
+    location_id: str | None = None
+    location_name: str | None = None
+    capture_datetime: str = ""
+    capture_time_local: str = ""
+    capture_time_utc: str = ""
     capture_timezone: str = ""
+    capture_time_source: str = "missing"
+    timezone_assumption: str = ""
+    capture_time_valid: bool = False
     polygon_coordinates: list[list[float]] = field(default_factory=list)
     known_pixel_count: int = 0
     unknown_pixel_count: int = 0
+    luhk_known_pixel_count: int = 0
+    luhk_unknown_pixel_count: int = 0
     target_pixel_count: int = 0
     annotation_source: str = ""
     annotation_review: dict[str, Any] = field(default_factory=dict)
@@ -279,6 +297,10 @@ class CanonicalManifest:
             raise ValueError("Known and unknown pixel counts cannot be negative.")
         if self.known_pixel_count + self.unknown_pixel_count != total:
             raise ValueError("Known and unknown pixel counts must cover the native thermal grid.")
+        if self.luhk_known_pixel_count < 0 or self.luhk_unknown_pixel_count < 0:
+            raise ValueError("LUHK known and unknown pixel counts cannot be negative.")
+        if self.luhk_known_pixel_count + self.luhk_unknown_pixel_count not in {0, total}:
+            raise ValueError("LUHK known and unknown pixel counts must cover the native thermal grid.")
         if require_artifacts and "temperature" not in self.artifacts:
             raise ValueError("A canonical result requires a temperature artifact.")
         if self.processing_status == ProcessingStatus.SUCCESS and self.qa_status == QAStatus.FAIL:

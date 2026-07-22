@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import subprocess
 import sys
 from copy import deepcopy
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 import numpy as np
 import pandas as pd
@@ -25,9 +26,28 @@ from .temporal_analysis import TemporalRunResult, run_temporal_analysis
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SOURCE_COLUMNS = [
-    "measurement_type", "temperature_source", "temperature_definition", "source_method",
+    "measurement_type", "temperature_source", "temperature_definition", "temperature_unit",
+    "ambient_source", "ambient_definition", "ambient_unit", "ambient_data_qa_status", "ambient_provenance",
+    "source_method",
     "surface_cover_provenance", "luhk_provenance", "target_id", "target_name", "qa_status",
 ]
+SOURCE_DEFAULTS = {
+    "target_id": "",
+    "target_name": "",
+    "qa_status": "unknown",
+    "surface_cover_provenance": "unknown",
+    "luhk_provenance": "unknown",
+    "temperature_source": "",
+    "temperature_definition": "",
+    "temperature_unit": "degC",
+    "ambient_source": "legacy unavailable",
+    "ambient_definition": "legacy unavailable",
+    "ambient_unit": "degC",
+    "ambient_data_qa_status": "legacy unavailable",
+    "ambient_provenance": "legacy unavailable",
+    "source_method": "unknown",
+    "measurement_type": "full_thermal_pixel",
+}
 
 PART_E_DEPENDENCIES = [
     Path(__file__).resolve(),
@@ -116,18 +136,7 @@ def build_v02_part_e_config(
 
 def _summary_from_combined(canonical: Path, summary_path: Path) -> pd.DataFrame:
     frame = pd.read_parquet(canonical)
-    optional_defaults = {
-        "target_id": "",
-        "target_name": "",
-        "qa_status": "unknown",
-        "surface_cover_provenance": "unknown",
-        "luhk_provenance": "unknown",
-        "temperature_source": "",
-        "temperature_definition": "",
-        "source_method": "unknown",
-        "measurement_type": "full_thermal_pixel",
-    }
-    for column, value in optional_defaults.items():
+    for column, value in SOURCE_DEFAULTS.items():
         if column not in frame:
             frame[column] = value
     required = {"image_id", "temperature_c", "delta_t_c", "analysis_eligible", *SOURCE_COLUMNS}
@@ -166,6 +175,9 @@ def write_inclusion_exclusion_report(
     run_summary_path: Path | None,
 ) -> tuple[Path, Path]:
     pixels = pd.read_parquet(canonical)
+    for column, value in SOURCE_DEFAULTS.items():
+        if column not in pixels:
+            pixels[column] = value
     required = {"image_id", "label_known", "analysis_eligible", *SOURCE_COLUMNS}
     missing = sorted(required.difference(pixels.columns))
     if missing:
@@ -175,6 +187,7 @@ def write_inclusion_exclusion_report(
         pixels.groupby("image_id", sort=True)
         .agg(
             unknown_label_pixels=("label_known", lambda values: int((~values.astype(bool)).sum())),
+            eligible_pixels=("analysis_eligible", lambda values: int(values.astype(bool).sum())),
             excluded_pixels=("analysis_eligible", lambda values: int((~values.astype(bool)).sum())),
         )
         .reset_index()
@@ -195,7 +208,10 @@ def write_inclusion_exclusion_report(
     ambient = source_summary.groupby("image_id", sort=True)["missing_ambient"].all().rename("missing_ambient").reset_index()
     report = rows.merge(pixel_counts, on="image_id", how="left").merge(ambient, on="image_id", how="left")
     ambient_missing = report["missing_ambient"].fillna(True).astype(bool)
-    report["included_in_formal_part_e"] = report["status"].isin({"success", "cache_hit"}) & ~ambient_missing
+    has_eligible_pixels = report["eligible_pixels"].fillna(0).astype(int).gt(0)
+    report["included_in_formal_part_e"] = (
+        report["status"].isin({"success", "cache_hit"}) & ~ambient_missing & has_eligible_pixels
+    )
     csv_path = output_root / "tables" / "part_e_inclusion_exclusion.csv"
     csv_path.parent.mkdir(parents=True, exist_ok=True)
     report.to_csv(csv_path, index=False, encoding="utf-8-sig")
@@ -229,6 +245,8 @@ def run_formal_part_e(
     resume: bool = True,
     dry_run: bool = False,
     temporal_timezone: str = "Asia/Hong_Kong",
+    temporal_plan: Any = None,
+    temporal_requested: bool | None = None,
 ) -> dict[str, str]:
     paths = list(manifest_paths or [])
     if run_summary_path is not None and not paths:
@@ -276,14 +294,35 @@ def run_formal_part_e(
         command.append("--resume")
     if dry_run:
         command.append("--dry-run")
-    completed = subprocess.run(command, cwd=PROJECT_ROOT, capture_output=True, text=True, check=False)
-    if completed.returncode:
-        raise RuntimeError(f"Formal Part E stages failed ({completed.returncode}):\n{completed.stdout}\n{completed.stderr}")
+    # Stream stage output so an ordinary user can see which analysis is active
+    # during stability/bootstrap work instead of staring at a silent CLI.
+    stage_environment = os.environ.copy()
+    stage_environment["PYTHONUNBUFFERED"] = "1"
+    process = subprocess.Popen(
+        command,
+        cwd=PROJECT_ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+        env=stage_environment,
+    )
+    stage_lines: list[str] = []
+    if process.stdout is not None:
+        for line in process.stdout:
+            stage_lines.append(line)
+            print(line, end="", flush=True)
+    returncode = process.wait()
+    stage_stdout = "".join(stage_lines)
+    if returncode:
+        raise RuntimeError(f"Formal Part E stages failed ({returncode}):\n{stage_stdout}")
     spatial_validation = None if dry_run else _validate_spatial_stage(output_root, canonical_hash)
     temporal_result = run_temporal_analysis(
         canonical,
         output_root=output_root / "temporal",
         default_timezone=temporal_timezone,
+        plan=temporal_plan,
+        temporal_requested=temporal_requested,
         resume=effective_resume,
         dry_run=dry_run,
     )
@@ -353,7 +392,18 @@ def run_formal_part_e(
         "report": report_path.resolve().as_posix(),
         "spatial_validation": spatial_validation.resolve().as_posix() if spatial_validation else "",
         "temporal_output_root": (output_root / "temporal").resolve().as_posix(),
+        "temporal_run_manifest": (
+            temporal_result.run_manifest.resolve().as_posix()
+            if isinstance(temporal_result, TemporalRunResult)
+            else "planned (dry run)"
+        ),
+        "temporal_run_summary": (
+            temporal_result.run_summary.resolve().as_posix()
+            if isinstance(temporal_result, TemporalRunResult)
+            else "planned (dry run)"
+        ),
         "temporal_validation": temporal_validation,
         "temporal_status": temporal_status,
-        "stage_stdout": completed.stdout,
+        "stage_stdout": stage_stdout,
+        "stage_output_streamed": "true",
     }

@@ -31,6 +31,11 @@ class V03CanonicalSpatialFigureTests(unittest.TestCase):
         normal_known = np.ones(normal_shape, dtype=bool)
         normal_known[0, 1] = False
         normal_labels[~normal_known] = -1
+        normal_luhk = np.full(normal_shape, "gic_open_space", dtype="<U96")
+        normal_luhk[:, 4:] = "woodland_shrubland_grassland_wetland"
+        normal_luhk_names = np.full(normal_shape, "GIC / open space", dtype="<U96")
+        normal_luhk_names[:, 4:] = "Woodland / shrubland / grassland / wetland"
+        normal_luhk_known = np.ones(normal_shape, dtype=bool)
         _, normal = write_canonical_result(
             output_root=root / "canonical",
             image_id="normal_dynamic",
@@ -49,10 +54,22 @@ class V03CanonicalSpatialFigureTests(unittest.TestCase):
             configuration_hash="normal",
             source_file_hashes={"thermal": "normal"},
             surface_cover_names={1: "roof"},
-            temperature_metadata={"capture_time": "2026-02-02T09:00:00", "capture_timezone": "Asia/Hong_Kong"},
-            ambient_metadata={},
+            luhk_labels=normal_luhk,
+            luhk_known_mask=normal_luhk_known,
+            luhk_class_names=normal_luhk_names,
+            luhk_provenance="official_luhk_lookup",
+            luhk_metadata={"status": "available", "lookup_version": "official-luhk-test"},
+            temperature_metadata={
+                "ambient_temperature_c": 22.0,
+                "capture_time": "2026-02-02T09:00:00",
+                "capture_timezone": "Asia/Hong_Kong",
+            },
+            ambient_metadata={
+                "ambient_temperature_c": 22.0,
+                "source": "mocked_ambient_fixture",
+                "definition": "near-surface air temperature",
+            },
             temperature_source="mocked_temperature_matrix",
-            luhk_provenance="unknown",
         )
 
         polygon_shape = (6, 8)
@@ -122,18 +139,37 @@ class V03CanonicalSpatialFigureTests(unittest.TestCase):
             normal = manifest.loc[manifest["image_id"].eq("normal_dynamic")].iloc[0]
             polygon = manifest.loc[manifest["image_id"].eq("polygon_dynamic")].iloc[0]
             self.assertEqual((int(normal["image_height"]), int(normal["image_width"])), (5, 7))
-            self.assertFalse(bool(normal["ambient_available"]))
-            self.assertFalse(bool(normal["luhk_available"]))
+            self.assertTrue(bool(normal["ambient_available"]))
+            self.assertTrue(bool(normal["luhk_available"]))
             self.assertFalse(bool(normal["shadow_available"]))
             self.assertTrue(bool(polygon["target_applicable"]))
             self.assertEqual(polygon["target_id"], "hkust-soccer-field")
             self.assertEqual(polygon["source_method"], "thermal_polygon_user_annotation")
 
             pixels = pd.read_parquet(combined)
+            normal_pixels = pixels.loc[pixels["image_id"].eq("normal_dynamic")]
+            self.assertEqual(set(normal_pixels["luhk_provenance"]), {"official_luhk_lookup"})
+            self.assertEqual(
+                set(normal_pixels.loc[normal_pixels["luhk_label_valid"], "luhk_class_code"]),
+                {"gic_open_space", "woodland_shrubland_grassland_wetland"},
+            )
+            self.assertEqual(
+                set(normal_pixels.loc[normal_pixels["luhk_label_valid"], "luhk_class_name"]),
+                {"GIC / open space", "Woodland / shrubland / grassland / wetland"},
+            )
+            polygon_pixels = pixels.loc[pixels["image_id"].eq("polygon_dynamic")]
+            self.assertEqual(set(polygon_pixels["luhk_provenance"]), {"user_supplied_luhk"})
+            self.assertGreater(int(normal_pixels["analysis_eligible"].sum()), 0)
+            self.assertGreater(int(polygon_pixels["analysis_eligible"].sum()), 0)
             outside = pixels.loc[pixels["image_id"].eq("polygon_dynamic") & ~pixels["target_mask"].astype(bool)]
             self.assertFalse(outside["label_known"].astype(bool).any())
+            self.assertFalse(outside["luhk_label_valid"].astype(bool).any())
             self.assertFalse(outside["analysis_eligible"].astype(bool).any())
             self.assertTrue(outside["exclusion_reason"].eq("outside_target_selection").all())
+
+            source_summary = pd.read_csv(root / "summary.csv", keep_default_na=False)
+            by_image = source_summary.groupby("image_id")["luhk_known_pixel_count"].max().to_dict()
+            self.assertEqual(by_image, {"normal_dynamic": 35, "polygon_dynamic": 20})
 
     def test_completeness_validation_rejects_deleted_figure(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

@@ -1,6 +1,6 @@
 {
   "schema_version": "0.2.0",
-  "processing_version": "heat-index-urop-0.3.1",
+  "processing_version": "heat-index-urop-0.3.2",
   "schema_decision": "Keep schema 0.2.0; acceptance outputs are isolated from persistent/local scientific outputs.",
   "dataset_root": "data/raw/HKUST",
   "canonical_output_root": "outputs/runs/v0_3_user_acceptance/canonical/images",
@@ -40,7 +40,7 @@
     "pool_sources_by_default": false,
     "cross_image_weighting": "equal_image",
     "spatial_figures": "canonical_parquet_schema_aware",
-    "temporal_unit": "one_image_or_capture_time",
+    "temporal_unit": "one_explicitly_confirmed_same_target_capture",
     "temporal_timezone": "Asia/Hong_Kong",
     "temporal_interpolation": "disabled"
   }

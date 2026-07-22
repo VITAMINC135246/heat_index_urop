@@ -12,7 +12,7 @@ PART_E_DIR = Path(__file__).resolve().parents[1] / "scripts" / "part_e"
 if str(PART_E_DIR) not in sys.path:
     sys.path.insert(0, str(PART_E_DIR))
 
-from part_e_pixel_common import spatially_thinned_sample
+from part_e_pixel_common import prepare_spatial_sampling_plan, spatially_thinned_sample
 
 
 class DynamicSamplingTests(unittest.TestCase):
@@ -61,6 +61,40 @@ class DynamicSamplingTests(unittest.TestCase):
         self.assertEqual(first["pixel_uid"].tolist(), second["pixel_uid"].tolist())
         self.assertEqual(set(manifest["image_id"]), {"small", "wide"})
         self.assertTrue(first["group_name"].str.contains("visible_review|thermal_polygon_user_annotation").all())
+
+    def test_repeated_seed_plan_is_exactly_equivalent_to_established_sampler(self) -> None:
+        frame = pd.concat(
+            [
+                self.image_frame("a", (17, 19), "visible_review"),
+                self.image_frame("b", (13, 23), "visible_review"),
+                self.image_frame("c", (11, 29), "visible_review"),
+            ],
+            ignore_index=True,
+        )
+        frame.loc[frame["thermal_col"].mod(3).eq(0), "surface_cover_class"] = "paving"
+        config = {
+            "sampling": {
+                "spatial_tile_size_px": 3,
+                "max_pixels_per_group": 43,
+                "max_pixels_per_image_per_group": 19,
+                "method": "equivalence_test",
+            }
+        }
+        plan = prepare_spatial_sampling_plan(frame, "surface_cover", config)
+        for seed in (0, 1, 42, 20260735):
+            with self.subTest(seed=seed):
+                expected, expected_manifest = spatially_thinned_sample(
+                    frame, "surface_cover", config, seed
+                )
+                actual, actual_manifest = spatially_thinned_sample(
+                    frame,
+                    "surface_cover",
+                    config,
+                    seed,
+                    sampling_plan=plan,
+                )
+                pd.testing.assert_frame_equal(actual, expected, check_dtype=False)
+                pd.testing.assert_frame_equal(actual_manifest, expected_manifest, check_dtype=False)
 
 
 if __name__ == "__main__":

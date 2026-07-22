@@ -23,7 +23,7 @@ class V03ConfigAndCliTests(unittest.TestCase):
         polygon = json.loads((PROJECT_ROOT / "config" / "acceptance" / "v0_3_soccer_polygon_template.json").read_text(encoding="utf-8"))
         ambient = json.loads((PROJECT_ROOT / "config" / "acceptance" / "v0_3_soccer_ambient_template.json").read_text(encoding="utf-8"))
         self.assertEqual(production["schema_version"], "0.2.0")
-        self.assertEqual(production["processing_version"], "heat-index-urop-0.3.1")
+        self.assertEqual(production["processing_version"], "heat-index-urop-0.3.2")
         self.assertEqual(production["part_e"]["temporal_timezone"], "Asia/Hong_Kong")
         self.assertIn("outputs/runs/v0_3_user_acceptance", acceptance["canonical_output_root"].replace("\\", "/"))
         polygon_entry = next(iter(polygon.values()))
@@ -96,6 +96,24 @@ class V03ConfigAndCliTests(unittest.TestCase):
             )
             self.assertEqual(completed2.returncode, 0, completed2.stdout + completed2.stderr)
             self.assertTrue((output2 / "input" / "temporal_canonical_pixels.parquet").is_file())
+
+            output3 = root / "interactive-no"
+            completed3 = subprocess.run(
+                [
+                    sys.executable, str(script),
+                    "--manifest", str(manifests[0]), "--manifest", str(manifests[1]),
+                    "--output-root", str(output3), "--timezone", "Asia/Hong_Kong",
+                    "--temporal", "ask", "--dry-run",
+                ],
+                cwd=PROJECT_ROOT,
+                input="n\n",
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(completed3.returncode, 0, completed3.stdout + completed3.stderr)
+            self.assertIn("Do you want to perform temporal analysis", completed3.stdout)
+            self.assertIn("temporal_requested: False", completed3.stdout)
 
 
 if __name__ == "__main__":

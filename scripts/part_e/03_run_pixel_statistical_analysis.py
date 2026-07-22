@@ -20,8 +20,12 @@ from part_e_pixel_common import (
     SAMPLE_FILES,
     describe_values,
     ensure_output_directories,
+    family_eligible_and_group,
+    formal_target_eligible_mask,
+    gic_open_space_mask,
     grouped_summary,
     load_config,
+    prepare_spatial_sampling_plan,
     project_path,
     read_canonical,
     spatially_thinned_sample,
@@ -36,7 +40,9 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 PALETTE = ["#0072B2", "#E69F00", "#009E73", "#CC79A7", "#D55E00", "#56B4E9", "#F0E442"]
 SOURCE_STRATA = [
-    "measurement_type", "temperature_source", "temperature_definition", "source_method",
+    "measurement_type", "temperature_source", "temperature_definition", "temperature_unit",
+    "ambient_source", "ambient_definition", "ambient_unit", "ambient_data_qa_status", "ambient_provenance",
+    "source_method",
     "surface_cover_provenance", "luhk_provenance", "target_id", "target_name", "qa_status",
 ]
 
@@ -259,8 +265,26 @@ def stability_analysis(full: pd.DataFrame, config: dict) -> pd.DataFrame:
     seeds = [int(config["sampling"]["primary_seed"]), *map(int, config["sampling"]["secondary_seeds"])]
     rows: list[dict[str, object]] = []
     for family in ("luhk", "surface_cover"):
+        # Eligibility and source-stratum labels do not depend on the random
+        # seed.  Constructing their long provenance strings over every pixel
+        # for all 21 seeds made a normal user run appear stalled for minutes.
+        eligible_groups = family_eligible_and_group(full, family)
+        sampling_plan = prepare_spatial_sampling_plan(
+            full,
+            family,
+            config,
+            eligible_groups=eligible_groups,
+        )
+        del eligible_groups
         for seed in seeds:
-            sample, _ = spatially_thinned_sample(full, family, config, seed)
+            sample, _ = spatially_thinned_sample(
+                full,
+                family,
+                config,
+                seed,
+                sampling_plan=sampling_plan,
+                build_manifest=False,
+            )
             sample = add_label(sample, family)
             group_stats: dict[str, dict[str, float | int]] = {}
             for group_name, group in sample.groupby("analysis_group", sort=True):
@@ -402,7 +426,7 @@ def make_figures(samples: dict[str, pd.DataFrame], coverage: pd.DataFrame, stabi
     cover = add_label(samples["surface_cover"], "surface_cover")
     boxplot_figure(cover, "analysis_group", "Pixel-level ΔT by physical surface cover", "fig02_delta_t_by_surface_cover_boxplot", directory, config)
 
-    gic = samples["luhk_surface_cover"].loc[samples["luhk_surface_cover"]["luhk_class_code"].astype(int).eq(31)].copy()
+    gic = samples["luhk_surface_cover"].loc[gic_open_space_mask(samples["luhk_surface_cover"])].copy()
     gic = gic.loc[gic["surface_cover_class"].isin(["roof", "concrete_pavement", "vegetation_tree", "grass_low_vegetation"])]
     adequate = gic.groupby("surface_cover_class").size()
     gic = gic.loc[gic["surface_cover_class"].isin(adequate[adequate >= config["sampling"]["minimum_pixels_for_formal_plot"]].index)]
@@ -479,13 +503,13 @@ def main() -> int:
         make_figures(samples, coverage, pd.read_csv(stability_path), config)
         print("Supporting Part E figures regenerated from completed sampled-pixel outputs")
         return 0
-    accepted = full["pixel_accepted"].astype(bool)
+    target_eligible = formal_target_eligible_mask(full)
     summaries = {
-        "part_e_delta_t_by_luhk_pixels.csv": grouped_summary(full, samples["luhk"], SOURCE_STRATA + ["luhk_class_code", "luhk_class_name"], accepted & full["luhk_label_valid"].astype(bool)),
-        "part_e_delta_t_by_surface_cover_pixels.csv": grouped_summary(full, samples["surface_cover"], SOURCE_STRATA + ["surface_cover_class"], accepted & full["surface_cover_valid"].astype(bool)),
-        "part_e_delta_t_by_luhk_surface_cover_pixels.csv": grouped_summary(full, samples["luhk_surface_cover"], SOURCE_STRATA + ["luhk_class_code", "luhk_class_name", "surface_cover_class"], accepted & full["luhk_label_valid"].astype(bool) & full["surface_cover_valid"].astype(bool)),
-        "part_e_delta_t_by_surface_cover_shadow_pixels.csv": grouped_summary(full, samples["surface_cover_shadow"], SOURCE_STRATA + ["surface_cover_class", "shadow_flag"], accepted & full["surface_cover_valid"].astype(bool) & full["shadow_valid"].astype(bool)),
-        "part_e_delta_t_by_image_pixels.csv": grouped_summary(full, samples["image_comparison"], SOURCE_STRATA + ["image_id"], accepted),
+        "part_e_delta_t_by_luhk_pixels.csv": grouped_summary(full, samples["luhk"], SOURCE_STRATA + ["luhk_class_code", "luhk_class_name"], target_eligible & full["luhk_label_valid"].astype(bool)),
+        "part_e_delta_t_by_surface_cover_pixels.csv": grouped_summary(full, samples["surface_cover"], SOURCE_STRATA + ["surface_cover_class"], target_eligible & full["surface_cover_valid"].astype(bool)),
+        "part_e_delta_t_by_luhk_surface_cover_pixels.csv": grouped_summary(full, samples["luhk_surface_cover"], SOURCE_STRATA + ["luhk_class_code", "luhk_class_name", "surface_cover_class"], target_eligible & full["luhk_label_valid"].astype(bool) & full["surface_cover_valid"].astype(bool)),
+        "part_e_delta_t_by_surface_cover_shadow_pixels.csv": grouped_summary(full, samples["surface_cover_shadow"], SOURCE_STRATA + ["surface_cover_class", "shadow_flag"], target_eligible & full["surface_cover_valid"].astype(bool) & full["shadow_valid"].astype(bool)),
+        "part_e_delta_t_by_image_pixels.csv": grouped_summary(full, samples["image_comparison"], SOURCE_STRATA + ["image_id"], target_eligible),
     }
     for filename, frame in summaries.items():
         write_csv(project_path(config["outputs"]["tables"]) / filename, frame)

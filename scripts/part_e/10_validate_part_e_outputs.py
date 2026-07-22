@@ -266,7 +266,14 @@ def validate_spectra(config: dict[str, Any], checks: Checks) -> None:
     else:
         checks.add("spectrum", "source_summary", False, f"missing {summary_path}")
     caption_text = caption.read_text(encoding="utf-8") if caption.is_file() else ""
-    caption_terms = ["one accepted finite thermal pixel", "Density is normalized", "spatial autocorrelation", "not estimable"]
+    caption_terms = [
+        "one accepted finite thermal pixel",
+        "analysis_eligible=true",
+        "target_mask=true",
+        "Density is normalized",
+        "spatial autocorrelation",
+        "not estimable",
+    ]
     checks.add(
         "spectrum", "captions", caption.is_file() and all(term in caption_text for term in caption_terms),
         f"caption file={caption}; required statements present={all(term in caption_text for term in caption_terms)}",

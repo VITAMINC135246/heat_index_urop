@@ -1,511 +1,387 @@
-# v0.3 中文用户验收测试计划
+# v0.3.2 普通用户验收流程
 
-本文从打开 PowerShell 开始，覆盖自动测试、五 pilot、路由、Part C/Part C*、
-canonical/extreme/spatial/Part E/temporal、真实足球场后续手工复现、TAT3、
-cache/resume/dry-run、存储和 Git。除明确标注“真实科学复现”的小节外，所有
-合成矩阵都只是 **non-scientific route fixture**，不得用于 +26°C 结论。
+这份流程模拟“我就是最终用户”。它不要求你编写 JSON、选择 config、拼接长
+PowerShell 参数或运行 pytest。程序员自动测试是另一套工作；本文件只回答：我有
+真实输入时，怎样启动程序、怎样操作每个界面、怎样看到五张 pilot、足球场、
+Part E、spatial 和 temporal 的实际结果。
 
-## 0. 打开 PowerShell、进入仓库并设置变量
+## 当前真实证据快照（2026-07-22）
+
+本文件既是复验步骤，也记录已经取得的真实证据；“已完成”和“仍在运行”必须
+分开解释：
+
+- normal Part C 桌面 GUI 已在真实 visible ROI/thermal 输入上实际操作。`Cancel`
+  返回未接受（false/cancelled），没有创建本次成功 canonical；`Accept` 返回已接受
+  （true/accepted）并继续创建 canonical。这一项验证 GUI 控制流和持久化边界，
+  不等于自动证明某个人工 surface-cover 标签在科学上正确。
+- 三时点足球场 temporal 已完成并通过输出验证。workflow run 是
+  `outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T053855Z/`，对应的
+  run-scoped Part E 是
+  `outputs/runs/v0_3_user_acceptance/part_e/schema_0_2/run_20260722T053855Z/`；详细
+  数值和限制见第 6、7 节。
+- 五张 pilot 加一张足球场的
+  `outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/` 已完成六个
+  image route（五个 normal Part C、一个 Part C*），均为 success。对应 Part E 位于
+  `outputs/runs/v0_3_user_acceptance/part_e/schema_0_2/run_20260722T055625Z/`，最终
+  validation 和 `USER_RESULTS.md` 均已生成。该 run 恰好包含六个 image ID，输出
+  8 组 spectrum PNG/PDF 和 48 组 spatial PNG/PDF；五张 pilot 的 official LUHK
+  known 均为 327,680 px，足球场 target/LUHK known 为 21,047 px。
+  单时次 temporal 只输出描述统计并明确写成 no trend，没有生成空白趋势图。
+
+每次运行的 Part E 都写入自己的 `<run_id>` 目录。persistent canonical image store
+可以作为 cache/input 复用，但不能把共享旧目录或另一 run 的图表当成本次证据。
+
+## 1. 启动程序
+
+打开 PowerShell，进入仓库：
 
 ```powershell
 Set-Location -LiteralPath "E:\Projects\heat_index_urop"
-$Py = ".\.venv\Scripts\python.exe"
-$Runner = "scripts\run_analysis.py"
-$Cfg = "config\workflow_v0_3_acceptance.json"
-$UatRoot = "outputs\runs\v0_3_user_acceptance"
-$PilotDir = "data\raw\HKUST\20260107_Thermal_HKUST\DCIM\DJI_202601071424_001"
-$SoccerDir = "data\raw\HKUST\20260202_Thermal_HKUST\DCIM\DJI_202602020853_001"
-$SoccerId = "DJI_20260202091128_0058"
-$SoccerV = "$SoccerDir\DJI_20260202091127_0058_V.JPG"
-$SoccerT = "$SoccerDir\DJI_20260202091128_0058_T.JPG"
-$env:MPLCONFIGDIR = "$PWD\.matplotlib-cache"
-git status --short --branch
-& $Py --version
 ```
 
-为什么：锁定仓库、解释器、隔离配置和真实素材位置。输入是本仓库与本地 raw；
-无交互。预期分支 `codex/heat-index-urop-0.3`，Python 可运行，只有允许的用户
-自有 `commit_code_exports/` 可未跟踪。失败：分支/路径错误、出现其他未知改动。
-
-尚未建立环境时：
+启动程序：
 
 ```powershell
-C:\Users\Victo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe -m venv .venv
-& $Py -m pip install --upgrade pip
-& $Py -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe scripts\run_user_workflow.py
 ```
 
-为什么：安装 `requirements.txt` 的 NumPy/Pandas/PyArrow/Matplotlib/scientific
-依赖；需联网下载时有等待，无 GUI。预期退出码 0。输出在 `.venv/`；下一步
-运行 collection。失败：安装异常或 import 错误。
+正常时首先看到：
 
-## 1. 干净的隔离验收输出
+```text
+What do you want to explore this time?
+  1) Five accepted pilot images
+  2) Football field
+  3) Five pilots + football field
+  4) One visible/thermal group
+  5) A dataset directory
+  6) Several specific visible/thermal groups
+```
 
-先只解析目标，确认不是宽目录：
+这一个命令就是普通用户入口。后面输入的是菜单选择、路径和确认，不是新的程序
+命令。默认写入隔离验收目录，结束后自动打开最新 run 文件夹。
+
+如果 `python` 本身无法运行，先修复/激活本项目 `.venv`；不要因此改用一大串
+底层 workflow 参数冒充普通用户流程。
+
+## 2. 第一轮：五张真实 pilot
+
+重新启动程序后，在 `Choose 1-6` 输入：
+
+```text
+1
+```
+
+这五张已经有接受过的人工标注和真实温度矩阵，正常情况不要求重新标五遍。观察
+控制台逐张出现 Part A、Part B0/adapter、canonical 和 Part E 进度；每张最终应为
+`success` 或可解释的 `cache_hit`，不能只出现一张极值图就结束。
+
+当程序询问：
+
+```text
+Do you want to perform temporal analysis for repeated observations of the same location? [y/N]
+```
+
+直接按 Enter。本轮五张 pilot 没有被用户确认成同一物理 ROI，因此默认答案必须
+是 No。随后应显示 temporal 未请求，但 spectrum、spatial 和其他 Part E 仍继续。
+
+完成后 Explorer 会打开最新 run 文件夹。先打开：
+
+```text
+USER_RESULTS.md
+```
+
+按其中链接依次确认：
+
+1. run summary 有五张图，均为 success/cache hit；
+2. canonical image results 有五个 image 文件夹；
+3. 每张都有温度、ΔT、surface cover、LUHK、target/eligibility 和 combined spatial
+   图，缺失层必须写 `UNAVAILABLE` 及原因，不能用空白或假数据代替；
+4. `figures/spectrum/` 有 overall、LUHK、surface cover、within-GIC、逐图等统计
+   distribution/density spectrum，不是只看 min/max 极值图；
+5. `tables/` 有逐图、LUHK、surface cover、sample coverage、统计检验和 effect size；
+6. `temporal/temporal_run_summary.md` 明确写 temporal was not requested，不应生成
+   一个暗示五图是时间序列的通用 temporal 图。
+
+五张 pilot 的正式像素应各为完整 512×640。其 LUHK 来自官方只读 context；LUHK
+类别不能因为你在 Part C 选择了某个 surface cover 而变化。
+
+## 3. 第二轮：真实足球场 Part C*
+
+重新运行同一个入口：
 
 ```powershell
-if (Test-Path -LiteralPath $UatRoot) { (Resolve-Path -LiteralPath $UatRoot).Path }
+.\.venv\Scripts\python.exe scripts\run_user_workflow.py
 ```
 
-预期只打印
-`E:\Projects\heat_index_urop\outputs\runs\v0_3_user_acceptance`。确认后：
+选择：
+
+```text
+2
+```
+
+程序依次显示 football-field visible JPG、thermal JPG、TAT3 DOCX、target name、
+stable target ID、surface cover、LUHK 和 confidence 的默认值。若屏幕路径正是你要
+测试的 09:11 capture，可以逐项按 Enter；若不是，就粘贴真实路径。你不需要把
+这些内容写进 JSON。
+
+随后程序会问是否重画已接受的 football-field polygon。第一次运行按 Enter；若要
+复验或修订旧边界，输入 `y`，程序会只跳过这一张图的兼容 cache 并重新打开 Part
+C*，不需要手动删除任何 cache 文件夹。
+
+Part B0/Part B 显示真实 V/T 证据时，必须根据画面决定：
+
+- `a`：只有 visible 与 thermal 确实是同一场景且完整覆盖时才接受 normal route；
+- `r`：对应关系不可用但 thermal 有效时，拒绝并进入 Part C* polygon；
+- `c`：取消本组，不得生成本次成功 canonical。
+
+当前 09:11 足球场 visible 近景与 thermal 广角不宜作为可靠 normal 对应，验收
+Part C* 时选择 `r`。程序提取真实温度后应打开 thermal polygon GUI。
+
+在 polygon GUI 中：
+
+1. 只沿足球场草地目标画边界；不要包含跑道、看台、建筑、树木、人员或设备；
+2. 点击 `Clear / Redraw`，确认旧多边形清除且可重画；
+3. 再画一个至少三点、覆盖合理的目标多边形；
+4. 点击 `Accept`，窗口应关闭并继续 canonical、extremes、Part E；
+5. 另开一次新 run 点击 `Cancel`，其 run 状态必须是 cancelled，不能新增成功
+   canonical，也不能让取消的 capture 进入 Part E。
+
+足球场的 LUHK 输入在当前 Part C* 中是目标范围内的
+`user_supplied_luhk` context，不得伪装成官方逐像素 lookup。验收 canonical/spatial
+时必须看到：
+
+- polygon 内：`target_mask=true`，已接受的 cover/LUHK context 可为 known，有限
+  温度才可 analysis eligible；
+- polygon 外：`target_mask=false`，surface cover 和 LUHK 为 unknown，正式分析
+  ineligible；
+- 完整 thermal grid 仍保留用于审计，但场外像素不进入足球场正式 overall、逐图、
+  spectrum 或 target statistics；
+- spatial 图显示真实 thermal 底图和 polygon boundary，而不是黑白标签图。
+
+在 `USER_RESULTS.md` 中查看足球场温度与 ΔT 摘要，再打开 canonical 的 min/max/q99
+图。极值图只是一个功能，不等于 Part E 全部分析。
+
+## 4. 第三轮：五张 pilot 加足球场的最终整批流程
+
+重新启动：
 
 ```powershell
-if (Test-Path -LiteralPath $UatRoot) { Remove-Item -Recurse -Force -LiteralPath $UatRoot }
-New-Item -ItemType Directory -Force "$UatRoot\test_logs" | Out-Null
+.\.venv\Scripts\python.exe scripts\run_user_workflow.py
 ```
 
-为什么：制造 cache-miss，且只清理隔离 acceptance；无交互。输出是空的
-`$UatRoot/test_logs`。失败：解析路径不严格相等时禁止删除；不得清理
-`outputs/`、`outputs/runs/` 或 `data/processed/`。
+选择：
 
-## 2. 测试收集
+```text
+3
+```
+
+按第 3 节确认足球场路径、TAT3 参数和 polygon。五张 pilot 可命中 cache，足球场
+可成功或命中其已接受 cache。temporal 问题仍按 Enter 选择默认 No，因为这六张
+不是一个被确认的同地点同 ROI 时间组。
+
+最终 `USER_RESULTS.md` 应同时列出六张图。验收重点：
+
+- 五张 normal 的 source/measurement 是 visible-review/full-thermal；
+- 足球场是 thermal-polygon/polygon-selected target；
+- 两类 provenance 分层，不静默混成同一种测量；
+- formal Part E、spectrum、spatial、统计表全部完成；
+- 五张 normal 的总体行为不变；
+- 足球场正式像素数只等于 polygon target 内像素数，场外不进入正式总体；
+- LUHK official lookup 与 user-supplied target context 在表和图中可区分。
+
+## 5. 单独验收 normal Part C GUI
+
+2026-07-22 的真实桌面验收已经覆盖两个终止动作：`Cancel` 得到 false/cancelled，
+没有写入本次成功 canonical；完整审核后的 `Accept` 得到 true/accepted，并继续
+生成 canonical。下面仍保留为可重复执行的人工复验协议；不能用单元测试或自动
+填充标签代替这项桌面操作。
+
+五张已接受 pilot 会复用审核结果，所以要测试 GUI 本身，需要一组尚未有 accepted
+Part C review、而且真实 V/T 对应可接受的输入。
+
+启动：
 
 ```powershell
-& $Py -m pytest --collect-only -q 2>&1 |
-    Tee-Object "$UatRoot\test_logs\pytest_collect.log"
-$LASTEXITCODE
+.\.venv\Scripts\python.exe scripts\run_user_workflow.py
 ```
 
-为什么：验证所有 node 可导入，不执行测试；无交互。当前预期 60 tests、退出
-码 0。输出 `pytest_collect.log`。下一步完整自动测试。失败：collection error、
-数量不是 60 或退出码非 0。
+选择：
 
-## 3. 完整自动测试
+```text
+4
+```
+
+依次粘贴 visible JPG、thermal JPG；若已有对应 TAT3 report 就粘贴路径，否则按
+提示仅在已存在兼容温度矩阵时留空。检查 Part B0 证据，只有确实同场景时才接受；
+再检查 Part B contact sheet，确认 full thermal coverage 后接受。随后 normal Part C
+GUI 应作为独立桌面进程打开。
+
+GUI 必须显示：
+
+- `Visible image + superpixel boundaries`：真实 visible 底图加边界；
+- `Live review mask`：真实 visible 底图上的实时半透明标签；
+- corresponding thermal panel；
+- official LUHK context panel，或明确 unavailable 原因；
+- LUHK 是 read-only 且与 surface cover 分开的提示。
+
+按下列顺序手动验收：
+
+1. 单击一个 superpixel，选区应变成黄色，状态栏列出 selected ID；
+2. Ctrl+单击另一个 superpixel，两个区域应同时被选中；
+3. 在右侧选一个 physical surface-cover 类别；
+4. 点击 `Assign`，live overlay 立即变色，状态栏显示 `Assignment applied`；
+5. 选择另一区域，点击 `Mark unknown`，它应显示灰色且 Unknown 计数增加；
+6. 选择一区域点击 `Shadow`，overlay 变成 shadow 色，shadow 不得改掉 cover；
+7. 点击 `No shadow`，只清除 shadow 状态；
+8. 点击 `Undo`，刚才操作撤销；点击 `Redo`，操作恢复；
+9. 点击 `Clear`，只清除当前选中区域的人工标签，不能清空整个图或 LUHK；
+10. 点击 `Fill suggestions`，只把未审核区域填为机器建议；淡色 suggestion 变成正式
+    overlay，但仍是一次可 Undo 的操作；
+11. 在 Notes 输入备注，点击 `Save`，状态栏显示 draft saved；Save 不得生成成功
+    canonical；
+12. 若还有 unreviewed superpixel，点击 `Accept` 必须被阻止并显示剩余数量；
+13. 完成或明确标为 unknown 后点击 `Accept`，窗口关闭并继续 canonical；
+14. 对另一张从未成功处理的图点击 `Cancel`，该 run 必须 cancelled，不能创建本次
+    successful canonical。
+
+`Assign`、unknown、shadow、Undo/Redo 每一步都必须在 live overlay 和计数上有可见
+反馈；不能要求用户靠猜测按钮是否生效。
+
+## 6. 多时点 temporal 普通用户验收
+
+只有在你有至少两张“同一物理地点、同一目标、每张都有独立接受且可比 ROI”的
+真实 capture 时才做本节。对于足球场，09:11、14:08、17:04 可作为候选，但后两张
+必须各自完成 Part C* polygon；不能复制 09:11 的图像坐标。
+
+用“Several specific visible/thermal groups”把这些 capture 纳入同一次处理，避免把
+同一航次目录里的无关图像也带入本次验收：
 
 ```powershell
-& $Py -m pytest -vv --junitxml "$UatRoot\test_logs\pytest_results.xml" 2>&1 |
-    Tee-Object "$UatRoot\test_logs\pytest_full.log"
-$LASTEXITCODE
+.\.venv\Scripts\python.exe scripts\run_user_workflow.py
 ```
 
-为什么：运行默认 mocked SDK 的 unit/integration/regression/UAT；无 GUI。当前
-预期 `60 passed`、退出码 0。输出 full log 与 JUnit XML。下一步先看失败 node；
-任何 failed/error 都是不通过。
+选择：
 
-主要路由可逐组重跑：
-
-```powershell
-& $Py -m pytest -vv -s tests\test_v02_part_a_b0_and_full_b.py
-& $Py -m pytest -vv -s tests\test_v02_run_analysis_routes.py tests\test_run_analysis_integration.py
-& $Py -m pytest -vv -s tests\test_v02_part_c_controller.py tests\test_polygon_and_canonical.py
-& $Py -m pytest -vv -s tests\test_v03_spatial_figures.py tests\test_v03_temporal_analysis.py
+```text
+6
 ```
 
-这些命令分别覆盖：exact/uncertain V/T、missing/invalid thermal、B0
-match/mismatch/ambiguous 与 accept/reject/cancel、full Part B
-accept/reject/overlap-only/indeterminate/cancel、normal Part C assignment/
-multi-select/unknown/shadow/undo/redo/draft/resume/accept/cancel、bare NPY
-拒绝、polygon accepted/missing context/dimension mismatch/cancel/inside-outside、
-spatial/temporal。输入是小型临时 fixture；无桌面交互；输出在 pytest temp，
-证据是控制台。所有 node passed 才通过。
+逐组输入 09:11、14:08、17:04 的 visible/thermal 路径，空行结束；随后可输入以
+分号分隔的多个真实 TAT3 DOCX。选择所有组使用 Part C*，为每张 capture 独立画并
+接受足球场 ROI。共享 target 名称/ID 不等于共享图像坐标，任何旧 polygon 都不能
+复制到另一姿态。只有 success/cache hit 且有合格 target/temperature 的图才会进入
+后续候选列表。
 
-## 4. 五 pilot cache-miss 同批运行
+当 temporal 问题出现时，先按 Enter 验证默认 No：应 clean skip，不影响普通
+Part E。随后重跑同一输入，在该问题输入：
 
-```powershell
-$PilotIds = @(
-  "DJI_20260107143259_0005",
-  "DJI_20260107143320_0007",
-  "DJI_20260107143328_0008",
-  "DJI_20260107143344_0009",
-  "DJI_20260107143401_0011"
-)
-& $Py $Runner --config $Cfg selected --dataset-id HKUST_five_pilot_v03_acceptance `
-  --group "$PilotDir\DJI_20260107143259_0005_V.JPG" "$PilotDir\DJI_20260107143259_0005_T.JPG" `
-  --group "$PilotDir\DJI_20260107143320_0007_V.JPG" "$PilotDir\DJI_20260107143320_0007_T.JPG" `
-  --group "$PilotDir\DJI_20260107143328_0008_V.JPG" "$PilotDir\DJI_20260107143328_0008_T.JPG" `
-  --group "$PilotDir\DJI_20260107143344_0009_V.JPG" "$PilotDir\DJI_20260107143344_0009_T.JPG" `
-  --group "$PilotDir\DJI_20260107143401_0011_V.JPG" "$PilotDir\DJI_20260107143401_0011_T.JPG" `
-  2>&1 | Tee-Object "$UatRoot\test_logs\five_pilot_cache_miss.log"
-$LASTEXITCODE
+```text
+y
 ```
 
-为什么：用 v0.2 已验收五个 numeric pilot 回归 v0.3 A–E；输入是五组真实
-pilot、冻结 reviewed masks 和本地已验证矩阵；无 GUI。预期五个
-`success via normal_visible_thermal`、退出码 0。精确输出：
+程序会列出每张候选的 image ID、V/T 路径、capture time/source、GPS、target ID、
+location ID、dataset、temperature source 和 measurement type。不要只凭时间接近或
+同一文件夹分组。
 
-- `$UatRoot/workflow_runs/run_<UTC>/run_summary.json`；
-- `$UatRoot/canonical/images/<image_id>/`；
-- `$UatRoot/part_e/part_e_multi_source_pixels.parquet`；
-- `$UatRoot/part_e/schema_0_2/figures/spatial/`；
-- `$UatRoot/part_e/schema_0_2/temporal/`。
+对于一个已核实地点：
 
-下一步逐图和 Part E 检查。失败：任一 failed/incomplete、canonical 缺失或
-formal runner 报 spatial/temporal incomplete。
+1. 输入 capture 编号，例如 `1,3-4`；
+2. 输入 human-readable location/target name；
+3. 输入稳定 `location_id`；
+4. 输入每张 capture 已一致使用的稳定 `target_id`；
+5. 输入唯一 `temporal_group_id`；
+6. 在“same physical location”确认中，仅在证据充分时输入 `y`；
+7. 在“accepted, comparable ROI”确认中，仅在每张都有独立接受的同目标 ROI 时
+   输入 `y`；
+8. 若出现 GPS/recorded-ID conflict，先人工检查；需要 override 时必须写具体原因；
+9. pixel-level registration 默认输入 `n`；只有已做可靠配准且能说明 method 与稳定
+   registration ID 时才输入 `y`；
+10. 回答是否定义另一个 temporal group；可以建立多个互不重叠的地点组。
 
-## 5. 五 pilot 逐图与 numeric 回归
+一个 capture 不能重复进入两个组。程序也不能自己把未选中的图塞进时间序列。
 
-```powershell
-foreach ($Id in $PilotIds) {
-  $Dir = "$UatRoot\canonical\images\$Id"
-  $M = Get-Content "$Dir\manifest.json" -Raw | ConvertFrom-Json
-  [pscustomobject]@{
-    image_id=$Id; schema=$M.schema_version; processing=$M.processing_version
-    route=$M.processing_route; measurement=$M.measurement_type; source=$M.source_method
-    dimensions="$($M.image_height)x$($M.image_width)"
-    count=($M.known_pixel_count + $M.unknown_pixel_count)
-    pixels=(Test-Path "$Dir\pixels.parquet")
-    extremes=(Test-Path "$Dir\extreme_temperature_summary.csv")
-    locations=(Test-Path "$Dir\extreme_temperature_locations.png")
-  }
-}
+### 2026-07-22 已验证的三时点足球场实例
+
+`run_20260722T053855Z` 的显式 group
+`hkust-football-field-20260202` 使用三个独立接受的 Part C* polygon。EXIF local
+times 是 09:11:28、14:08:15、17:04:53 `+08:00`；3/3 captures eligible，
+`temporal_series_available=true`，状态为
+`multi_capture_observed_series`。输出包括每张八类 spatial PNG（共 24 张）和八组
+spectrum PNG/PDF pair。
+
+已验证的 target-level 数值为：
+
+- ROI mean 最大 38.792465 degC，最小 18.429496 degC，observed range
+  20.362969 degC；
+- ROI median range 20.549437 degC，q95 range 22.708586 degC；
+- capture-level ROI max range 24.340452 degC；
+- absolute observed pixels 从 4.0655761 到 44.443596 degC，range
+  40.37802 degC；
+- provisional TAT3 ambient 下的 ROI-mean delta-T range 为 24.36297 degC。
+
+这三个 polygon 边界不同，所以 ROI status 是
+`user_confirmed_varying_roi_target_level_only`。可以比较每个 capture 的目标总体摘要，
+不能把相同 row/column 当成同一地面像素；pixelwise 状态必须为 unavailable，原因
+`cross_capture_registration_not_confirmed`。采样只覆盖 09:11:28--17:04:53，状态
+是 `partial_observation_window`，不是 full day。TAT3 exported ambient parameter
+也只是 provisional，尚未独立验证为 meteorological air temperature。因此这些数值
+不能证明 true daily extrema、same-pixel change，或精确复现历史口头“约 +26 degC”。
+
+## 7. 怎样读 temporal 结果
+
+先打开 run 的 `USER_RESULTS.md`，再进入：
+
+```text
+part_e/schema_0_2/<run_id>/temporal/temporal_run_summary.md
 ```
 
-为什么：逐图检查 manifest、schema、native dimension、canonical/extreme；无
-交互。预期 schema `0.2.0`、processing `heat-index-urop-0.3.1`、normal/full
-pixel/visible_review、`512x640`、count 327680、三个布尔均 True。下一步 numeric。
-
-```powershell
-& $Py -m pytest -vv tests\test_v02_pilot_numeric_baseline.py tests\test_pilot_regression.py 2>&1 |
-  Tee-Object "$UatRoot\test_logs\five_pilot_numeric_regression.log"
-```
-
-为什么：核对五 pilot ID 仍为数字字符串、mask/hash、温度 min/max/mean/q99、
-ambient、delta 和 1,638,400 行；无交互。预期全部 passed。输出 log。失败：
-任一冻结数值/哈希漂移。
-
-## 6. 五 pilot cache-hit 与单图调试
-
-原样重跑第 4 节命令。预期五组均
-`cache_hit via cached_result - compatible_canonical_result`，正式 runner 显示
-`SKIP sample`、`SKIP spectrum`、`SKIP spatial-figures`，temporal status 为
-`cache_hit`。新 run summary 五行 `cache_hit=true` 才通过。
-
-单图调试：
-
-```powershell
-$Id = "DJI_20260107143259_0005"
-& $Py $Runner --config $Cfg --no-part-e selected --dataset-id "debug_$Id" `
-  --group "$PilotDir\${Id}_V.JPG" "$PilotDir\${Id}_T.JPG"
-```
-
-为什么：定位 A/B/C/D 单图问题，不重跑 Part E；无 GUI（pilot adapter）。预期
-cache hit 或单图 success。输出最新 workflow run。它不替代五图同批验收。
-
-## 7. exact、uncertain、mismatch、B0 与 full Part B
-
-```powershell
-& $Py -m pytest -vv -s `
-  tests\test_v02_part_a_b0_and_full_b.py `
-  tests\test_v02_run_analysis_routes.py `
-  2>&1 | Tee-Object "$UatRoot\test_logs\routing_a_b.log"
-```
-
-为什么：用受控图像验证 exact valid pair、filename/timestamp uncertainty、clear
-B0 match、clear mismatch、ambiguous、B0 accept/reject/cancel、full Part B
-accepted full coverage/rejected/overlap-only/indeterminate/cancel，以及 valid
-thermal with bad visible、missing/invalid thermal、matrix dimension mismatch；无
-交互。预期全部 passed。临时输出自动清理，日志保留。任何自动 candidate 直接
-接受 alignment、cancel 产生 canonical、invalid thermal 继续下游都失败。
-
-真实 mismatch 观察：
-
-```powershell
-& $Py $Runner --config $Cfg --no-part-e selected --dataset-id soccer_mismatch_observation `
-  --group $SoccerV $SoccerT 2>&1 |
-  Tee-Object "$UatRoot\test_logs\soccer_awaiting_b0.log"
-```
-
-输入是 09:11:27 visible 近景与 09:11:28 thermal 广角；无 GUI。预期
-`awaiting_part_b0_review`、有 Part A/B0 evidence、没有成功 soccer manifest。
-
-## 8. Normal Part C GUI
-
-先验证 controller：
-
-```powershell
-& $Py -m pytest -vv -s tests\test_v02_part_c_controller.py 2>&1 |
-  Tee-Object "$UatRoot\test_logs\part_c_controller.log"
-```
-
-为什么：无 GUI 地验证 assignment、多选、unknown、shadow、undo/redo、draft/
-resume、accept/cancel；预期全部 passed。桌面 smoke test 使用一个 final Part B
-accepted/full-coverage 且没有 accepted review 的 V/T：
-
-```powershell
-& $Py $Runner --config $Cfg --launch-part-c-gui `
-  --part-b-review "PATH_TO_ACCEPTED_FULL_PART_B_JSON" `
-  selected --dataset-id normal_part_c_gui `
-  --group "PATH_TO_VISIBLE.JPG" "PATH_TO_THERMAL.JPG"
-```
-
-此命令会交互。检查 visible ROI、superpixels、thermal panel、single/Ctrl
-multi-select、physical cover、unknown、独立 shadow、undo/redo、notes/reviewer/
-confidence、draft/resume、未完成时阻止 accept、accept 和另一次 cancel。输出在
-最新 run group 与 canonical。通过：accepted 才 canonical；cancel/draft 不进入
-Part E。裸 `--normal-labels-npy` 必须由自动测试拒绝。
-
-## 9. Part C* polygon GUI 与缺失输入
-
-创建只用于路线的 non-scientific 温度 fixture：
-
-```powershell
-$SoccerTestNpy = "$UatRoot\fixtures\soccer_route_only_temperature.npy"
-New-Item -ItemType Directory -Force "$UatRoot\fixtures" | Out-Null
-& $Py -c "from pathlib import Path; import numpy as np; p=Path(r'$SoccerTestNpy'); np.save(p,np.linspace(18,42,512*640,dtype=np.float32).reshape(512,640)); print(np.load(p).shape)"
-```
-
-预期 `(512, 640)`；它不是 radiometric scientific result。手动画 polygon：
-
-```powershell
-& $Py $Runner --config $Cfg `
-  --part-b0-review config\acceptance\v0_2_soccer_b0_rejected.json `
-  --target-id hkust-soccer-field-route-fixture `
-  --target-name "HKUST soccer field" `
-  --surface-cover grass_low_vegetation `
-  --luhk "GIC / open space" --luhk-provenance user_supplied_luhk `
-  --reviewer-confidence low --notes "NON-SCIENTIFIC route-only polygon" `
-  --temperature-npy "$SoccerId=$SoccerTestNpy" `
-  selected --dataset-id soccer_polygon_gui --group $SoccerV $SoccerT
-```
-
-会弹 GUI。Draw/Redraw 后 accept；另一次测试 cancel。因为未提供 ambient，预期
-temperature canonical/extremes/spatial 存在，ΔT panel 明确 unavailable，temporal
-temperature 描述存在，ΔT 排除。输出在 soccer canonical 与 formal spatial/
-temporal。通过：inside target/cover/LUHK known，outside unknown/ineligible，
-boundary 正确；cancel 无成功 canonical。缺 target/cover/LUHK、official vs user
-provenance、polygon mismatch/cancel 的无 GUI回归：
-
-```powershell
-& $Py -m pytest -vv -s tests\test_polygon_and_canonical.py tests\test_run_analysis_integration.py
-```
-
-## 10. 温度提取、ambient、canonical、Min/Max/q99
-
-```powershell
-& $Py -m pytest -vv -s tests\test_v02_part_d_shared.py tests\test_v02_cache_schema_extremes.py
-```
-
-为什么：默认 mocked SDK，验证真实入口共享实现、parameter/shape/QA、missing
-ambient、failed QA isolation、Min/Max ties、q99 threshold/region/location、atomic
-cache；无交互。预期全部 passed。输出临时；检查 log。失败：默认测试要求真实
-SDK、failed QA 进入 index/Part E、缺 ambient 被填值或 extreme 不确定。
-
-真实 SDK 是可选本地集成，只有在合法 SDK 配置存在时运行：
-
-```powershell
-& $Py $Runner --config $Cfg --tat3-params-csv "PATH_TO_REAL_TAT3_PARAMETER_CSV" `
-  --sdk-config config\part_d_sdk.local.json `
-  selected --dataset-id optional_real_sdk `
-  --group "PATH_TO_VISIBLE.JPG" "PATH_TO_THERMAL.JPG"
-```
-
-它使用 real TAT3 params/SDK，有较长等待，无 GUI（除 review boundary）。通过：
-native shape、parameter audit、QA 和 source definition 完整。不要提交 matrix、raw
-SDK output、binary 或 local config。
-
-## 11. Spatial：normal、polygon、动态尺寸与完整性
-
-```powershell
-& $Py -m pytest -vv -s tests\test_v03_spatial_figures.py 2>&1 |
-  Tee-Object "$UatRoot\test_logs\spatial_v03.log"
-```
-
-输入是明确标记的 non-scientific normal/polygon canonical fixtures；无交互。
-预期 normal/polygon、dynamic dimensions、missing LUHK/shadow/ambient、outside
-unknown、ineligible pixels、source labels、boundary、non-pixel exclusion、缺文件
-validation 全 passed。
-
-正式五图/多来源运行后检查：
-
-```powershell
-$Spatial = "$UatRoot\part_e\schema_0_2\figures\spatial"
-Get-Content "$Spatial\spatial_figure_validation.json" -Raw | ConvertFrom-Json
-Import-Csv "$Spatial\spatial_figure_manifest.csv" | Format-Table -AutoSize
-Get-ChildItem $Spatial -File | Sort-Object Name
-```
-
-每个 eligible unit 必须有 temperature、delta、cover、LUHK、target、shadow、
-eligibility、combined 各 PNG/PDF；缺层是 unavailable panel。validation canonical
-hash 正确、expected files 全存在。目录空、少一张图仍显示 complete 即失败。
-
-## 12. Normal + polygon source-stratified Part E
-
-完成五 pilot 和一个 route-only polygon 后，从其 manifest 建列表运行正式集成，
-或直接运行自动 case：
-
-```powershell
-& $Py -m pytest -vv -s tests\test_v02_part_e_formal.py tests\test_part_e_multi_source.py 2>&1 |
-  Tee-Object "$UatRoot\test_logs\normal_polygon_part_e.log"
-```
-
-为什么：验证 combined canonical、spatial thinning、statistics/effects/KDE、normal
-+ polygon、missing ambient、spatial、temporal、inclusion、resume/dry-run；无交互。
-预期全 passed。source summary/figures 同时保留 `visible_review/full_thermal_pixel`
-与 `thermal_polygon_user_annotation/polygon_selected_thermal_pixel`，不静默 pool。
-
-## 13. Synthetic 多时点 temporal
-
-```powershell
-& $Py -m pytest -vv -s tests\test_v03_temporal_analysis.py 2>&1 |
-  Tee-Object "$UatRoot\test_logs\temporal_v03.log"
-```
-
-为什么：运行 zero/one/multiple、timezone/order、duplicate/invalid、irregular、
-equal-image、missing ambient、incompatible source/measurement、target linkage/
-mismatch、deterministic tables/figures、resume/cache invalidation、no fabricated
-26；无交互。预期全部 passed。
-
-对现有 compatible Parquet 运行 CLI：
-
-```powershell
-& $Py scripts\run_temporal_analysis.py `
-  --canonical-parquet "$UatRoot\part_e\part_e_multi_source_pixels.parquet" `
-  --output-root "$UatRoot\temporal_cli" `
-  --timezone Asia/Hong_Kong --resume
-```
-
-预期打印 complete/cache_hit。输出 `tables/temporal_capture_summary.csv`、
-`temporal_stratum_summary.csv`、inclusion，三个 PNG/PDF family、QA/report/
-validation。五 pilot 若无 explicit target ID，只能描述或 unlinked，不得宣称 target
-trend。
-
-## 14. 后续真实足球场手工科学复现（不要在路线测试中完成）
-
-本节与 synthetic route-only 严格分开。历史对话只确认：2026-02-02 全天、约
-09:00–17:00、HKUST soccer field、教授称 natural turf、ad-hoc ΔT 在中午 up to
-约 +26°C；具体 statistic、ambient source/definition、截图与 TAT3 params 未在可
-访问文字中锁定。
-
-复制模板并逐 capture 填写，模板本身 draft/空 coordinates，不能成功：
-
-```powershell
-Copy-Item config\acceptance\v0_3_soccer_polygon_template.json "$UatRoot\real_soccer_polygons.json"
-Copy-Item config\acceptance\v0_3_soccer_ambient_template.json "$UatRoot\real_soccer_ambient.json"
-notepad "$UatRoot\real_soccer_polygons.json"
-notepad "$UatRoot\real_soccer_ambient.json"
-```
-
-为什么：为每张 capture 记录独立 accepted polygon、同一 stable target ID、cover/
-LUHK provenance/confidence/notes、真实 ambient value/source/definition/timezone；
-有人工编辑。温度矩阵必须由 real DJI/TAT3 params 提取。每张图执行：
-
-```powershell
-& $Py $Runner --config $Cfg `
-  --part-b0-review "PATH_TO_PER_CAPTURE_B0_DECISIONS.json" `
-  --polygon-json "$UatRoot\real_soccer_polygons.json" `
-  --tat3-params-csv "PATH_TO_REAL_TAT3_PARAMS.csv" `
-  --sdk-config config\part_d_sdk.local.json `
-  --ambient-json "$UatRoot\real_soccer_ambient.json" `
-  selected --dataset-id HKUST_20260202_soccer_real `
-  --group "PATH_TO_CAPTURE_VISIBLE.JPG" "PATH_TO_CAPTURE_THERMAL.JPG"
-```
-
-逐图有 review/GUI；预期 accepted 才 success。完成所有 capture 后，把 run summary
-或 combined Parquet交给 temporal CLI。检查：
-
-```powershell
-Import-Csv "$UatRoot\part_e\schema_0_2\temporal\tables\temporal_capture_summary.csv" |
-  Select-Object image_id,capture_time_local,temperature_mean_c,temperature_median_c,temperature_q95_c,temperature_q99_c,temperature_max_c,delta_t_mean_c,delta_t_median_c,delta_t_q95_c,delta_t_q99_c,delta_t_max_c |
-  Format-Table -AutoSize
-```
-
-下一步与教授确认原 ad-hoc +26°C 对应哪一列/点/region。通过：定义、来源、
-polygon、timestamp、QA 可审计，结果可复跑；不要求硬等于 26.0。失败：复用 v0.2
-synthetic matrix、缺 ambient definition、复用 polygon 坐标无 registration、把
-maximum 冒充 mean、或宣称本软件已经复现 26°C。
-
-## 15. Temporary TAT3 与 persistent index 不变
-
-```powershell
-$ProductionIndex = "data\metadata\canonical_result_index_v0_3.json"
-$Before = if (Test-Path $ProductionIndex) { (Get-FileHash $ProductionIndex -Algorithm SHA256).Hash } else { "ABSENT" }
-& $Py scripts\run_tat3_manual_analysis.py `
-  --report "data\local_external\tat3_reports\raw\combined_report__2026_07_17_18_12_48.docx" `
-  --thermal-image $SoccerT --target-name "HKUST soccer field" `
-  --luhk "GIC / open space" --luhk-provenance user_supplied_luhk `
-  --surface-cover grass_low_vegetation `
-  --output-dir "$UatRoot\tat3_soccer_ambient_only"
-$After = if (Test-Path $ProductionIndex) { (Get-FileHash $ProductionIndex -Algorithm SHA256).Hash } else { "ABSENT" }
-$Before -eq $After
-```
-
-有真实 local report 解析，无 GUI。预期 ambient-only、0 measurements、10.8°C、
-distance 5 m、emissivity .95、humidity 50%，只写 temporary manifest/analysis，
-hash 比较 True；不得制造点/region/坐标或修改 persistent index。
-
-```powershell
-& $Py -m pytest -vv -s tests\test_v02_tat3_manual.py
-```
-
-补测 point/region/ambient-only/missing/duplicate/unit/无坐标和 no persistent-index
-mutation。全部 passed 才通过。
-
-## 16. Cache invalidation、resume 与 dry-run
-
-```powershell
-& $Py -m pytest -vv -s tests\test_result_index.py tests\test_v02_cache_schema_extremes.py tests\test_v03_temporal_analysis.py
-```
-
-为什么：自动改 raw hash、config/review/LUHK/TAT3/SDK/polygon dependency、artifact、
-canonical、timezone 并验证 miss；无交互。预期全部 passed。
-
-正式 Part E resume：
-
-```powershell
-$FormalCfg = "$UatRoot\part_e\schema_0_2\part_e_schema_0_2_config.json"
-& $Py scripts\part_e\run_part_e_pipeline.py --config $FormalCfg `
-  --from-stage sample --to-stage spatial-figures --skip-supporting-figures --skip-excel --resume
-```
-
-预期 `SKIP sample/analyse/spectrum/spatial-figures`；若删任一 spatial file，必须
-重跑 spatial，而不是 skip。
-
-dry-run：
-
-```powershell
-& $Py scripts\part_e\run_part_e_pipeline.py --config $FormalCfg `
-  --from-stage sample --to-stage spatial-figures --skip-supporting-figures --skip-excel --dry-run
-& $Py scripts\run_temporal_analysis.py `
-  --canonical-parquet "$UatRoot\part_e\part_e_multi_source_pixels.parquet" `
-  --output-root "$UatRoot\temporal_dry_run" --timezone Asia/Hong_Kong --dry-run
-```
-
-预期只打印 DRY-RUN/planned，不把 stage state 写成 complete。
-
-## 17. Benchmark
-
-```powershell
-& $Py scripts\benchmark_v0_3.py 2>&1 |
-  Tee-Object "$UatRoot\test_logs\benchmark_v0_3.log"
-```
-
-为什么：用 non-scientific synthetic canonical 记录 spatial、temporal、resume 的
-墙钟时间与输出大小；无交互。输出 ignored JSON 与 log。通过：脚本成功、明确
-fixture 非科学、spatial/temporal validation complete；观察值不是跨机器 SLA。
-
-## 18. 存储与 Git-ignore
-
-```powershell
-git check-ignore -v "$UatRoot\canonical\result_index.json"
-git check-ignore -v "$UatRoot\part_e\part_e_multi_source_pixels.parquet"
-git check-ignore -v "$UatRoot\tat3_soccer_ambient_only\temporary_manifest.json"
-git status --short
-```
-
-为什么：确认 generated canonical/Part E/temp logs 不入 Git；无交互。预期三项
-被 `.gitignore` 命中；status 只有开发文件与用户自有 `commit_code_exports/`。
-失败：raw DJI、`data/local_external/`、generated canonical/Part E、temporary TAT3、
-SDK binary/local config、cache、test logs、大 CSV/Excel 被跟踪。
-
-## 19. 最终 checkbox
-
-- [ ] collection 至少 57 tests，完整 suite 全 passed，保存 log/JUnit。
-- [ ] 五 numeric pilot 同批 cache-miss 成功，ID、512×640、hash、温度与 Part E 回归通过。
-- [ ] 五 pilot 第二次全部 cache hit；单图调试可用。
-- [ ] exact/uncertain/mismatch、B0 accept/reject/cancel、full Part B 全路由通过。
-- [ ] normal Part C GUI/controller 的 assignment、unknown、shadow、undo/redo、draft/resume、accept/cancel 通过。
-- [ ] Part C* accepted/missing context/provenance/dimension/cancel/inside-outside 通过。
-- [ ] matrix shape、missing ambient、failed QA、failure isolation、Min/Max/ties/q99 通过。
-- [ ] normal 与 polygon spatial 各八类 PNG/PDF；missing layers 明确 unavailable；boundary/unknown 正确。
-- [ ] spatial validation 与 resume 能发现缺文件；没有 legacy five-pilot table 依赖。
-- [ ] normal + polygon Part E source-stratified，不静默 pooling。
-- [ ] temporal zero/one/multiple、timezone、duplicates、irregular、equal-image、missing ambient、sources/types/targets、cache 通过。
-- [ ] q bands 标注为 within-image descriptive，非 CI；single capture 非 trend；no interpolation。
-- [ ] 真实 soccer workflow 只准备；每 capture 需手动画/accept polygon、real TAT3 matrix 与 real ambient。
-- [ ] 没有硬编码、伪造或声称已复现约 +26°C。
-- [ ] temporary TAT3 不改 persistent index，不制造坐标。
-- [ ] acceptance/generated/raw/local/SDK/cache/log/large export 的 Git 边界正确。
-- [ ] `commit_code_exports/` 从未被检查内容、修改、删除、暂存或提交。
-
-全部有证据后，才把 v0.3 判为用户验收通过。
+不要打开无 run ID 的旧共享目录或另一 run 的“最新”结果。每个显式组都有自己的
+`<temporal_group_id>/temporal_summary.md`。这里应直接写出：
+
+- eligible/submitted capture 数；
+- hottest capture、时间和 image ID；
+- coolest capture、时间和 image ID；
+- primary ROI-mean observed peak-to-trough range；
+- ROI median、q95、capture-level max 和 absolute-pixel range；
+- ΔT range 是否因 ambient source/definition 不兼容而 unavailable；
+- sampling window、间隔、最大 gap、day/night coverage 和排除原因；
+- pixelwise analysis 是否可用及原因。
+
+口径必须这样理解：
+
+- ROI mean 是 primary target range；
+- median 是较稳健的中心结果；
+- q95 是较稳健的 hot-tail 结果，通常比单个 max 更适合讨论目标的高温尾部；
+- absolute-pixel range 是所有 capture 中单个最热点减单个最冷点，最容易受噪声、
+  小物体、emissivity 和错位影响；
+- 未确认 registration 时，不得说两个极值坐标是同一地面像素；
+- 09:00–17:00 只能叫 sampled daytime window，不能叫完整 daily range；
+- 图中的 ROI quantile band 是单张图内的空间变化，不是 temporal confidence interval。
+
+若只有一张兼容 capture，应明确 `single_capture_descriptive_no_trend`。若同地点或
+ROI 没确认，应没有 trend。若温度定义可比但 ambient 定义不可比，可以有
+temperature series，但 ΔT series 必须 unavailable。
+
+## 8. 最终验收清单
+
+- [ ] 只用 `.\.venv\Scripts\python.exe scripts\run_user_workflow.py` 即可开始普通用户流程。
+- [ ] 用户无需编写 JSON/config，也无需复制长参数命令。
+- [ ] 五张真实 pilot 均有 canonical、extremes、全部 spectrum、spatial、tables 和 QA。
+- [ ] temporal 默认 No，No 不影响其他 Part E 功能，也不产生伪时间序列。
+- [ ] 真实足球场可完成 Part C* polygon、温度提取、canonical、spatial 和 Part E。
+- [ ] polygon 外 cover/LUHK unknown 且不进入正式 target/overall 统计。
+- [ ] 五 pilot + 足球场同批运行时 source/provenance 分层清楚。
+- [ ] normal Part C GUI 使用真实 visible+superpixel overlay，而不是孤立黑白标签图。
+- [ ] Assign、unknown、shadow/no-shadow、Undo/Redo、Save、Accept、Cancel 都有可见反馈。
+- [ ] Accept 只在 review 完整时成功；Cancel/Save/关窗不能创建本次成功 canonical。
+- [ ] normal LUHK 是官方只读 context，与 surface cover 分离；unavailable 不伪造。
+- [ ] temporal 只接收用户显式选择、同地点确认和可比 ROI 确认的 capture。
+- [ ] 支持多个互不重叠 temporal group，不按文件夹/时间/GPS 自动分组。
+- [ ] hottest、coolest、observed range、median/q95 与 absolute pixel 的含义写清楚。
+- [ ] sampling gaps 和 sampled-window 限制清楚，不把 09–17 宣称为 full day。
+- [ ] 未确认可靠 registration 时没有 pixelwise temporal maps。
+- [ ] Part E、spatial、spectrum、temporal、tables 和 QA 都来自同一个 `<run_id>`，
+      不混用共享旧目录或另一 run 的结果。
+- [ ] `USER_RESULTS.md` 能让普通用户直接找到每个结果，不要求阅读 raw JSON。
+
+以上每一项都能由用户亲眼看到，才算 v0.3.2 普通用户验收通过。

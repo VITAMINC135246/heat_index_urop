@@ -1,24 +1,24 @@
-# Version 0.3 canonical/schema decision
+# Version 0.3.2 canonical/schema decision
 
 ## Decision
 
-Version 0.3 keeps canonical schema `0.2.0` and changes only
-`processing_version` to `heat-index-urop-0.3.1` for the current maintenance release.
+Version 0.3.2 keeps canonical schema `0.2.0` and changes only
+`processing_version` to `heat-index-urop-0.3.2` for the current maintenance release.
 
 A schema `0.3.0` bump is unnecessary because the required pixel contract did
 not change: image/pixel identity, native coordinates, temperature, cover/LUHK,
 target mask, shadow, eligibility, exclusion, measurement type, source, QA, and
-provenance already exist. v0.3 adds optional `target_id`, capture timezone, and
+provenance already exist. v0.3.2 adds optional `target_id`, capture timezone, and
 mapped temperature/ambient definition columns. Older 0.2 and 0.1 manifests can
 still be read; missing optional values are reported rather than invented.
 
 ## Stable target linkage
 
 `target_name` is a display label. `target_id` is the stable cross-capture
-identifier. Temporal target series require a non-empty explicit `target_id`.
-When it is absent, a capture may still receive descriptive statistics, but its
-linkage key is isolated as `unlinked:<image_id>` and it cannot be pooled with
-another capture by target name alone.
+identifier. Temporal target series require a non-empty explicit `target_id`
+plus a user-submitted group that confirms the same physical location and
+comparable accepted ROI. A shared target name/ID in canonical data is necessary
+linkage metadata, not permission to group captures automatically.
 
 Each capture requires its own accepted `target_mask`. Coordinates from one
 image must not be reused for another image unless separately validated
@@ -37,6 +37,11 @@ does not silently transfer polygons.
 - `target_mask`, `label_known`, and `analysis_eligible` are independent flags.
 - Polygon exterior cover/LUHK context is unknown; it is not assigned the target
   class and is not analysis eligible.
+- Normal-route official LUHK is read-only broad context and never substitutes
+  for visible-image surface-cover review.
+- Formal target statistics require accepted finite ΔT plus both
+  `analysis_eligible=true` and `target_mask=true`; retaining a source-grid row
+  does not make that row a formal observation.
 
 ## Read compatibility
 

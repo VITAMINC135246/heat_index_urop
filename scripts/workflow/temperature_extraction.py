@@ -212,6 +212,8 @@ def extract_temperature(
     metadata = {
         **parameters,
         "extraction_method": "DJI Thermal SDK dji_irp.exe measure float32",
+        "temperature_definition": "per-pixel radiometric surface temperature",
+        "temperature_unit": "degC",
         "thermal_width": width,
         "thermal_height": height,
         "sdk_output": output,
@@ -239,6 +241,8 @@ def load_temperature_override(
         matrix.astype(np.float32, copy=False),
         {
             "extraction_method": "provided_npy",
+            "temperature_definition": str((ambient_metadata or {}).get("temperature_definition", "")),
+            "temperature_unit": str((ambient_metadata or {}).get("temperature_unit", "degC")),
             "source_npy": path.resolve().as_posix(),
             "source_npy_sha256": sha256_file(path),
             "ambient_temperature_c": (ambient_metadata or {}).get("ambient_temperature_c"),

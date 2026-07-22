@@ -1,74 +1,126 @@
-# Version 0.3 workflow
+# Version 0.3.2 workflow
 
-## Scope
+## Ordinary-user entry point
 
-Version 0.3 extends the completed v0.2 A–E workflow. It does not replace Part A
-validation, Part B0 structural triage, reviewed Part B, reviewed SLIC Part C,
-thermal-polygon Part C*, shared DJI/TAT3 extraction, canonical eligibility,
-spatial thinning, descriptive statistics, effect sizes, KDE spectra, extremes,
-or temporary TAT3 analysis.
+From the repository root, start the program with:
 
-The maintenance release processing version is `heat-index-urop-0.3.1`; canonical schema remains
-`0.2.0`. The supported default configuration is
-`config/workflow_v0_3.json`; acceptance uses the isolated
-`config/workflow_v0_3_acceptance.json`.
+```powershell
+.\.venv\Scripts\python.exe scripts\run_user_workflow.py
+```
+
+This is the supported ordinary-user entry point. The launcher asks what to
+explore, accepts paths and review decisions interactively, and then opens the
+newest run folder. An ordinary user does not need to author JSON, choose a
+configuration file, or assemble the lower-level `run_analysis.py` arguments.
+
+The first menu offers:
+
+1. five accepted pilot images;
+2. the football field;
+3. five pilots plus the football field;
+4. one visible/thermal group;
+5. every discoverable group in a dataset directory.
+
+The default output is the isolated acceptance workspace. The first result to
+read is `USER_RESULTS.md` in the run folder; it links the canonical images,
+spectrum figures, spatial figures, statistical tables, QA, and any explicitly
+requested temporal group.
 
 ## Persistent route
 
-1. Part A validates V/T inputs, timestamps, metadata, native dimensions, and
-   temperature-grid compatibility.
-2. Part B0 produces match/mismatch/review evidence only. An explicit accepted
-   B0 review may continue to full Part B but cannot accept final alignment.
-3. Full Part B requires explicit accepted correspondence and full thermal
-   support for the normal route. Rejected/unusable visible correspondence may
-   enter Part C* when thermal input remains valid.
-4. Normal Part C requires an accepted reviewed superpixel result. Bare label
-   NPY files without accepted review evidence remain invalid.
-5. Part C* requires an accepted polygon, target name, cover, LUHK category and
-   provenance. Cancellation or draft status cannot create a canonical success.
-6. Part D uses a real compatible matrix from an explicit NPY override or the
-   shared DJI SDK/TAT3 route. Matrix dimensions must equal the native thermal
-   grid. Failed temperature QA is isolated from Part E.
-7. Canonical pixels retain full native grids, target/known/eligibility masks,
-   source/measurement/provenance, and missing-layer semantics.
-8. Part E aggregates normal and polygon results without default source pooling,
-   preserves validated sampling/statistics/KDE stages, generates canonical
-   spatial figures, then generates capture-level temporal outputs.
+1. Part A validates the V/T inputs, identities, timestamps, spatial metadata,
+   native dimensions, and temperature-grid compatibility.
+2. Part B0 presents match, mismatch, or needs-review evidence. It never accepts
+   alignment automatically. When evidence is ambiguous, the workflow pauses
+   for the user's decision.
+3. Full Part B requires an explicit accepted correspondence with full thermal
+   support before the normal route can continue. Rejected or unusable visible
+   correspondence may continue to Part C* only when the thermal input is valid.
+4. Normal Part C displays the real visible image with superpixel boundaries,
+   a live colour overlay, the corresponding thermal image, and read-only LUHK
+   context when available. A successful result requires a completed accepted
+   review; Save, closing the window, or Cancel does not create success.
+5. Part C* displays the real thermal image and requires a separately drawn and
+   accepted target polygon for that capture. The polygon exterior remains
+   target false, cover/LUHK unknown, and analysis-ineligible.
+6. Part D uses a compatible real temperature matrix from the shared DJI
+   SDK/TAT3 route or an explicitly audited existing matrix. It validates native
+   shape, extraction parameters, temperature definition, ambient definition,
+   and QA before Part E.
+7. Canonical output retains the full native grid and explicit target, known,
+   eligibility, source, provenance, temperature, ambient, and QA fields.
+8. Part E creates target-eligible statistics, spectrum figures, spatial maps,
+   and a readable result summary. It does not silently pool incompatible
+   source, measurement, target, or provenance strata.
+9. Temporal analysis is offered after accepted/cached captures are known. It is
+   an explicit optional branch and defaults to No.
 
-## Spatial completion
+## LUHK and surface cover are different layers
 
-The runner now executes from `sample` through `spatial-figures`. It skips the
-optional supporting/Excel stages unless explicitly requested. Spatial resume
-requires `spatial_figure_validation.json`, control CSVs, and every listed
-PNG/PDF to exist and match the canonical and spatial-method SHA-256 values. A
-no-pixel source such as a TAT3 point produces a recorded not-applicable
-exclusion, never an unexplained empty directory.
+LUHK 2024 is official, read-only 10 m land-use context. The normal workflow
+looks it up from the repository's official raster and records its provenance;
+the user does not paint or overwrite LUHK in the Part C GUI. An unavailable
+lookup remains explicitly unavailable or unknown.
 
-## Temporal completion
+Surface cover is the finer physical material reviewed from the visible image,
+such as grass, roof, road, or tree vegetation. A surface-cover assignment never
+changes LUHK, and a LUHK class never substitutes for surface-cover review.
 
-The temporal unit is one image/capture. The temporal module accepts canonical
-manifests, a run summary, or compatible shared Parquet through
-`scripts/run_temporal_analysis.py`. It records timezone assumptions, sorts UTC
-times deterministically, detects duplicates, preserves irregular intervals,
-requires explicit target linkage for cross-capture target series, and separates
-measurement/source/temperature/ambient/provenance/QA strata.
+For Part C*, a user-supplied LUHK value is target-scoped context and must remain
+labelled `user_supplied_luhk`; it must not be presented as an official raster
+lookup. Only pixels inside the accepted polygon are known for the target. The
+polygon exterior remains unknown even though its thermal temperatures are
+retained in the canonical source grid.
 
-No interpolation is performed. Single captures are descriptive, not trends.
-All multi-capture interpretation is exploratory. q01/q95/q99 bands are
-within-image descriptive variation, not confidence intervals.
+## Formal Part E population
 
-## Cache dependencies
+A pixel enters formal overall, per-image, LUHK, cover, and spectrum statistics
+only when all four conditions are true:
 
-- Per-image cache: source hashes, group configuration, review decisions,
-  dependency fingerprints, schema, processing version, and artifact hashes.
-- Formal Part E resume: combined canonical Parquet SHA-256 plus a deterministic
-  signature of the generated config and sampling/statistics/spectrum/spatial/
-  temporal implementations.
-- Spatial resume: canonical and spatial-method SHA-256 plus listed output
-  presence/size.
-- Temporal resume: canonical SHA-256, timezone/method configuration SHA-256,
-  and all expected tables/figures/reports.
+```text
+pixel_accepted AND finite(delta_t_c) AND analysis_eligible AND target_mask
+```
 
-Changing a polygon, target ID, label/review, temperature matrix, ambient value
-or definition, source method, capture timestamp/timezone, configuration, or
-canonical artifact invalidates the relevant downstream cache.
+This leaves the five normal pilot images unchanged because their accepted
+target is the full thermal grid. For a football-field polygon, only its accepted
+interior enters formal target statistics. The exterior may be retained for
+audit and spatial display, but it is not a second background comparison group.
+
+## Temporal is opt-in, never inferred
+
+Press Enter at the temporal question to accept the default No. Part E single-
+capture statistics, spectra, spatial maps, and extremes still complete; the
+temporal branch records a clean not-requested status and creates no trend.
+
+If the answer is Yes, the user must explicitly:
+
+- select at least two captures for one physical location or target;
+- supply stable `location_id`, `target_id`, and `temporal_group_id` values;
+- confirm that the selected captures show the same physical location;
+- confirm that every capture uses an accepted, comparable ROI;
+- review any GPS or recorded-identity conflict and provide a reason before an
+  override can be accepted;
+- decide whether to create another independent temporal group.
+
+A capture cannot belong to two groups in one plan. Timestamp proximity,
+directory membership, filename similarity, target display name, or nearby GPS
+coordinates never creates a temporal group automatically.
+
+Target-level temporal ranges do not require pixel registration, but they do
+require comparable accepted ROIs. Pixelwise range/change maps are stricter:
+they remain unavailable unless the user confirms reliable registration and
+records both a registration method and stable registration ID.
+
+## Cache and version identity
+
+The v0.3.2 processing version is `heat-index-urop-0.3.2`; canonical schema
+remains `0.2.0`. Cache identity includes source hashes, review decisions,
+official LUHK dependencies, target/polygon state, temperature and ambient
+definitions, capture time, configuration, implementation signatures, and
+artifact hashes. A relevant change invalidates the affected downstream cache.
+
+Temporal cache identity additionally includes the explicit group definition,
+same-location/ROI confirmations, conflict overrides, registration declaration,
+timezone, canonical hash, and expected group output files. A prior automatic or
+directory-wide temporal result is not reused as evidence for a new explicit
+group.

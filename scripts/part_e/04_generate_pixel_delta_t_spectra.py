@@ -26,6 +26,7 @@ from scipy import stats
 from part_e_pixel_common import (
     SAMPLE_FILES,
     ensure_output_directories,
+    gic_open_space_mask,
     load_config,
     project_path,
     write_csv,
@@ -55,6 +56,34 @@ FIGURE_STEMS = [
     "fig07_pixel_delta_t_sampling_stability",
     "fig08_pixel_delta_t_surface_cover_bootstrap_ci",
 ]
+OVERALL_COMPATIBILITY_COLUMNS = (
+    "measurement_type",
+    "temperature_source",
+    "temperature_definition",
+    "temperature_unit",
+    "ambient_source",
+    "ambient_definition",
+    "ambient_unit",
+    "ambient_data_qa_status",
+    "ambient_provenance",
+    "source_method",
+    "surface_cover_provenance",
+    "luhk_provenance",
+    "selection_scope",
+    "target_id",
+    "roi_definition",
+)
+
+
+def overall_source_stratum_count(frame: pd.DataFrame) -> int:
+    """Count formal source/ROI strata that must not be silently pooled."""
+
+    columns = [column for column in OVERALL_COMPATIBILITY_COLUMNS if column in frame.columns]
+    if frame.empty:
+        return 0
+    if not columns:
+        return 1
+    return len(frame.loc[:, columns].fillna("").astype(str).drop_duplicates())
 
 
 def parse_args() -> argparse.Namespace:
@@ -86,7 +115,9 @@ def readable_group(group_name: str, family: str) -> str:
     text = str(group_name)
     parts = text.split(" | ")
     source_keys = {
-        "measurement_type", "temperature_source", "temperature_definition", "source_method",
+        "measurement_type", "temperature_source", "temperature_definition", "temperature_unit",
+        "ambient_source", "ambient_definition", "ambient_unit", "ambient_data_qa_status", "ambient_provenance",
+        "source_method",
         "surface_cover_provenance", "luhk_provenance", "target_id", "target_name", "qa_status",
     }
     source_parts = [part for part in parts if part.split("=", 1)[0] in source_keys]
@@ -104,19 +135,6 @@ def readable_group(group_name: str, family: str) -> str:
         return f"{label}\n[{source_label}]" if source_label else label
     detail = " | ".join(detail_parts) or "unknown"
     return f"{detail}\n[{source_label}]" if source_label else detail
-
-
-def gic_open_space_mask(frame: pd.DataFrame) -> pd.Series:
-    """Recognize both the legacy numeric code and schema-0.2 vocabulary."""
-    if frame.empty:
-        return pd.Series(False, index=frame.index, dtype=bool)
-    codes = frame["luhk_class_code"].astype(str).str.casefold()
-    names = frame["luhk_class_name"].astype(str).str.casefold()
-    return (
-        codes.isin({"31", "gic_open_space"})
-        | names.str.contains("gic", regex=False)
-        | names.str.contains("open space", regex=False)
-    )
 
 
 def describe(values: np.ndarray) -> dict[str, float | int]:
@@ -225,11 +243,16 @@ def make_summary_rows(
     overall_full = int(overall_info["full_eligible_pixel_count"].sum())
     overall_copy = overall.copy()
     overall_copy["source_population_count"] = overall_full
-    overall_name = "All accepted schema-0.2 delta-temperature pixels"
+    overall_name = "All formal target-eligible schema-0.2 delta-temperature pixels"
+    stratum_count = overall_source_stratum_count(overall)
+    mixed_reason = (
+        f"{stratum_count} heterogeneous measurement/ROI/provenance strata are present; "
+        "they were not pooled into one overall density"
+    )
     add_row(
         "overall", "image_comparison", overall_name, overall_copy, None,
-        "unavailable" if overall.empty else None,
-        "no compatible finite delta-temperature pixels" if overall.empty else "",
+        "unavailable" if overall.empty else ("not_pooled_heterogeneous_sources" if stratum_count > 1 else None),
+        "no compatible finite delta-temperature pixels" if overall.empty else (mixed_reason if stratum_count > 1 else ""),
     )
     rows[-1]["n_pixels_full"] = overall_full
     rows[-1]["n_images_full"] = int(overall_info["full_image_count"].sum())
@@ -376,6 +399,16 @@ def overall_figure(
         unavailable_figure(
             directory, FIGURE_STEMS[0], "Overall pixel-level delta-temperature density spectrum",
             "no compatible finite ambient/delta-temperature observations",
+        )
+        return
+    stratum_count = overall_source_stratum_count(sample)
+    if stratum_count > 1:
+        unavailable_figure(
+            directory,
+            FIGURE_STEMS[0],
+            "Overall pixel-level delta-temperature density spectrum",
+            f"Not pooled: {stratum_count} heterogeneous measurement/ROI/provenance strata are present. "
+            "Use the source-aware LUHK, surface-cover, and per-image facets instead.",
         )
         return
     row = summary.loc[summary["analysis_family"].eq("overall")].iloc[0]
@@ -596,7 +629,7 @@ def write_captions(
     seed = int(config["sampling"]["primary_seed"])
     method = config["sampling"]["method"]
     common = (
-        f"One observation is one accepted finite thermal pixel with ΔT = temperature − image-level ambient temperature. "
+        f"One observation is one accepted finite thermal pixel that is analysis-eligible and inside target_mask, with ΔT = temperature − image-level ambient temperature. "
         f"Pixels were selected with {method} (primary seed {seed}); original pixel ΔT values were retained. "
         "Density is normalized within each group and does not encode pixel count. "
         "Spatial thinning improves dispersion but does not remove spatial autocorrelation, so pixels are not described as independent."
@@ -617,19 +650,19 @@ def write_captions(
         "",
         "## Figure 00 — Overall pixel-level ΔT density spectrum",
         "",
-        f"Accepted finite delta-temperature pixels from {image_count} schema-0.2 images are represented by the source- and image-stratified sampled-pixel dataset "
+        f"Accepted finite, analysis-eligible pixels inside target_mask from {image_count} schema-0.2 images are represented by the source- and image-stratified sampled-pixel dataset "
         f"(sampled n={int(overall['n_pixels_sampled']):,}; full eligible n={int(overall['n_pixels_full']):,}; "
         f"{int(overall['n_images'])}/{int(overall['n_images_full'])} images). The curve uses SciPy Gaussian KDE with Scott's bandwidth rule and is evaluated only across the observed sampled range. {common}",
         "",
         "## Figure 01 — Pixel-level ΔT spectrum by LUHK class",
         "",
-        f"Eligibility requires an accepted finite pixel and a valid approximate LUHK label. {counts_text(summary, 'luhk')}. "
+        f"Eligibility requires an accepted finite pixel inside the formal target mask and a valid approximate LUHK label. {counts_text(summary, 'luhk')}. "
         f"Groups below {config['sampling']['minimum_pixels_for_formal_plot']} sampled pixels are shown without a smoothed KDE. "
         f"Directly compared facets share x and y scales; KDEs use Scott's rule and stop at each group's observed range. {common}",
         "",
         "## Figure 02 — Pixel-level ΔT spectrum by physical surface cover",
         "",
-        f"Eligibility requires an accepted finite pixel and a reviewed valid physical-cover label. {counts_text(summary, 'surface_cover')}. "
+        f"Eligibility requires an accepted finite pixel inside the formal target mask and a reviewed valid physical-cover label. {counts_text(summary, 'surface_cover')}. "
         f"Facets share comparison scales; KDEs use Scott's rule and stop at observed group ranges. {common}",
         "",
         "## Figure 03 — Within-GIC pixel-level ΔT spectrum by physical surface cover",
@@ -645,7 +678,7 @@ def write_captions(
         "",
         "## Figure 05 — Pixel-level ΔT spectrum by image",
         "",
-        f"Eligibility is any accepted finite delta-temperature pixel in the schema-0.2 result set. {counts_text(summary, 'image_comparison')}. "
+        f"Eligibility requires accepted finite delta-temperature, analysis_eligible=true, and target_mask=true. {counts_text(summary, 'image_comparison')}. "
         f"Facets use a common comparison scale and Scott-rule KDEs evaluated only over observed image ranges. {common}",
         "",
         "## Figure 06 — Surface-cover × shadow spectrum",
@@ -673,7 +706,7 @@ def write_generation_summary(
         "# Part E formal pixel-level ΔT spectrum generation summary",
         "",
         "- Status: complete.",
-        "- Formal observation: one accepted finite thermal pixel.",
+        "- Formal observation: one accepted finite thermal pixel with analysis_eligible=true and target_mask=true.",
         f"- Primary sampling seed: {config['sampling']['primary_seed']}.",
         f"- Sampling method: `{config['sampling']['method']}`.",
         f"- KDE: SciPy `gaussian_kde`, `{config['spectrum']['kde_bandwidth_method']}` bandwidth, evaluated only within each group's observed sampled range.",

@@ -13,6 +13,7 @@ from PIL import ExifTags, Image, UnidentifiedImageError
 
 from scripts.camera_profiles import resolve_camera_parameters
 
+from .capture_time import dji_metadata_for_paths, resolve_capture_time
 from .models import GroupInput, ProcessingStatus, ValidationRecord, ValidationStatus
 
 
@@ -33,16 +34,6 @@ def image_identifier(path: Path) -> str:
     if match:
         return match.group("base")
     return re.sub(r"_[VT]$", "", path.stem, flags=re.IGNORECASE)
-
-
-def _capture_timestamp(path: Path) -> datetime | None:
-    match = DJI_NAME.match(path.stem)
-    if not match:
-        return None
-    try:
-        return datetime.strptime(match.group("timestamp"), "%Y%m%d%H%M%S")
-    except ValueError:
-        return None
 
 
 def _session(path: Path) -> str:
@@ -98,6 +89,7 @@ def validate_group(
     *,
     timestamp_warning_seconds: float = 5.0,
     temperature_shape: tuple[int, int] | None = None,
+    default_timezone: str = "Asia/Hong_Kong",
 ) -> ValidationRecord:
     """Validate Part A while separating fatal thermal and visible-only defects."""
     visible = Path(group.visible_path).expanduser().resolve()
@@ -134,19 +126,49 @@ def validate_group(
     v_id = image_identifier(visible)
     t_id = image_identifier(thermal)
     pairing_uncertain = False
+    discovery_warning = str(group.metadata_record.get("discovery_pairing_warning", "")).strip()
+    if bool(group.metadata_record.get("discovery_pairing_uncertain")):
+        pairing_uncertain = True
+    if discovery_warning:
+        warnings.append(f"dataset_pairing:{discovery_warning}")
     if v_id != t_id:
         warnings.append("filename_identifier_mismatch")
         pairing_uncertain = True
 
-    v_time = _capture_timestamp(visible)
-    t_time = _capture_timestamp(thermal)
-    capture_time = (t_time or v_time).isoformat() if (t_time or v_time) else ""
-    if v_time and t_time:
-        difference = abs((v_time - t_time).total_seconds())
+    dji_records = dji_metadata_for_paths([thermal, visible])
+    capture = resolve_capture_time(
+        thermal_path=thermal,
+        visible_path=visible,
+        dji_metadata_records=dji_records,
+        user_metadata=group.metadata_record,
+        default_timezone=default_timezone,
+    )
+    capture_time = capture.capture_datetime
+    thermal_records = [row for row in dji_records if str(row.get("image_type", "")).casefold() == "thermal"]
+    visible_records = [row for row in dji_records if str(row.get("image_type", "")).casefold() == "visible"]
+    thermal_capture = resolve_capture_time(
+        thermal_path=thermal,
+        dji_metadata_records=thermal_records,
+        user_metadata=group.metadata_record,
+        default_timezone=default_timezone,
+    )
+    visible_capture = resolve_capture_time(
+        thermal_path=visible,
+        dji_metadata_records=visible_records,
+        user_metadata=group.metadata_record,
+        default_timezone=default_timezone,
+    )
+    if thermal_capture.capture_time_valid and visible_capture.capture_time_valid:
+        difference = abs(
+            (
+                datetime.fromisoformat(thermal_capture.capture_time_utc)
+                - datetime.fromisoformat(visible_capture.capture_time_utc)
+            ).total_seconds()
+        )
         if difference > timestamp_warning_seconds:
             warnings.append(f"timestamp_difference_seconds:{difference:g}")
             pairing_uncertain = True
-    else:
+    if not capture.capture_time_valid:
         warnings.append("capture_timestamp_unavailable")
 
     v_session = _session(visible)
@@ -156,18 +178,35 @@ def validate_group(
         pairing_uncertain = True
 
     supplied = dict(group.metadata_record)
-    metadata_source = str(_metadata_value(supplied, "metadata_source") or ("supplied_record" if supplied else "embedded_exif"))
-    altitude = _number(_metadata_value(supplied, "relative_altitude", "absolute_altitude", "gps_altitude", "altitude_m"))
-    latitude = _number(_metadata_value(supplied, "gps_latitude", "latitude"))
-    longitude = _number(_metadata_value(supplied, "gps_longitude", "longitude"))
+    thermal_dji = next(
+        (record for record in dji_records if str(record.get("image_type", "")).casefold() == "thermal"),
+        dji_records[0] if dji_records else {},
+    )
+    visible_dji = next(
+        (record for record in dji_records if str(record.get("image_type", "")).casefold() == "visible"),
+        thermal_dji,
+    )
+    spatial_metadata = {**thermal_dji, **supplied}
+    camera_metadata = {**visible_dji, **supplied}
+    if supplied and thermal_dji:
+        metadata_source = "dji_metadata_table+user_supplied_record"
+    elif supplied:
+        metadata_source = str(_metadata_value(supplied, "metadata_source") or "supplied_record")
+    elif thermal_dji:
+        metadata_source = "data/metadata/dji_image_metadata.xlsx"
+    else:
+        metadata_source = "embedded_exif"
+    altitude = _number(_metadata_value(spatial_metadata, "relative_altitude", "absolute_altitude", "gps_altitude", "altitude_m"))
+    latitude = _number(_metadata_value(spatial_metadata, "gps_latitude", "latitude"))
+    longitude = _number(_metadata_value(spatial_metadata, "gps_longitude", "longitude"))
     camera_model = str(
-        _metadata_value(supplied, "camera_model", "model")
+        _metadata_value(camera_metadata, "camera_model", "model")
         or visible_meta.get("camera_model")
         or thermal_meta.get("camera_model")
         or ""
     )
-    focal = _number(_metadata_value(supplied, "focal_length", "focal_length_mm") or visible_meta.get("focal_length"))
-    camera_row = {**visible_meta, **supplied, "camera_model": camera_model, "focal_length": focal}
+    focal = _number(_metadata_value(camera_metadata, "focal_length", "focal_length_mm") or visible_meta.get("focal_length"))
+    camera_row = {**visible_meta, **camera_metadata, "camera_model": camera_model, "focal_length": focal}
     try:
         profile = resolve_camera_parameters(camera_row, target_image_type="visible") if visible_valid else {}
     except (KeyError, TypeError, ValueError):
@@ -214,6 +253,13 @@ def validate_group(
         visible_path=visible.as_posix(),
         thermal_path=thermal.as_posix(),
         capture_time=capture_time,
+        capture_datetime=capture.capture_datetime,
+        capture_time_local=capture.capture_time_local,
+        capture_time_utc=capture.capture_time_utc,
+        capture_timezone=capture.capture_timezone,
+        capture_time_source=capture.capture_time_source,
+        timezone_assumption=capture.timezone_assumption,
+        capture_time_valid=capture.capture_time_valid,
         session=t_session or v_session,
         altitude_m=altitude,
         gps_latitude=latitude,
@@ -249,28 +295,69 @@ def discover_dataset_groups(dataset_root: Path, dataset_id: str | None = None) -
     root = dataset_root.expanduser().resolve()
     if not root.is_dir():
         raise FileNotFoundError(f"Dataset directory does not exist: {root}")
-    by_key: dict[tuple[Path, str], dict[str, Path]] = {}
+    # DJI visible/thermal frames often have adjacent timestamps (typically one
+    # second apart) while retaining the same sample counter.  Discover by
+    # session directory + sample counter, then pair only when the candidate is
+    # unique and temporally close.  Ambiguous inputs remain thermal-only rather
+    # than being silently attached to the wrong visible frame.
+    by_sample: dict[tuple[Path, str], dict[str, list[tuple[Path, str, str]]]] = {}
     for path in sorted(root.rglob("*")):
         if not path.is_file() or path.suffix.lower() not in SUPPORTED_IMAGE_TYPES:
             continue
         match = DJI_NAME.match(path.stem)
         if not match:
             continue
-        key = (path.parent, match.group("base"))
-        by_key.setdefault(key, {})[match.group("role").upper()] = path
+        key = (path.parent, match.group("sample"))
+        by_sample.setdefault(key, {}).setdefault(match.group("role").upper(), []).append(
+            (path, match.group("timestamp"), match.group("base"))
+        )
     groups: list[GroupInput] = []
     resolved_dataset_id = dataset_id or root.name
-    for (_, base), roles in sorted(by_key.items(), key=lambda item: str(item[0])):
-        if "T" not in roles:
-            continue
-        groups.append(
-            GroupInput(
-                group_id=f"{resolved_dataset_id}::{base}",
-                visible_path=str(roles.get("V", "")),
-                thermal_path=str(roles["T"]),
-                dataset_id=resolved_dataset_id,
+    for (_, _sample), roles in sorted(by_sample.items(), key=lambda item: str(item[0])):
+        visibles = roles.get("V", [])
+        for thermal, thermal_stamp, thermal_base in roles.get("T", []):
+            exact = [item for item in visibles if item[2].casefold() == thermal_base.casefold()]
+            close: list[tuple[Path, str, str, float]] = []
+            thermal_time = datetime.strptime(thermal_stamp, "%Y%m%d%H%M%S")
+            for visible, visible_stamp, visible_base in visibles:
+                visible_time = datetime.strptime(visible_stamp, "%Y%m%d%H%M%S")
+                difference = abs((thermal_time - visible_time).total_seconds())
+                if difference <= 10.0:
+                    close.append((visible, visible_stamp, visible_base, difference))
+            metadata: dict[str, Any] = {}
+            selected_visible: Path | None = None
+            if len(exact) == 1:
+                selected_visible = exact[0][0]
+                metadata["discovery_pairing_method"] = "exact_dji_base"
+            elif len(close) == 1:
+                selected_visible = close[0][0]
+                metadata.update({
+                    "discovery_pairing_method": "session_sample_unique_timestamp_tolerance",
+                    "discovery_timestamp_difference_seconds": close[0][3],
+                    "discovery_pairing_uncertain": True,
+                })
+            elif len(close) > 1:
+                metadata.update({
+                    "discovery_pairing_method": "ambiguous_unpaired",
+                    "discovery_pairing_warning": "multiple_visible_candidates_within_10_seconds",
+                    "discovery_visible_candidate_count": len(close),
+                    "discovery_pairing_uncertain": True,
+                })
+            else:
+                metadata.update({
+                    "discovery_pairing_method": "thermal_only_no_close_visible_candidate",
+                    "discovery_pairing_warning": "no_unique_visible_candidate_within_10_seconds",
+                    "discovery_pairing_uncertain": True,
+                })
+            groups.append(
+                GroupInput(
+                    group_id=f"{resolved_dataset_id}::{thermal_base}",
+                    visible_path=str(selected_visible or ""),
+                    thermal_path=str(thermal),
+                    dataset_id=resolved_dataset_id,
+                    metadata_record=metadata,
+                )
             )
-        )
     return groups
 
 

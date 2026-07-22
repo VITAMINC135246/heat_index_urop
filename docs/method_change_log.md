@@ -1,5 +1,67 @@
 # Method Change Log
 
+## 2026-07-22 Version 0.3.2 LUHK restoration and same-location temporal analysis
+
+Version 0.3.2 keeps canonical schema `0.2.0` and changes the processing version
+to `heat-index-urop-0.3.2`. This is an orchestration, provenance, and analysis
+validity update; it does not redefine the established LUHK classification.
+The Part C LUHK work is deliberately a reconnection of the older verified
+method, not a new land-use algorithm: it retains the official 10 m cell mapping,
+controlled category vocabulary, and metadata-derived north-up footprint
+assumptions. New work is limited to native-grid exposure, dependency and
+consistency checks, explicit unavailable states, provenance, cache wiring, GUI
+display, and downstream Part E integration.
+
+- Reconnected the existing Part C official 10 m LUHK pixel-centre mapping to
+  normal-route canonical arrays, manifests, cache dependencies, Part C's
+  read-only context panel, and all supported Part E LUHK outputs. The mapping
+  retains its metadata-derived north-up footprint uncertainty and remains
+  separate from user-reviewed visible surface cover.
+- Kept Part C* LUHK target-scoped: accepted polygon pixels may carry reviewed
+  LUHK context, while polygon exterior pixels remain unknown and ineligible.
+- Made temporal analysis opt-in and prohibited automatic grouping by dataset,
+  run, filename, time, source, or cover. Every group now requires explicit
+  same-location and comparable-ROI confirmation; conflicting spatial evidence
+  requires a recorded manual override.
+- Added observed hottest/coolest captures and times, representative ROI and
+  absolute pixel peak-to-trough ranges, compatible ΔT ranges, sampling-window
+  honesty, multiple independent groups, and registration-gated pixelwise maps.
+- Repaired capture-time propagation from EXIF/DJI/user/filename sources through
+  Part A, canonical pixels, Part E, temporal tables, and readable user reports,
+  with explicit fallback provenance for older manifests.
+- Restricted formal Part E sampling and statistics to accepted finite,
+  analysis-eligible target pixels; polygon exterior rows remain in canonical
+  storage but cannot enter target statistics.
+- Made formal Part E output run-scoped. Each workflow run now writes to its own
+  `part_e/schema_0_2/<run_id>/` root, and `USER_RESULTS.md` points to that exact
+  root; persistent canonical images may be reused without overwriting or
+  confusing the scientific outputs of another run.
+- Extended the ordinary-user launcher with conversational temporal decisions,
+  several explicitly selected V/T groups, repeatable TAT3 reports, and readable
+  final results without user-authored JSON or configuration files.
+
+Local real-data acceptance evidence on 2026-07-22 confirmed the GUI terminal
+contract: normal Part C Cancel returned non-accepted and did not create a new
+successful canonical result, while Accept returned accepted and continued to
+canonical creation. It also completed the explicitly confirmed three-capture
+football-field group `hkust-football-field-20260202` under workflow run
+`run_20260722T053855Z`: three EXIF-timed captures produced a 20.362969 degC
+ROI-mean observed range, a 40.37802 degC absolute-pixel range, and a provisional
+24.36297 degC ROI-mean delta-T range. The accepted polygons vary, so the result
+is target-level only; cross-capture pixel registration is unconfirmed and the
+09:11:28--17:04:53 window is not a full day. A separate six-image run
+`run_20260722T055625Z` completed all five normal-pilot routes plus the football
+Part C* route. Its run-scoped Part E subsequently completed final validation
+with exactly six image IDs, 8 spectrum PNG/PDF pairs and 48 spatial PNG/PDF
+pairs. The single football capture receives full descriptive statistics but no
+fabricated temporal trend, peak-to-trough estimate, or blank temporal figure.
+
+The stability stage now caches the seed-invariant eligibility, source strata,
+spatial-tile plan and quotas once per family, then performs an O(N) segmented
+minimum for each deterministic seed. Regression tests compare the complete
+sample and manifest against the prior sampler for multiple seeds; selected
+original pixels and scientific sampling rules are unchanged.
+
 ## 2026-07-18 Version 0.3 spatial and temporal integration
 
 Version 0.3 preserves the validated A–E scientific methods and keeps canonical

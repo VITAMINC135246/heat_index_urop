@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import re
+import textwrap
 from pathlib import Path
 from typing import Any
 
@@ -74,6 +75,16 @@ def save(fig: plt.Figure, directory: Path, stem: str) -> list[Path]:
     return paths
 
 
+def finish_with_caption(fig: plt.Figure, caption: str) -> None:
+    """Reserve a real caption band instead of drawing over the x axis."""
+
+    wrapped = textwrap.fill(str(caption), width=145, break_long_words=False)
+    line_count = max(1, wrapped.count("\n") + 1)
+    bottom = min(0.30, 0.09 + 0.035 * line_count)
+    fig.text(0.075, 0.018, wrapped, ha="left", va="bottom", fontsize=8.5)
+    fig.tight_layout(rect=[0, bottom, 1, 1])
+
+
 def finite_limits(matrix: np.ndarray) -> tuple[float, float] | None:
     values = matrix[np.isfinite(matrix)]
     if not values.size:
@@ -117,8 +128,7 @@ def scalar_map(
     axis.set_title(title)
     axis.set_xlabel("Thermal column / pixel_x")
     axis.set_ylabel("Thermal row / pixel_y")
-    axis.text(0, -0.13, source, transform=axis.transAxes, fontsize=9, wrap=True)
-    fig.tight_layout()
+    finish_with_caption(fig, source)
     return save(fig, directory, stem)
 
 
@@ -149,8 +159,7 @@ def categorical_overlay(
     axis.set_title(title)
     axis.set_xlabel("Thermal column / pixel_x")
     axis.set_ylabel("Thermal row / pixel_y")
-    axis.text(0, -0.13, source, transform=axis.transAxes, fontsize=9, wrap=True)
-    fig.tight_layout()
+    finish_with_caption(fig, source)
     return save(fig, directory, stem)
 
 
@@ -177,15 +186,11 @@ def target_overlay(
     axis.set_title(title)
     axis.set_xlabel("Thermal column / pixel_x")
     axis.set_ylabel("Thermal row / pixel_y")
-    axis.text(
-        0,
-        -0.15,
-        "Accepted boundary in orange; green is inside target. Outside context remains unknown and is not extrapolated.\n" + source,
-        transform=axis.transAxes,
-        fontsize=9,
-        wrap=True,
+    finish_with_caption(
+        fig,
+        "Accepted boundary in orange; green is inside target. "
+        "Outside context remains unknown and is not extrapolated. " + source,
     )
-    fig.tight_layout()
     return save(fig, directory, stem)
 
 
@@ -210,15 +215,11 @@ def shadow_overlay(
     axis.set_title(title)
     axis.set_xlabel("Thermal column / pixel_x")
     axis.set_ylabel("Thermal row / pixel_y")
-    axis.text(
-        0,
-        -0.13,
-        f"Known shadow pixels: {int(shadow_known.sum()):,}; shadow_flag=1: {int((shadow_known & shadow).sum()):,}. {source}",
-        transform=axis.transAxes,
-        fontsize=9,
-        wrap=True,
+    finish_with_caption(
+        fig,
+        f"Known shadow pixels: {int(shadow_known.sum()):,}; "
+        f"shadow_flag=1: {int((shadow_known & shadow).sum()):,}. {source}",
     )
-    fig.tight_layout()
     return save(fig, directory, stem)
 
 
@@ -251,8 +252,7 @@ def eligibility_map(
     axis.set_title(title)
     axis.set_xlabel("Thermal column / pixel_x")
     axis.set_ylabel("Thermal row / pixel_y")
-    axis.text(0, -0.13, source, transform=axis.transAxes, fontsize=9, wrap=True)
-    fig.tight_layout()
+    finish_with_caption(fig, source)
     return save(fig, directory, stem)
 
 
