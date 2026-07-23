@@ -49,9 +49,63 @@ def main() -> int:
     stability = pd.read_csv(tables / "part_e_sampling_stability.csv")
     tests = pd.read_csv(tables / "part_e_pixel_statistical_tests.csv")
     effects = pd.read_csv(tables / "part_e_pixel_effect_sizes.csv")
-    ambient = pd.read_csv(project_path(config["inputs"]["ambient_manifest"]))
     primary_seed = int(config["sampling"]["primary_seed"])
     overall = summary.loc[summary["analysis_family"].eq("overall")].iloc[0]
+    canonical_value = str(config.get("outputs", {}).get("canonical_parquet", ""))
+    canonical_path = project_path(canonical_value) if canonical_value else None
+    canonical = pd.read_parquet(canonical_path) if canonical_path and canonical_path.is_file() else pd.DataFrame()
+    image_ids = (
+        sorted(canonical["image_id"].astype(str).unique())
+        if "image_id" in canonical
+        else list(map(str, config.get("pilot_image_ids", [])))
+    )
+    image_count = len(image_ids) or int(overall["n_images_full"])
+    source_methods = (
+        sorted(canonical["source_method"].dropna().astype(str).unique())
+        if "source_method" in canonical
+        else []
+    )
+    measurement_types = (
+        sorted(canonical["measurement_type"].dropna().astype(str).unique())
+        if "measurement_type" in canonical
+        else []
+    )
+    shadow_known = int(canonical.get("shadow_valid", pd.Series(dtype=bool)).fillna(False).astype(bool).sum())
+    shadow_present = int(
+        (
+            canonical.get("shadow_valid", pd.Series(False, index=canonical.index)).fillna(False).astype(bool)
+            & pd.to_numeric(
+                canonical.get("shadow_flag", pd.Series(0, index=canonical.index)), errors="coerce"
+            ).fillna(0).astype(int).eq(1)
+        ).sum()
+    )
+    if not canonical.empty and "ambient_temperature_c" in canonical:
+        ambient_columns = [
+            column for column in (
+                "image_id", "ambient_temperature_c", "ambient_source", "ambient_definition",
+                "ambient_data_qa_status", "ambient_provenance", "ambient_source_record",
+            ) if column in canonical
+        ]
+        ambient = canonical.loc[:, ambient_columns].drop_duplicates(subset=["image_id"]).copy()
+    else:
+        legacy_ambient = project_path(config.get("inputs", {}).get("ambient_manifest", ""))
+        ambient = pd.read_csv(legacy_ambient) if legacy_ambient.is_file() else pd.DataFrame()
+    overall_status = str(overall.get("kde_status", "unavailable"))
+    if overall_status == "eligible":
+        overall_text = (
+            f"The source-compatible image-stratified sample contains {int(overall['n_pixels_sampled']):,} pixels "
+            f"from {int(overall['n_images'])} images, representing {int(overall['n_pixels_full']):,} formal "
+            f"target-eligible pixels. Median ΔT is {fmt(overall['median_sampled'])} °C, mean is "
+            f"{fmt(overall['mean_sampled'])} °C, Q25–Q75 is {fmt(overall['q25_sampled'])} to "
+            f"{fmt(overall['q75_sampled'])} °C, and Q05–Q95 is {fmt(overall['q05_sampled'])} to "
+            f"{fmt(overall['q95_sampled'])} °C. Curve height is normalized density, not pixel count."
+        )
+    else:
+        overall_text = (
+            "A single overall density was not produced because the accepted pixels contain heterogeneous "
+            f"measurement/ROI/provenance strata ({overall.get('eligibility_or_skipped_reason', overall_status)}). "
+            "Use the source-aware LUHK, surface-cover, and per-image facets; no pooled curve is treated as primary."
+        )
 
     stable_groups = stability.loc[stability["record_type"].eq("group")].copy()
     stability_lines: list[str] = []
@@ -70,29 +124,29 @@ def main() -> int:
     lines = [
         "# Part E formal pixel-level ΔT spectrum and statistical summary",
         "",
-        "> Provisional five-image HKUST pilot. Part D apparent-temperature radiometric plausibility review and the image-level TAT3 ambient parameters remain limitations; results do not generalize to all of Hong Kong.",
+        f"> Provisional analysis of {image_count} accepted capture(s). Results describe only these inputs and do not generalize to all of Hong Kong. Source methods: {', '.join(source_methods) or 'not recorded'}; measurement types: {', '.join(measurement_types) or 'not recorded'}.",
         "",
         "## Method and observation unit",
         "",
-        "The formal observation is one original thermal pixel. For every accepted finite pixel:",
+        "The formal observation is one original thermal pixel. Every formal pixel is accepted, finite, analysis-eligible, and inside target_mask:",
         "",
         "```text",
         "delta_t_c = temperature_c - ambient_temperature_c",
         "```",
         "",
-        f"All {int(overall['n_pixels_full']):,} accepted finite pilot pixels remain in the canonical Parquet. Formal plots use dispersed individual pixels selected by `{config['sampling']['method']}` with primary seed {primary_seed}; neither 10 m LUHK cells nor 8 px sampling tiles are averaged. Spatial thinning does not remove spatial autocorrelation, so sampled pixels are not described as independent observations.",
+        f"The canonical Parquet retains the complete source rasters; {int(overall['n_pixels_full']):,} accepted finite pixels also satisfy analysis_eligible=true and target_mask=true and therefore enter formal Part E. Pixels outside a reviewed polygon target remain descriptive source data only and are excluded from these counts. Formal plots use dispersed individual pixels selected by `{config['sampling']['method']}` with primary seed {primary_seed}; neither 10 m LUHK cells nor sampling tiles are averaged. Spatial thinning does not remove spatial autocorrelation, so sampled pixels are not described as independent observations.",
         "",
         "Here, spectrum means the statistical distribution/density spectrum of pixel-level ΔT, not an electromagnetic reflectance or multispectral-band spectrum. Python/SciPy is the formal plotting engine; density curves use Scott's bandwidth rule, common comparison axes, and no extrapolation beyond each group's observed sampled range.",
         "",
         "## 1. Overall pixel ΔT spectrum",
         "",
-        f"The overall image-stratified sample contains {int(overall['n_pixels_sampled']):,} pixels from {int(overall['n_images'])} images, representing {int(overall['n_pixels_full']):,} accepted finite pixels. Median ΔT is {fmt(overall['median_sampled'])} °C, mean is {fmt(overall['mean_sampled'])} °C, Q25–Q75 is {fmt(overall['q25_sampled'])} to {fmt(overall['q75_sampled'])} °C, and Q05–Q95 is {fmt(overall['q05_sampled'])} to {fmt(overall['q95_sampled'])} °C. Figure 00 should be used with the descriptive table; curve height is normalized density, not pixel count.",
+        overall_text,
         "",
         "## 2. LUHK spectra",
         "",
         *group_lines(summary, "luhk"),
         "",
-        "LUHK class 51 has too few sampled pixels for a smooth spectrum. Codes 71, 72, and 73 retain separate official codes even where their displayed broad names coincide. The approximate north-up footprint-to-LUHK assignment remains a spatial-label limitation.",
+        "LUHK categories and provenance are read from the current canonical inputs. Official lookup and user-supplied target context remain separate strata. Approximate north-up footprint assignment remains a spatial-label limitation and does not imply surveyed pixel precision.",
         "",
         "## 3. Physical surface-cover spectra",
         "",
@@ -110,7 +164,7 @@ def main() -> int:
         "",
         *group_lines(summary, "image_comparison"),
         "",
-        "Between-image location and shape differences are visible in Figure 05. Because the pilot contains only five temporally adjacent images, these differences are a consistency check rather than an estimate of broad temporal or city-wide variability.",
+        f"Between-image location and shape differences are visible in Figure 05 for {image_count} accepted capture(s). This is a descriptive consistency view, not a temporal series: only captures explicitly confirmed as the same physical target may be compared through time.",
         "",
         "## 6. Sampling stability",
         "",
@@ -122,55 +176,67 @@ def main() -> int:
         "",
         f"The formal sampled-pixel tables contain {len(effects):,} effect-size rows and {len(tests):,} statistical-test rows ({len(executed_tests):,} executed and {len(skipped_tests):,} skipped under coverage rules). P-values are exploratory, use false-discovery-rate adjustment where applicable, and support rather than replace the spectrum interpretation. Conclusions should cross-reference distribution summaries, effect sizes, image coverage, and seed stability.",
         "",
-        "The surface-cover × shadow contrast is **not estimable** because the five reviewed masks contain no valid `shadow_flag=1` pixels. No shadow-present observations or empty spectrum figure were created.",
+        (
+            f"Shadow availability in the current canonical data: {shadow_known:,} known pixels and "
+            f"{shadow_present:,} shadow-present pixels. A within-cover shadow contrast is reported only where "
+            "both states meet the configured coverage rules; no missing state is fabricated."
+        ),
         "",
         "## 8. Uncertainty summary and supporting boxplots",
         "",
-        f"Figure 08 reports sampled medians with percentile 95% bootstrap intervals from {config['statistics']['bootstrap_repetitions']:,} pixel resamples. These intervals are descriptive because neighbouring-pixel correlation remains. Existing boxplots, coverage charts, image comparisons, the earlier stability chart, and the mean-CI chart are supporting outputs under `outputs/part_e/figures/excel/`; they are not the primary figure family.",
+        f"Figure 08 reports sampled medians with percentile 95% bootstrap intervals from {config['statistics']['bootstrap_repetitions']:,} pixel resamples. These intervals are descriptive because neighbouring-pixel correlation remains. Boxplots, coverage charts, image comparisons and stability charts, when requested, are supporting outputs under `{project_path(config['outputs']['excel_figures']).resolve().as_posix()}`; they are not the primary figure family.",
         "",
         "## 9. Spatial QA",
         "",
-        "Full-pixel temperature, ΔT, LUHK, physical-cover, shadow, and combined panels under `outputs/part_e/figures/spatial_maps/` support alignment and spatial interpretation. They do not replace the sampled-pixel distribution analysis.",
+        f"Full-pixel temperature, ΔT, LUHK, physical-cover, shadow, target/eligibility, and combined panels under `{project_path(config['outputs']['spatial_maps']).resolve().as_posix()}` support alignment and spatial interpretation. They do not replace the sampled-pixel distribution analysis.",
         "",
         "## 10. Excel deliverables",
         "",
-        "The main statistical workbook and five pilot pixel workbooks are preserved as interactive delivery layers. Native Excel charts are supporting figures. Excel COM is not required for the formal Python spectrum stage, and future batch runs should not create hundreds of full per-image workbooks unless explicitly requested.",
+        "Excel workbooks and native charts are optional supporting delivery layers. Excel COM is not required for the formal Python spectrum stage, and batch runs do not create full per-image workbooks unless explicitly requested.",
         "",
         "## Ambient parameters used",
         "",
-        "| Image | Ambient temperature (°C) | Source | Validation status |",
-        "|---|---:|---|---|",
+        "| Image | Ambient temperature (°C) | Source / definition | QA status | Provenance / source record |",
+        "|---|---:|---|---|---|",
     ]
-    for row in ambient.itertuples(index=False):
+    for _, row in ambient.iterrows():
+        source = str(row.get("ambient_source", row.get("source", "unavailable")))
+        definition = str(row.get("ambient_definition", row.get("definition", "unavailable")))
+        qa = str(row.get("ambient_data_qa_status", row.get("validation_status", "unavailable")))
+        provenance = str(row.get("ambient_provenance", "unavailable"))
+        source_record = str(row.get("ambient_source_record", row.get("source_record", "")))
+        ambient_value = pd.to_numeric(row.get("ambient_temperature_c"), errors="coerce")
         lines.append(
-            f"| {row.image_id} | {float(row.ambient_temperature_c):.1f} | {row.ambient_source} | {row.validation_status} |"
+            f"| {row.get('image_id', 'unavailable')} | {fmt(ambient_value, 1)} | "
+            f"{source} / {definition} | {qa} | {provenance}"
+            + (f" / {source_record}" if source_record and source_record != "nan" else "")
+            + " |"
         )
     lines.extend([
         "",
         "## Primary outputs",
         "",
-        "- Formal figures and captions: `outputs/part_e/figures/spectrum/`.",
-        "- Spectrum source/summary table: `outputs/part_e/tables/part_e_pixel_delta_t_spectrum_summary.csv`.",
-        "- Grouped sampled/full summaries: `outputs/part_e/tables/part_e_delta_t_by_*_pixels.csv`.",
-        "- Effect sizes and exploratory tests: `outputs/part_e/tables/part_e_pixel_effect_sizes.csv` and `part_e_pixel_statistical_tests.csv`.",
-        "- Final QA: `outputs/part_e/qa/part_e_final_qa.md`.",
+        f"- Formal figures and captions: `{project_path(config['outputs']['spectrum_figures']).resolve().as_posix()}`.",
+        f"- Spectrum and grouped-statistics tables: `{tables.resolve().as_posix()}`.",
+        f"- Spatial figures: `{project_path(config['outputs']['spatial_maps']).resolve().as_posix()}`.",
+        f"- QA: `{project_path(config['outputs']['qa']).resolve().as_posix()}`.",
         "",
         "## Reproducibility",
         "",
         "```powershell",
-        ".\\.venv\\Scripts\\python.exe scripts\\part_e\\run_part_e_pipeline.py --config config\\part_e_delta_t_analysis.json --resume --from-stage spectrum --to-stage spectrum",
-        ".\\.venv\\Scripts\\python.exe scripts\\part_e\\run_part_e_pipeline.py --config config\\part_e_delta_t_analysis.json --resume --from-stage final-qa --to-stage report",
+        f'.\\.venv\\Scripts\\python.exe scripts\\part_e\\run_part_e_pipeline.py --config "{project_path(args.config).resolve()}" --resume --from-stage spectrum --to-stage spectrum',
+        f'.\\.venv\\Scripts\\python.exe scripts\\part_e\\run_part_e_pipeline.py --config "{project_path(args.config).resolve()}" --resume --from-stage final-qa --to-stage report',
         "```",
         "",
-        "The superseded cell-level scripts and their generated outputs were removed from the active tree after the pixel workflow was validated. They remain recoverable from Git history and the pre-validation checkpoint tag.",
+        "The report is generated from the current canonical pixels and current stage tables; it does not assume a fixed pilot image list.",
         "",
         "## Limitations",
         "",
-        "- Only five HKUST pilot images are included; results do not generalize to all of Hong Kong.",
-        "- TAT3 ambient parameters and Part D apparent-temperature physical plausibility remain provisional.",
+        f"- Only the {image_count} accepted capture(s) listed in this run are represented; results do not generalize to all of Hong Kong.",
+        "- Ambient definitions, QA and source records above govern whether ΔT strata may be combined; provisional parameters remain provisional.",
         "- Neighbouring thermal pixels remain spatially correlated after thinning.",
         "- LUHK pixel labels use an approximate north-up footprint model that ignores recorded yaw.",
-        "- No shadow-present pixels are available, so a shadow effect is not estimable.",
+        f"- Shadow evidence is data-dependent ({shadow_present:,} current shadow-present pixels); a contrast is unavailable unless both states meet coverage rules.",
         "- Exploratory p-values do not establish causal or city-wide effects.",
     ])
     output = project_path(config["outputs"]["summaries"]) / "part_e_round1_delta_t_analysis_summary.md"

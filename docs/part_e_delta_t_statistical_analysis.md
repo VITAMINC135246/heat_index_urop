@@ -159,3 +159,49 @@ implementations. They remain recoverable from Git history and the
 - LUHK labels use an approximate north-up footprint model that ignores recorded
   yaw.
 - No shadow-present pixels are available, so a shadow effect is not estimable.
+
+## Version 0.1 multi-source ingestion
+
+The formal pipeline now derives native image dimensions and retains
+`source_method`, `label_provenance`, `label_known`, `analysis_eligible`,
+`exclusion_reason`, `target_name`, and annotation-review status where provided.
+Polygon exterior pixels cannot enter a surface-cover analysis family, and
+source methods are kept explicit rather than silently pooled. The project-level
+entry point writes a compatible combined Parquet and per-image descriptive
+summary; the numbered formal scripts remain the statistics, KDE, plot, QA, and
+resume implementation. Full pixel CSV and Excel generation are opt-in.
+
+## Version 0.2 schema-0.2 formal runner
+
+The formal runner now accepts schema-0.2 manifest lists, run summaries, or a
+combined Parquet without legacy XLSX ingestion. It still invokes the preserved
+spatial-thinning, exploratory statistics, effect-size, stability, SciPy KDE,
+plot, QA, resume, and reporting stages. Image dimensions are dynamic and LUHK,
+shadow, and ambient may be unavailable. Unavailable families receive explicit
+QA output; no label or ambient value is imputed.
+
+Every primary group name/table retains measurement type, temperature source,
+source method, cover provenance, LUHK provenance, target, and QA. Image-specific
+figures and equal-image dashboards keep image/capture time as the temporal unit.
+Pixels, manual points, and region statistics remain within-image observations.
+No default formal inference silently pools sources; any pooled sensitivity file
+must be explicitly requested and labelled.
+
+## Version 0.3 spatial and temporal extension
+
+The v0.3 formal runner preserves the sampled-pixel statistics, effect sizes,
+stability analysis, and KDE spectra, then runs schema-aware spatial figures
+from the same canonical Parquet. Normal and polygon pixels retain native dynamic
+dimensions, source/measurement provenance, target boundaries, eligibility, and
+unknown/unavailable layer semantics. Spatial completeness is checked against
+the canonical SHA-256 and an explicit file manifest.
+
+Temporal analysis is capture-level. One image/capture time is one temporal
+observation; pixels, polygon pixels, TAT3 points, and TAT3 regions are
+within-image spatial measurements. Per-capture min/max/mean/median/q01/q95/q99
+are calculated first, and cross-time summaries use equal capture weighting.
+Measurement type, temperature source/definition, ambient source/definition,
+target ID, provenance, and QA remain separate compatibility strata. Missing
+ambient values are not imputed. No interpolation is performed; one capture is
+descriptive but not a trend, and all multi-capture interpretation remains
+exploratory. Descriptive quantile bands are not confidence intervals.

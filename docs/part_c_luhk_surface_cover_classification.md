@@ -152,3 +152,11 @@ Do not rerun Round 1 scripts after manual review unless the annotation workbooks
 - Do not use `shadow` as a physical surface-cover label.
 - Do not extract thermal temperature or calculate delta T in Part C.
 - Do not train CNN, U-Net, or other supervised models in Part C.
+# Version 0.2 integration
+
+Normal Part C now has a local reviewed-superpixel GUI that calls the existing
+SLIC and final thermal-grid mask computations. Suggestions are not accepted
+labels; unknown and shadow remain separate. The thermal-only Part C* route now
+requires target, surface cover, LUHK category, and independent LUHK provenance.
+User-supplied target context is known only inside `target_mask.npy`; the
+exterior remains unknown and target-ineligible.

@@ -31,6 +31,7 @@ from PIL import Image, ImageColor, ImageDraw, ImageOps
 from skimage import color, segmentation
 
 from table_io import read_table, write_rows
+from workflow.part_b_review import accepted_alignment_rows
 
 
 PART_B_ALIGNMENT_SUMMARY_XLSX = (
@@ -1106,9 +1107,7 @@ def main() -> int:
     footprints_df = read_table(FOOTPRINTS_XLSX)
     manifest_df = load_optional_xlsx(PART_B_LOCAL_MANIFEST_XLSX)
 
-    accepted_df = alignment_df.copy()
-    if "alignment_quality" in accepted_df.columns:
-        accepted_df = accepted_df.loc[accepted_df["alignment_quality"].astype(str).str.casefold().eq("acceptable")]
+    accepted_df = accepted_alignment_rows(alignment_df)
     if accepted_df.empty:
         print("No accepted Part B alignment rows found.", file=sys.stderr)
         return 1

@@ -26,6 +26,7 @@ from scipy import stats
 from part_e_pixel_common import (
     SAMPLE_FILES,
     ensure_output_directories,
+    gic_open_space_mask,
     load_config,
     project_path,
     write_csv,
@@ -55,6 +56,34 @@ FIGURE_STEMS = [
     "fig07_pixel_delta_t_sampling_stability",
     "fig08_pixel_delta_t_surface_cover_bootstrap_ci",
 ]
+OVERALL_COMPATIBILITY_COLUMNS = (
+    "measurement_type",
+    "temperature_source",
+    "temperature_definition",
+    "temperature_unit",
+    "ambient_source",
+    "ambient_definition",
+    "ambient_unit",
+    "ambient_data_qa_status",
+    "ambient_provenance",
+    "source_method",
+    "surface_cover_provenance",
+    "luhk_provenance",
+    "selection_scope",
+    "target_id",
+    "roi_definition",
+)
+
+
+def overall_source_stratum_count(frame: pd.DataFrame) -> int:
+    """Count formal source/ROI strata that must not be silently pooled."""
+
+    columns = [column for column in OVERALL_COMPATIBILITY_COLUMNS if column in frame.columns]
+    if frame.empty:
+        return 0
+    if not columns:
+        return 1
+    return len(frame.loc[:, columns].fillna("").astype(str).drop_duplicates())
 
 
 def parse_args() -> argparse.Namespace:
@@ -84,15 +113,28 @@ def read_sample(config: dict[str, Any], family: str) -> pd.DataFrame:
 
 def readable_group(group_name: str, family: str) -> str:
     text = str(group_name)
+    parts = text.split(" | ")
+    source_keys = {
+        "measurement_type", "temperature_source", "temperature_definition", "temperature_unit",
+        "ambient_source", "ambient_definition", "ambient_unit", "ambient_data_qa_status", "ambient_provenance",
+        "source_method",
+        "surface_cover_provenance", "luhk_provenance", "target_id", "target_name", "qa_status",
+    }
+    source_parts = [part for part in parts if part.split("=", 1)[0] in source_keys]
+    detail_parts = [part for part in parts if part not in source_parts]
+    source_label = ", ".join(part.replace("measurement_type=", "type=") for part in source_parts)
     if family in {"surface_cover", "within_gic_surface_cover", "surface_cover_shadow"}:
-        base = text.split(" | shadow=")[0].split(" | ")[-1]
+        base = next((part for part in reversed(detail_parts) if not part.startswith("shadow=")), "unknown")
         label = COVER_LABELS.get(base, base.replace("_", " ").title())
         if "shadow=" in text:
             label += " | " + text.rsplit(" | ", 1)[-1]
-        return label
+        return f"{label}\n[{source_label}]" if source_label else label
     if family == "image_comparison":
-        return text.replace("DJI_20260107", "DJI 2026-01-07 ")
-    return text
+        label = detail_parts[-1] if detail_parts else text
+        label = label.replace("DJI_20260107", "DJI 2026-01-07 ")
+        return f"{label}\n[{source_label}]" if source_label else label
+    detail = " | ".join(detail_parts) or "unknown"
+    return f"{detail}\n[{source_label}]" if source_label else detail
 
 
 def describe(values: np.ndarray) -> dict[str, float | int]:
@@ -170,11 +212,12 @@ def make_summary_rows(
         status, reason = kde_assessment(values, config)
         if forced_status:
             status, reason = forced_status, forced_reason
+        fallback_full = 0 if group.empty else group["source_population_count"].max()
         rows.append({
             "analysis_family": analysis_family,
             "group_name": group_name,
             "display_name": readable_group(group_name, analysis_family),
-            "n_pixels_full": int(info.get("full_eligible_pixel_count", group["source_population_count"].max())),
+            "n_pixels_full": int(info.get("full_eligible_pixel_count", fallback_full)),
             "n_pixels_sampled": int(summary["n"]),
             "n_images": int(group["image_id"].nunique()),
             "n_images_full": int(info.get("full_image_count", group["image_id"].nunique())),
@@ -200,7 +243,17 @@ def make_summary_rows(
     overall_full = int(overall_info["full_eligible_pixel_count"].sum())
     overall_copy = overall.copy()
     overall_copy["source_population_count"] = overall_full
-    add_row("overall", "image_comparison", "All accepted pilot pixels", overall_copy, None)
+    overall_name = "All formal target-eligible schema-0.2 delta-temperature pixels"
+    stratum_count = overall_source_stratum_count(overall)
+    mixed_reason = (
+        f"{stratum_count} heterogeneous measurement/ROI/provenance strata are present; "
+        "they were not pooled into one overall density"
+    )
+    add_row(
+        "overall", "image_comparison", overall_name, overall_copy, None,
+        "unavailable" if overall.empty else ("not_pooled_heterogeneous_sources" if stratum_count > 1 else None),
+        "no compatible finite delta-temperature pixels" if overall.empty else (mixed_reason if stratum_count > 1 else ""),
+    )
     rows[-1]["n_pixels_full"] = overall_full
     rows[-1]["n_images_full"] = int(overall_info["full_image_count"].sum())
 
@@ -208,20 +261,22 @@ def make_summary_rows(
         for group_name, group in samples[family].groupby("group_name", sort=True):
             add_row(family, family, str(group_name), group, (family, str(group_name)))
 
-    gic = samples["luhk_surface_cover"].loc[
-        samples["luhk_surface_cover"]["luhk_class_code"].astype(int).eq(31)
-    ]
+    gic = samples["luhk_surface_cover"].loc[gic_open_space_mask(samples["luhk_surface_cover"])]
     for group_name, group in gic.groupby("group_name", sort=True):
         add_row(
             "within_gic_surface_cover", "luhk_surface_cover", str(group_name), group,
             ("luhk_surface_cover", str(group_name)),
         )
 
-    shadow_reason = "no valid shadow_flag=1 pixels"
+    shadow_flags = set(samples["surface_cover_shadow"]["shadow_flag"].dropna().astype(int).unique())
+    shadow_estimable = shadow_flags.issuperset({0, 1})
+    shadow_reason = "both shadow states are not available for a within-cover contrast"
     for group_name, group in samples["surface_cover_shadow"].groupby("group_name", sort=True):
         add_row(
             "surface_cover_shadow", "surface_cover_shadow", str(group_name), group,
-            ("surface_cover_shadow", str(group_name)), "not_estimable_as_contrast", shadow_reason,
+            ("surface_cover_shadow", str(group_name)),
+            None if shadow_estimable else "not_estimable_as_contrast",
+            "" if shadow_estimable else shadow_reason,
         )
     return pd.DataFrame(rows)
 
@@ -242,10 +297,22 @@ def save_figure(fig: plt.Figure, directory: Path, stem: str) -> None:
     plt.close(fig)
 
 
+def unavailable_figure(directory: Path, stem: str, title: str, reason: str) -> None:
+    """Write an explicit QA figure instead of failing or inventing a group."""
+    fig, ax = plt.subplots(figsize=(11, 5.5), facecolor="white")
+    ax.axis("off")
+    ax.text(0.5, 0.62, title, ha="center", va="center", fontsize=16, weight="bold")
+    ax.text(0.5, 0.42, f"Not available: {reason}", ha="center", va="center", fontsize=12, color="#9C2F2F")
+    ax.text(0.5, 0.25, "No observations were fabricated for this optional analysis family.", ha="center", va="center", fontsize=10)
+    save_figure(fig, directory, stem)
+
+
 def _prepare_density_data(
     sample: pd.DataFrame, summary: pd.DataFrame, family: str, config: dict[str, Any]
 ) -> tuple[list[dict[str, Any]], tuple[float, float], float]:
     items: list[dict[str, Any]] = []
+    if sample.empty:
+        return items, (0.0, 1.0), 0.0
     values_all = sample["delta_t_c"].to_numpy(float)
     x_limits = (float(values_all.min()), float(values_all.max()))
     ymax = 0.0
@@ -272,6 +339,9 @@ def density_facets(
     config: dict[str, Any],
 ) -> None:
     items, x_limits, ymax = _prepare_density_data(sample, summary, family, config)
+    if not items:
+        unavailable_figure(directory, stem, title, f"no eligible {family} observations")
+        return
     columns = 2 if len(items) > 1 else 1
     rows = math.ceil(len(items) / columns)
     fig, axes = plt.subplots(
@@ -325,12 +395,34 @@ def density_facets(
 def overall_figure(
     sample: pd.DataFrame, summary: pd.DataFrame, directory: Path, config: dict[str, Any]
 ) -> None:
+    if sample.empty:
+        unavailable_figure(
+            directory, FIGURE_STEMS[0], "Overall pixel-level delta-temperature density spectrum",
+            "no compatible finite ambient/delta-temperature observations",
+        )
+        return
+    stratum_count = overall_source_stratum_count(sample)
+    if stratum_count > 1:
+        unavailable_figure(
+            directory,
+            FIGURE_STEMS[0],
+            "Overall pixel-level delta-temperature density spectrum",
+            f"Not pooled: {stratum_count} heterogeneous measurement/ROI/provenance strata are present. "
+            "Use the source-aware LUHK, surface-cover, and per-image facets instead.",
+        )
+        return
     row = summary.loc[summary["analysis_family"].eq("overall")].iloc[0]
     values = sample["delta_t_c"].to_numpy(float)
-    x, y = density(values, config)
     fig, ax = plt.subplots(figsize=(12, 6.7), facecolor="white")
-    ax.fill_between(x, y, color=PALETTE[0], alpha=0.2)
-    ax.plot(x, y, color=PALETTE[0], linewidth=2.4)
+    status, reason = kde_assessment(values, config)
+    if status == "eligible":
+        x, y = density(values, config)
+        ax.fill_between(x, y, color=PALETTE[0], alpha=0.2)
+        ax.plot(x, y, color=PALETTE[0], linewidth=2.4)
+    else:
+        shown = values if values.size <= 500 else values[:500]
+        ax.plot(shown, np.full(shown.size, 0.01), "|", color=PALETTE[0], alpha=0.7)
+        ax.text(0.5, 0.65, f"KDE not drawn: {reason}", transform=ax.transAxes, ha="center", color="#9C2F2F")
     ax.axvspan(row["q25_sampled"], row["q75_sampled"], color=PALETTE[0], alpha=0.08, label="Q25–Q75")
     ax.axvline(0, color="#666666", linewidth=1.1, linestyle="--", label="ΔT = 0")
     ax.axvline(row["median_sampled"], color="#222222", linewidth=1.5, label="Median")
@@ -371,7 +463,11 @@ def overlay_figure(
         ):
             selected.append((str(group_name), group, row))
     if not selected:
-        raise ValueError("No within-GIC groups meet the formal overlay inclusion rule")
+        unavailable_figure(
+            directory, FIGURE_STEMS[4], "Within-GIC surface-cover delta-temperature spectrum overlay",
+            "no groups meet the configured pixel/image/variation inclusion rule",
+        )
+        return []
     values_all = np.concatenate([group["delta_t_c"].to_numpy(float) for _, group, _ in selected])
     fig, ax = plt.subplots(figsize=(12.5, 7.2), facecolor="white")
     ax.axvline(0, color="#666666", linewidth=1.1, linestyle="--", label="ΔT = 0")
@@ -407,6 +503,12 @@ def stability_figure(
     groups = stability.loc[
         stability["record_type"].eq("group") & stability["analysis_family"].eq("surface_cover")
     ].copy()
+    if groups.empty:
+        unavailable_figure(
+            directory, FIGURE_STEMS[6], "Sampling-stability distribution",
+            "no eligible surface-cover observations across configured seeds",
+        )
+        return
     order = (
         groups.groupby("group_a")["sampled_median_a"].median().sort_values().index.tolist()
     )
@@ -475,6 +577,12 @@ def uncertainty_figure(
             "group_name": str(group_name), "median": median, "lower": lower,
             "upper": upper, "n": len(group),
         })
+    if not rows:
+        unavailable_figure(
+            directory, FIGURE_STEMS[7], "Bootstrap uncertainty summary",
+            "no eligible surface-cover observations",
+        )
+        return pd.DataFrame(columns=["group_name", "median", "lower", "upper", "n"])
     frame = pd.DataFrame(rows).sort_values("median").reset_index(drop=True)
     fig, ax = plt.subplots(figsize=(11.5, 6.8), facecolor="white")
     y = np.arange(len(frame))
@@ -521,12 +629,20 @@ def write_captions(
     seed = int(config["sampling"]["primary_seed"])
     method = config["sampling"]["method"]
     common = (
-        f"One observation is one accepted finite thermal pixel with ΔT = temperature − image-level ambient temperature. "
+        f"One observation is one accepted finite thermal pixel that is analysis-eligible and inside target_mask, with ΔT = temperature − image-level ambient temperature. "
         f"Pixels were selected with {method} (primary seed {seed}); original pixel ΔT values were retained. "
         "Density is normalized within each group and does not encode pixel count. "
         "Spatial thinning improves dispersion but does not remove spatial autocorrelation, so pixels are not described as independent."
     )
     overall = summary.loc[summary["analysis_family"].eq("overall")].iloc[0]
+    image_count = int(overall["n_images_full"])
+    shadow_rows = summary.loc[summary["analysis_family"].eq("surface_cover_shadow")]
+    shadow_estimable = not shadow_rows.empty and shadow_rows["kde_status"].ne("not_estimable_as_contrast").any()
+    shadow_text = (
+        "Both shadow states occur in eligible schema-0.2 samples; formal contrast results are reported in the statistical tables."
+        if shadow_estimable
+        else "Status: **not estimable** because both valid shadow states are not available. No observations were fabricated."
+    )
     lines = [
         "# Formal Part E pixel-level ΔT spectrum figure captions",
         "",
@@ -534,40 +650,40 @@ def write_captions(
         "",
         "## Figure 00 — Overall pixel-level ΔT density spectrum",
         "",
-        f"Accepted finite pixels from all five pilot images are represented by the image-stratified sampled-pixel dataset "
+        f"Accepted finite, analysis-eligible pixels inside target_mask from {image_count} schema-0.2 images are represented by the source- and image-stratified sampled-pixel dataset "
         f"(sampled n={int(overall['n_pixels_sampled']):,}; full eligible n={int(overall['n_pixels_full']):,}; "
         f"{int(overall['n_images'])}/{int(overall['n_images_full'])} images). The curve uses SciPy Gaussian KDE with Scott's bandwidth rule and is evaluated only across the observed sampled range. {common}",
         "",
         "## Figure 01 — Pixel-level ΔT spectrum by LUHK class",
         "",
-        f"Eligibility requires an accepted finite pixel and a valid approximate LUHK label. {counts_text(summary, 'luhk')}. "
+        f"Eligibility requires an accepted finite pixel inside the formal target mask and a valid approximate LUHK label. {counts_text(summary, 'luhk')}. "
         f"Groups below {config['sampling']['minimum_pixels_for_formal_plot']} sampled pixels are shown without a smoothed KDE. "
         f"Directly compared facets share x and y scales; KDEs use Scott's rule and stop at each group's observed range. {common}",
         "",
         "## Figure 02 — Pixel-level ΔT spectrum by physical surface cover",
         "",
-        f"Eligibility requires an accepted finite pixel and a reviewed valid physical-cover label. {counts_text(summary, 'surface_cover')}. "
+        f"Eligibility requires an accepted finite pixel inside the formal target mask and a reviewed valid physical-cover label. {counts_text(summary, 'surface_cover')}. "
         f"Facets share comparison scales; KDEs use Scott's rule and stop at observed group ranges. {common}",
         "",
         "## Figure 03 — Within-GIC pixel-level ΔT spectrum by physical surface cover",
         "",
-        f"Eligibility additionally requires LUHK code 31 (GIC / open space). {counts_text(summary, 'within_gic_surface_cover')}. "
+        f"Eligibility additionally requires legacy LUHK code 31 or schema-0.2 `gic_open_space`. {counts_text(summary, 'within_gic_surface_cover')}. "
         f"Facets share comparison scales; KDEs use Scott's rule and stop at observed group ranges. {common}",
         "",
         "## Figure 04 — Within-GIC surface-cover ΔT spectrum overlay",
         "",
         f"The overlay includes groups with at least {config['sampling']['minimum_pixels_for_formal_plot']} sampled pixels, at least "
-        f"{config['spectrum']['overlay_minimum_images']} contributing images, and adequate variation for KDE: {', '.join(included_overlay)}. "
+        f"{config['spectrum']['overlay_minimum_images']} contributing images, and adequate variation for KDE: {', '.join(included_overlay) or 'none'}. "
         f"Colored baseline ticks mark medians; Scott-rule KDEs are normalized per group and stop at observed ranges. {common}",
         "",
-        "## Figure 05 — Pixel-level ΔT spectrum by pilot image",
+        "## Figure 05 — Pixel-level ΔT spectrum by image",
         "",
-        f"Eligibility is any accepted finite pixel in the five-image pilot. {counts_text(summary, 'image_comparison')}. "
+        f"Eligibility requires accepted finite delta-temperature, analysis_eligible=true, and target_mask=true. {counts_text(summary, 'image_comparison')}. "
         f"Facets use a common comparison scale and Scott-rule KDEs evaluated only over observed image ranges. {common}",
         "",
         "## Figure 06 — Surface-cover × shadow spectrum",
         "",
-        "Status: **not estimable**. Reason: **no valid shadow_flag=1 pixels**. All five reviewed shadow masks contain only shadow_flag=0, so no empty or synthetic comparison figure was created.",
+        shadow_text,
         "",
         "## Figure 07 — Sampling-stability distribution",
         "",
@@ -590,21 +706,26 @@ def write_generation_summary(
         "# Part E formal pixel-level ΔT spectrum generation summary",
         "",
         "- Status: complete.",
-        "- Formal observation: one accepted finite thermal pixel.",
+        "- Formal observation: one accepted finite thermal pixel with analysis_eligible=true and target_mask=true.",
         f"- Primary sampling seed: {config['sampling']['primary_seed']}.",
         f"- Sampling method: `{config['sampling']['method']}`.",
         f"- KDE: SciPy `gaussian_kde`, `{config['spectrum']['kde_bandwidth_method']}` bandwidth, evaluated only within each group's observed sampled range.",
-        "- Shadow comparison: not estimable because no valid `shadow_flag=1` pixels occur.",
+        "- Shadow comparison is conditional on both valid shadow states; unavailable families remain explicit QA exceptions.",
         "- Spatial limitation: thinning disperses selected pixels but does not eliminate spatial autocorrelation.",
         "",
         "## Written figures",
         "",
     ]
     for stem in FIGURE_STEMS:
-        lines.append(f"- `{(directory / (stem + '.png')).relative_to(project_path('.')).as_posix()}` and PDF counterpart")
+        figure_path = directory / (stem + ".png")
+        try:
+            display_path = figure_path.relative_to(project_path(".")).as_posix()
+        except ValueError:
+            display_path = figure_path.resolve().as_posix()
+        lines.append(f"- `{display_path}` and PDF counterpart")
     lines.extend([
         "",
-        "Figure 06 was intentionally not created. The not-estimable status is documented in the caption and source-summary files.",
+        "Figure 06 remains a table-level shadow contrast in this preserved formal family; availability is documented in captions and statistical tables.",
         "",
         "## KDE exceptions",
         "",
@@ -637,6 +758,8 @@ def main() -> int:
     samples = {family: read_sample(config, family) for family in SAMPLE_FILES}
     seed = int(config["sampling"]["primary_seed"])
     for family, sample in samples.items():
+        if sample.empty:
+            continue
         seeds = set(sample["sampling_seed"].astype(int).unique())
         if seeds != {seed}:
             raise ValueError(f"{family} sample seed mismatch: expected {seed}, found {sorted(seeds)}")
@@ -655,9 +778,7 @@ def main() -> int:
         "Pixel-level ΔT density spectrum by physical surface cover",
         FIGURE_STEMS[2], directory, config,
     )
-    gic = samples["luhk_surface_cover"].loc[
-        samples["luhk_surface_cover"]["luhk_class_code"].astype(int).eq(31)
-    ].copy()
+    gic = samples["luhk_surface_cover"].loc[gic_open_space_mask(samples["luhk_surface_cover"])].copy()
     density_facets(
         gic, summary, "within_gic_surface_cover",
         "Within-GIC pixel-level ΔT density spectrum by physical surface cover",
@@ -666,7 +787,7 @@ def main() -> int:
     included_overlay = overlay_figure(gic, summary, directory, config)
     density_facets(
         samples["image_comparison"], summary, "image_comparison",
-        "Pixel-level ΔT density spectrum by pilot image",
+        "Pixel-level ΔT density spectrum by image",
         FIGURE_STEMS[5], directory, config,
     )
     stability_figure(stability, coverage, directory, config)

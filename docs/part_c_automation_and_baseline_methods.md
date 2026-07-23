@@ -104,3 +104,13 @@ Deep-learning methods should wait until there are enough reviewed images to supp
 No model training is part of the current Part C output. The present final masks are generated from the reviewed annotation workbook:
 
 `data/annotations/part_c/part_c_surface_cover_annotations.xlsx`
+
+## Version 0.1 adapters
+
+The existing reviewed visible ROI, SLIC-assisted annotations, class mappings,
+thermal-grid masks, shadow layer, and LUHK context remain the normal-route
+source. The additional Part C* route is intentionally not a full-image
+classifier: a user selects a physical surface-cover class and accepts a thermal
+polygon. Only its interior is labelled known; its exterior is unknown and
+ineligible for class-specific analysis. Cancellation produces no successful
+canonical result.

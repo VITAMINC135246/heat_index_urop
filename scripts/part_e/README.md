@@ -4,6 +4,17 @@
 numbered files below are the current formal implementation, ordered by their
 first use in the end-to-end workflow:
 
+At project level, version 0.3 uses `scripts/run_analysis.py` to route cached,
+visible-review, and thermal-polygon results into common Part E ingestion. This
+formal pipeline remains the reusable statistics and plotting implementation.
+It now derives native thermal dimensions and retains multi-source provenance;
+polygon exterior pixels are not surface-cover eligible.
+
+Full per-image pixel CSV and Excel workbooks are optional. Use
+`--write-full-pixel-csv`, `--include-excel`, or
+`--include-per-image-excel` explicitly when those delivery artifacts are
+required.
+
 | Stage | File | Purpose |
 |---:|---|---|
 | 00 | `00_audit_part_e_inputs.py` | Audit source matrices, masks, ambient values, orientation, and script namespace. |
@@ -11,7 +22,7 @@ first use in the end-to-end workflow:
 | 02 | `02_build_pixel_analysis_samples.py` | Build deterministic spatially thinned pixel samples and coverage manifests. |
 | 03 | `03_run_pixel_statistical_analysis.py` | Produce grouped summaries, exploratory tests, effect sizes, stability checks, and supporting figures. |
 | 04 | `04_generate_pixel_delta_t_spectra.py` | Produce the formal numbered pixel-spectrum figure family and its source table. |
-| 05 | `05_generate_pixel_spatial_figures.py` | Produce per-image spatial QA maps and panels. |
+| 05 | `05_generate_pixel_spatial_figures.py` | Produce canonical, dynamic-dimension, source-stratified spatial maps and completeness records. |
 | 06 | `06_build_per_image_pixel_workbooks.py` | Build optional per-image Excel workbooks. |
 | 07 | `07_build_main_excel_workbook.py` | Build the main compact statistical workbook. |
 | 08 | `08_finalize_excel_workbooks.ps1` | Optionally finalize workbooks and native charts through Excel COM. |
@@ -23,6 +34,10 @@ Unnumbered files are shared implementation helpers:
 
 - `part_e_pixel_common.py`: configuration, input loading, pixel labels,
   sampling, provenance, and output utilities.
+- `scripts/workflow/temporal_analysis.py`: reduce compatible within-image
+  measurements to capture summaries and generate chronological tables/figures.
+- `scripts/run_temporal_analysis.py`: supported temporal-only CLI for manifests,
+  run summaries, or a compatible canonical Parquet.
 - `excel_workbook_common.py` and `build_part_e_workbooks.mjs`: optional Excel
   construction helpers.
 

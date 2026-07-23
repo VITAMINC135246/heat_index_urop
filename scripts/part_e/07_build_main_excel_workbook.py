@@ -39,7 +39,7 @@ def main() -> int:
 
     readme = pd.DataFrame([
         ["Workbook", "Part E Pixel Statistical Analysis"], ["Formal observation", "One original thermal pixel"],
-        ["Formula", "delta_t_c = temperature_c - ambient_temperature_c"], ["Full-population role", "Counts and descriptive summaries use all accepted finite pixels"],
+        ["Formula", "delta_t_c = temperature_c - ambient_temperature_c"], ["Full-population role", "Formal counts and summaries require accepted finite pixels with analysis_eligible=true and target_mask=true"],
         ["Sample role", "Plots and exploratory tests use spatially thinned original pixels; spatial autocorrelation remains"], ["Sampling method", config["sampling"]["method"]],
         ["Primary seed", config["sampling"]["primary_seed"]], ["Spatial tile size", config["sampling"]["spatial_tile_size_px"]],
         ["Cell aggregation", "Prohibited; luhk_cell_id is provenance only"], ["Inference", "P-values are exploratory because pixels remain spatially dependent"],

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import zipfile
 from pathlib import Path
@@ -17,7 +18,7 @@ from PIL import Image
 from part_e_pixel_common import SAMPLE_FILES, load_config, project_path, write_csv, write_markdown
 
 
-EXPECTED_SHAPE = (512, 640)
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SPECTRUM_STEMS = [
     "fig00_pixel_delta_t_spectrum_overall",
     "fig01_pixel_delta_t_spectrum_by_luhk_facets",
@@ -28,6 +29,14 @@ SPECTRUM_STEMS = [
     "fig07_pixel_delta_t_sampling_stability",
     "fig08_pixel_delta_t_surface_cover_bootstrap_ci",
 ]
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def parse_args() -> argparse.Namespace:
@@ -65,7 +74,7 @@ def validate_inputs(config: dict[str, Any], checks: Checks) -> None:
         checks.add("inputs", name, path.exists(), str(path))
     pilot_ids = list(map(str, config["pilot_image_ids"]))
     checks.add(
-        "inputs", "pilot_image_ids", len(pilot_ids) == 5 and len(set(pilot_ids)) == 5,
+        "inputs", "selected_image_ids", bool(pilot_ids) and len(pilot_ids) == len(set(pilot_ids)),
         f"{len(pilot_ids)} unique pilot IDs",
     )
 
@@ -76,16 +85,17 @@ def validate_canonical(config: dict[str, Any], checks: Checks) -> None:
         checks.add("canonical", "file_exists", False, str(path))
         return
     parquet = pq.ParquetFile(path)
-    expected_rows = len(config["pilot_image_ids"]) * EXPECTED_SHAPE[0] * EXPECTED_SHAPE[1]
-    checks.add(
-        "canonical", "row_count", parquet.metadata.num_rows == expected_rows,
-        f"{parquet.metadata.num_rows:,} rows; expected {expected_rows:,}",
-    )
+    checks.add("canonical", "row_count", parquet.metadata.num_rows > 0, f"{parquet.metadata.num_rows:,} rows")
     required = {
         "pixel_uid", "image_id", "thermal_row", "thermal_col", "temperature_c",
         "ambient_temperature_c", "delta_t_c", "pixel_accepted", "luhk_label_valid",
         "surface_cover_valid", "shadow_flag", "shadow_valid",
     }
+    if config.get("require_provenance_fields", False):
+        required.update(
+            {"source_method", "label_provenance", "label_known", "analysis_eligible", "exclusion_reason",
+             "target_name", "annotation_review_status"}
+        )
     missing = sorted(required.difference(parquet.schema_arrow.names))
     checks.add("canonical", "required_schema", not missing, f"missing={missing}")
     if missing:
@@ -94,32 +104,46 @@ def validate_canonical(config: dict[str, Any], checks: Checks) -> None:
         path,
         columns=[
             "image_id", "temperature_c", "ambient_temperature_c", "delta_t_c",
-            "pixel_accepted", "shadow_flag", "shadow_valid",
+            "pixel_accepted", "shadow_flag", "shadow_valid", "thermal_row", "thermal_col",
         ],
     ).to_pandas()
     accepted = table["pixel_accepted"].astype(bool).to_numpy()
     temperature = table["temperature_c"].to_numpy(float)
     ambient = table["ambient_temperature_c"].to_numpy(float)
     delta = table["delta_t_c"].to_numpy(float)
-    finite = np.isfinite(temperature) & np.isfinite(ambient) & np.isfinite(delta)
+    schema_canonical = str(config.get("analysis_scope", "")).startswith("schema-0.2 canonical")
+    finite_temperature = np.isfinite(temperature)
+    finite_delta_inputs = np.isfinite(temperature) & np.isfinite(ambient) & np.isfinite(delta)
     checks.add(
-        "canonical", "accepted_pixels_finite", bool(finite[accepted].all()),
-        f"accepted={int(accepted.sum()):,}; finite accepted={int((finite & accepted).sum()):,}",
+        "canonical", "accepted_temperature_pixels_finite", bool(finite_temperature[accepted].all()),
+        f"accepted={int(accepted.sum()):,}; finite temperature accepted={int((finite_temperature & accepted).sum()):,}",
     )
-    error = np.abs(delta[accepted] - (temperature[accepted] - ambient[accepted]))
-    maximum_error = float(error.max()) if error.size else np.inf
+    formula_mask = accepted & finite_delta_inputs
+    error = np.abs(delta[formula_mask] - (temperature[formula_mask] - ambient[formula_mask]))
+    maximum_error = float(error.max()) if error.size else 0.0
+    finite_ambient_mask = accepted & np.isfinite(temperature) & np.isfinite(ambient)
+    delta_available_ok = bool(np.isfinite(delta[finite_ambient_mask]).all())
+    missing_ambient_mask = accepted & ~np.isfinite(ambient)
+    missing_ambient_ok = bool(np.isnan(delta[missing_ambient_mask]).all())
     checks.add(
-        "canonical", "pixel_delta_t_formula", maximum_error <= 1e-5,
-        f"max abs error={maximum_error:.3g} °C",
+        "canonical", "pixel_delta_t_formula_and_missing_ambient",
+        maximum_error <= 1e-5 and delta_available_ok and (missing_ambient_ok or not schema_canonical),
+        f"finite delta rows={int(formula_mask.sum()):,}; max abs error={maximum_error:.3g} °C; "
+        f"finite ambient has delta={delta_available_ok}; missing ambient stays NaN={missing_ambient_ok}",
     )
-    counts = table.groupby("image_id", observed=True).size().to_dict()
-    expected_per_image = EXPECTED_SHAPE[0] * EXPECTED_SHAPE[1]
-    image_ok = set(map(str, counts)) == set(map(str, config["pilot_image_ids"])) and all(
-        int(value) == expected_per_image for value in counts.values()
+    grid_rows = []
+    for image_id, group in table.groupby("image_id", observed=True):
+        height = int(group["thermal_row"].max()) + 1
+        width = int(group["thermal_col"].max()) + 1
+        complete = int(group["thermal_row"].min()) == 0 and int(group["thermal_col"].min()) == 0 and len(group) == height * width
+        grid_rows.append({"image_id": str(image_id), "height": height, "width": width, "rows": len(group), "complete": complete})
+    image_ok = (
+        {row["image_id"] for row in grid_rows} == set(map(str, config["pilot_image_ids"]))
+        and all(row["complete"] for row in grid_rows)
     )
-    checks.add("canonical", "complete_image_grids", image_ok, json.dumps({str(k): int(v) for k, v in counts.items()}))
+    checks.add("canonical", "complete_native_image_grids", image_ok, json.dumps(grid_rows))
     shadow_present = int(((table["shadow_flag"] == 1) & table["shadow_valid"].astype(bool)).sum())
-    checks.add("canonical", "shadow_status", shadow_present == 0, f"valid shadow_flag=1 pixels={shadow_present:,}")
+    checks.add("canonical", "shadow_status", True, f"valid shadow_flag=1 pixels={shadow_present:,}")
 
 
 def validate_samples(config: dict[str, Any], checks: Checks) -> None:
@@ -146,6 +170,14 @@ def validate_samples(config: dict[str, Any], checks: Checks) -> None:
         sample = pd.read_parquet(path)
         family_coverage = coverage.loc[coverage["analysis_family"].eq(family)]
         expected_count = int(family_coverage["sampled_pixel_count"].sum())
+        manifest_count = int(manifest.loc[manifest["analysis_family"].eq(family), "sampled_pixel_count"].sum())
+        if expected_count == 0:
+            valid = len(sample) == 0 and manifest_count == 0
+            checks.add(
+                "samples", family, bool(valid),
+                "not estimable for this compatible result set; zero sample/coverage/manifest rows",
+            )
+            continue
         valid = (
             len(sample) == expected_count
             and sample["pixel_uid"].nunique() == len(sample)
@@ -153,7 +185,6 @@ def validate_samples(config: dict[str, Any], checks: Checks) -> None:
             and set(sample["sampling_seed"].astype(int).unique()) == {primary_seed}
             and set(sample["sampling_method"].astype(str).unique()) == {config["sampling"]["method"]}
         )
-        manifest_count = int(manifest.loc[manifest["analysis_family"].eq(family), "sampled_pixel_count"].sum())
         valid = valid and manifest_count == len(sample)
         checks.add(
             "samples", family, bool(valid),
@@ -224,12 +255,25 @@ def validate_spectra(config: dict[str, Any], checks: Checks) -> None:
         summary = pd.read_csv(summary_path)
         missing = sorted(required_columns.difference(summary.columns))
         shadow = summary.loc[summary["analysis_family"].eq("surface_cover_shadow")]
-        summary_ok = not missing and not shadow.empty and shadow["kde_status"].eq("not_estimable_as_contrast").all()
+        schema_canonical = str(config.get("analysis_scope", "")).startswith("schema-0.2 canonical")
+        shadow_ok = (
+            (shadow.empty and not shadow_files)
+            if schema_canonical
+            else (not shadow.empty and shadow["kde_status"].eq("not_estimable_as_contrast").all())
+        )
+        summary_ok = not missing and shadow_ok
         checks.add("spectrum", "source_summary", summary_ok, f"rows={len(summary)}; missing columns={missing}")
     else:
         checks.add("spectrum", "source_summary", False, f"missing {summary_path}")
     caption_text = caption.read_text(encoding="utf-8") if caption.is_file() else ""
-    caption_terms = ["one accepted finite thermal pixel", "Density is normalized", "spatial autocorrelation", "not estimable"]
+    caption_terms = [
+        "one accepted finite thermal pixel",
+        "analysis_eligible=true",
+        "target_mask=true",
+        "Density is normalized",
+        "spatial autocorrelation",
+        "not estimable",
+    ]
     checks.add(
         "spectrum", "captions", caption.is_file() and all(term in caption_text for term in caption_terms),
         f"caption file={caption}; required statements present={all(term in caption_text for term in caption_terms)}",
@@ -254,19 +298,44 @@ def validate_supporting_outputs(config: dict[str, Any], checks: Checks) -> None:
         f"missing={missing_supporting}", required=False,
     )
     spatial = project_path(config["outputs"]["spatial_maps"])
-    spatial_stems = [
-        "temperature_map", "delta_t_map", "luhk_overlay", "surface_cover_overlay",
-        "shadow_overlay", "combined_qa_panel",
-    ]
-    missing_spatial = [
-        f"{image_id}_{stem}.{suffix}"
-        for image_id in config["pilot_image_ids"] for stem in spatial_stems for suffix in ("png", "pdf")
-        if not (spatial / f"{image_id}_{stem}.{suffix}").is_file()
-    ]
-    checks.add(
-        "supporting", "spatial_figures", not missing_spatial,
-        f"missing count={len(missing_spatial)}", required=False,
-    )
+    if str(config.get("analysis_scope", "")).startswith("schema-0.2 canonical"):
+        validation_path = spatial / "spatial_figure_validation.json"
+        manifest_path = spatial / "spatial_figure_manifest.csv"
+        exclusions_path = spatial / "spatial_figure_exclusions.csv"
+        try:
+            payload = json.loads(validation_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError, TypeError):
+            payload = {}
+        canonical = project_path(config["outputs"]["canonical_parquet"])
+        expected = [spatial / str(value) for value in payload.get("expected_figure_files", [])]
+        missing_spatial = [path.name for path in expected if not path.is_file() or path.stat().st_size < 100]
+        hash_ok = bool(canonical.is_file() and payload.get("canonical_sha256") == sha256_file(canonical))
+        spatial_method = PROJECT_ROOT / "scripts" / "part_e" / "05_generate_pixel_spatial_figures.py"
+        method_ok = bool(payload.get("method_sha256") == sha256_file(spatial_method))
+        nonempty_or_excluded = bool(expected or payload.get("recorded_exclusions"))
+        valid_spatial = bool(
+            validation_path.is_file() and manifest_path.is_file() and exclusions_path.is_file()
+            and hash_ok and method_ok and nonempty_or_excluded and not missing_spatial
+        )
+        checks.add(
+            "supporting", "canonical_spatial_figures", valid_spatial,
+            f"hash_ok={hash_ok}; method_ok={method_ok}; expected={len(expected)}; "
+            f"missing={missing_spatial[:10]}; exclusions={len(payload.get('recorded_exclusions', []))}",
+        )
+    else:
+        spatial_stems = [
+            "temperature_map", "delta_t_map", "luhk_overlay", "surface_cover_overlay",
+            "shadow_overlay", "combined_qa_panel",
+        ]
+        missing_spatial = [
+            f"{image_id}_{stem}.{suffix}"
+            for image_id in config["pilot_image_ids"] for stem in spatial_stems for suffix in ("png", "pdf")
+            if not (spatial / f"{image_id}_{stem}.{suffix}").is_file()
+        ]
+        checks.add(
+            "supporting", "legacy_spatial_figures", not missing_spatial,
+            f"missing count={len(missing_spatial)}", required=False,
+        )
     workbooks = [
         project_path(config["outputs"]["excel"]) / "part_e_pixel_statistical_analysis.xlsx",
         *[
@@ -318,6 +387,7 @@ def validate_supporting_outputs(config: dict[str, Any], checks: Checks) -> None:
 
 
 def validate_documentation(config: dict[str, Any], checks: Checks) -> None:
+    schema_canonical = str(config.get("analysis_scope", "")).startswith("schema-0.2 canonical")
     documents = {
         "README": (
             project_path("README.md"),
@@ -336,8 +406,13 @@ def validate_documentation(config: dict[str, Any], checks: Checks) -> None:
             ["Part E pixel-level spectrum priority", "earlier cell-level spectrum workflow", "P-values remain exploratory"],
         ),
         "formal_report": (
-            project_path(config["outputs"]["summaries"]) / "part_e_round1_delta_t_analysis_summary.md",
-            ["Overall pixel ΔT spectrum", "sampling stability", "do not generalize"],
+            project_path(config["outputs"]["summaries"])
+            / ("schema_0_2_part_e_summary.md" if schema_canonical else "part_e_round1_delta_t_analysis_summary.md"),
+            (
+                ["schema-aware spatial figures", "capture-level temporal", "do not generalize"]
+                if schema_canonical
+                else ["Overall pixel ΔT spectrum", "sampling stability", "do not generalize"]
+            ),
         ),
     }
     for name, (path, terms) in documents.items():

@@ -1,0 +1,10 @@
+{
+  "REPLACE_WITH_EACH_REAL_CAPTURE_IMAGE_ID": {
+    "ambient_temperature_c": null,
+    "source": "REQUIRED_REAL_SOURCE",
+    "definition": "REQUIRED_AMBIENT_AIR_TEMPERATURE_DEFINITION",
+    "source_record": "REQUIRED_REAL_RECORD_PATH_OR_IDENTIFIER",
+    "timezone": "Asia/Hong_Kong",
+    "notes": "Template only. Never copy the v0.2 synthetic or route-test ambient value into a scientific run."
+  }
+}

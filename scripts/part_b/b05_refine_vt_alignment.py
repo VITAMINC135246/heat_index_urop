@@ -26,6 +26,7 @@ if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
 from table_io import read_table, write_rows
+from workflow.part_b_review import verified_pilot_decisions
 
 try:
     from scipy import ndimage
@@ -759,6 +760,7 @@ def main() -> int:
     SUMMARY_DIR.mkdir(parents=True, exist_ok=True)
 
     pilot_rows = read_table(PILOT_XLSX, dtype=str).fillna("")
+    verified_decisions = verified_pilot_decisions(PROJECT_ROOT)
     summary_rows: list[dict[str, Any]] = []
     attempt_rows: list[dict[str, Any]] = []
 
@@ -824,6 +826,12 @@ def main() -> int:
             score_delta_out = score_delta
 
         old_matrix = crop_transform_matrix(old_bbox, thermal.size, 0.0)
+        verified = verified_decisions.get(image_id)
+        manual_review_status = verified.manual_review_status.value if verified else "not_reviewed"
+        final_alignment_status = verified.final_alignment_status.value if verified else "indeterminate"
+        scene_correspondence = verified.scene_correspondence.value if verified else "indeterminate"
+        coverage_class = verified.coverage_class.value if verified else "indeterminate"
+        routing_decision = "normal_visible_thermal" if final_alignment_status == "accepted" else "requires_manual_review"
         summary = {
             "pair_id": pair_id,
             "image_id": image_id,
@@ -856,8 +864,14 @@ def main() -> int:
             "refined_alignment_score": format_number(final_score) if final_score != "" else "",
             "score_delta": format_number(score_delta_out) if score_delta_out != "" else "",
             "auto_result_accepted": "yes" if auto_accepted else "no",
+            "auto_candidate_status": "available",
             "auto_rejection_reason": rejection_reason,
             "confidence": confidence,
+            "scene_correspondence": scene_correspondence,
+            "coverage_class": coverage_class,
+            "manual_review_status": manual_review_status,
+            "final_alignment_status": final_alignment_status,
+            "routing_decision": routing_decision,
             "alignment_quality": alignment_quality,
             "needs_manual_gcp": needs_manual_gcp,
             "manual_gcp_template_path": relative_posix(gcp_template_path),
@@ -876,7 +890,10 @@ def main() -> int:
             "refined_edge_overlay_path": relative_posix(pair_dir / "08_edge_overlay_after_refinement.png"),
             "manual_gcp_side_by_side_path": relative_posix(pair_dir / "09_manual_gcp_side_by_side.png"),
             "contact_sheet_path": relative_posix(pair_dir / "10_alignment_comparison_contact_sheet.png"),
-            "notes": notes,
+            "notes": notes + (
+                " Final acceptance is supported by existing reviewed downstream pilot evidence."
+                if verified else " Automatic candidate status is not final acceptance."
+            ),
         }
         summary_rows.append(summary)
 
@@ -1008,8 +1025,14 @@ def main() -> int:
         "refined_alignment_score",
         "score_delta",
         "auto_result_accepted",
+        "auto_candidate_status",
         "auto_rejection_reason",
         "confidence",
+        "scene_correspondence",
+        "coverage_class",
+        "manual_review_status",
+        "final_alignment_status",
+        "routing_decision",
         "alignment_quality",
         "needs_manual_gcp",
         "manual_gcp_template_path",

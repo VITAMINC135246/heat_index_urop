@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -22,9 +22,14 @@ import pyarrow.parquet as pq
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-EXPECTED_SHAPE = (512, 640)
-LUHK_GRID_SIZE_M = 10.0
-LUHK_KEY_MULTIPLIER = 1_000_000
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from scripts.workflow.luhk_context import (  # noqa: E402
+    LUHK_GRID_SIZE_M,
+    LUHK_KEY_MULTIPLIER,
+    build_native_luhk_result,
+)
 
 SAMPLE_FILES = {
     "luhk": "part_e_sample_luhk",
@@ -55,6 +60,28 @@ SAMPLE_COLUMNS = [
     "surface_cover_review_status",
     "shadow_flag",
     "shadow_valid",
+    "measurement_type",
+    "temperature_source",
+    "temperature_definition",
+    "temperature_unit",
+    "ambient_source",
+    "ambient_definition",
+    "ambient_unit",
+    "ambient_data_qa_status",
+    "ambient_provenance",
+    "ambient_source_record",
+    "source_method",
+    "label_provenance",
+    "surface_cover_provenance",
+    "luhk_provenance",
+    "label_known",
+    "analysis_eligible",
+    "target_mask",
+    "exclusion_reason",
+    "target_name",
+    "target_id",
+    "qa_status",
+    "annotation_review_status",
 ]
 
 
@@ -248,77 +275,43 @@ def class_mapping(tables: dict[str, pd.DataFrame]) -> dict[int, str]:
 
 def load_temperature(record: pd.Series) -> np.ndarray:
     matrix = np.load(project_path(str(record["npy_path"])))
-    if matrix.shape != EXPECTED_SHAPE:
-        raise ValueError(f"{record['image_id']} temperature shape {matrix.shape}, expected {EXPECTED_SHAPE}.")
+    if matrix.ndim != 2 or not all(int(value) > 0 for value in matrix.shape):
+        raise ValueError(f"{record['image_id']} temperature matrix must be a non-empty two-dimensional grid.")
     return matrix.astype(np.float32, copy=False)
 
 
-def load_masks(record: pd.Series) -> tuple[np.ndarray, np.ndarray | None]:
+def load_masks(record: pd.Series, expected_shape: tuple[int, int] | None = None) -> tuple[np.ndarray, np.ndarray | None]:
     class_mask = np.load(project_path(str(record["class_mask_thermal_grid_npy_path"])))
-    if class_mask.shape != EXPECTED_SHAPE:
-        raise ValueError(f"{record['image_id']} cover-mask shape {class_mask.shape}, expected {EXPECTED_SHAPE}.")
+    if class_mask.ndim != 2:
+        raise ValueError(f"{record['image_id']} cover mask must be two-dimensional.")
+    if expected_shape is not None and class_mask.shape != expected_shape:
+        raise ValueError(f"{record['image_id']} cover-mask shape {class_mask.shape}, expected {expected_shape}.")
     shadow_path = project_path(str(record["shadow_mask_thermal_grid_npy_path"]))
     shadow_mask = np.load(shadow_path) if shadow_path.is_file() else None
-    if shadow_mask is not None and shadow_mask.shape != EXPECTED_SHAPE:
-        raise ValueError(f"{record['image_id']} shadow-mask shape {shadow_mask.shape}, expected {EXPECTED_SHAPE}.")
+    if shadow_mask is not None and expected_shape is not None and shadow_mask.shape != expected_shape:
+        raise ValueError(f"{record['image_id']} shadow-mask shape {shadow_mask.shape}, expected {expected_shape}.")
     return class_mask, shadow_mask
 
 
 def build_luhk_pixel_labels(
-    record: pd.Series, tables: dict[str, pd.DataFrame]
+    record: pd.Series, tables: dict[str, pd.DataFrame], shape: tuple[int, int]
 ) -> dict[str, np.ndarray | float]:
-    grid = tables["grid"].copy()
-    grid = grid.loc[grid["pair_id"].astype(str).eq(str(record["pair_id"])) & truthy(grid["is_thermal_covered"])].copy()
-    if grid.empty or grid.duplicated(["global_cell_id"]).any():
+    result = build_native_luhk_result(
+        image_id=str(record["image_id"]),
+        pair_id=str(record["pair_id"]),
+        shape=shape,
+        grid=tables["grid"],
+        footprints=tables["footprints"],
+    )
+    if result.unavailable_reason == "thermal_luhk_cells_missing":
         raise ValueError(f"Missing or duplicate thermal-covered LUHK cells for {record['image_id']}.")
-    footprint = tables["footprints"].loc[
-        tables["footprints"]["pair_id"].astype(str).eq(str(record["pair_id"]))
-        & tables["footprints"]["image_type"].astype(str).str.casefold().eq("thermal")
-        & tables["footprints"]["status"].astype(str).str.casefold().eq("ok")
-    ]
-    if len(footprint) != 1:
+    if result.unavailable_reason == "thermal_luhk_cells_duplicate":
+        raise ValueError(f"Missing or duplicate thermal-covered LUHK cells for {record['image_id']}.")
+    if result.unavailable_reason.startswith("valid_thermal_footprint_count:"):
         raise ValueError(f"Expected one valid thermal footprint for {record['image_id']}.")
-    footprint = footprint.iloc[0]
-    origin_x = np.median(
-        grid["cell_min_x_2326"].astype(float) - grid["luhk_col"].astype(float) * LUHK_GRID_SIZE_M
-    )
-    origin_y = np.median(
-        grid["cell_max_y_2326"].astype(float) + grid["luhk_row"].astype(float) * LUHK_GRID_SIZE_M
-    )
-    height, width = EXPECTED_SHAPE
-    x_centers = float(footprint["min_x_2326"]) + (
-        np.arange(width, dtype=np.float64) + 0.5
-    ) * (float(footprint["max_x_2326"]) - float(footprint["min_x_2326"])) / width
-    y_centers = float(footprint["max_y_2326"]) - (
-        np.arange(height, dtype=np.float64) + 0.5
-    ) * (float(footprint["max_y_2326"]) - float(footprint["min_y_2326"])) / height
-    pixel_cols = np.floor((x_centers - origin_x) / LUHK_GRID_SIZE_M).astype(np.int32)
-    pixel_rows = np.floor((origin_y - y_centers) / LUHK_GRID_SIZE_M).astype(np.int32)
-    row_grid, col_grid = np.meshgrid(pixel_rows, pixel_cols, indexing="ij")
-    keys = row_grid.astype(np.int64) * LUHK_KEY_MULTIPLIER + col_grid.astype(np.int64)
-
-    grid = grid.reset_index(drop=True)
-    cell_keys = (
-        grid["luhk_row"].astype(np.int64).to_numpy() * LUHK_KEY_MULTIPLIER
-        + grid["luhk_col"].astype(np.int64).to_numpy()
-    )
-    key_to_index = {int(key): index for index, key in enumerate(cell_keys)}
-    unique_keys, inverse = np.unique(keys, return_inverse=True)
-    unique_indices = np.array([key_to_index.get(int(key), -1) for key in unique_keys], dtype=np.int32)
-    cell_index = unique_indices[inverse].reshape(EXPECTED_SHAPE)
-    mapped = cell_index >= 0
-    safe = np.where(mapped, cell_index, 0)
-    return {
-        "cell_index": cell_index,
-        "mapped": mapped,
-        "cell_id": grid["global_cell_id"].astype(str).to_numpy()[safe],
-        "class_code": pd.to_numeric(grid["luhk_raw_code"], errors="coerce").fillna(-1).astype(np.int16).to_numpy()[safe],
-        "class_name": grid["luhk_category_name"].astype(str).to_numpy()[safe],
-        "luhk_row": grid["luhk_row"].astype(np.int32).to_numpy()[safe],
-        "luhk_col": grid["luhk_col"].astype(np.int32).to_numpy()[safe],
-        "origin_x": float(origin_x),
-        "origin_y": float(origin_y),
-    }
+    if not result.available:
+        raise ValueError(f"LUHK lookup unavailable for {record['image_id']}: {result.unavailable_reason}")
+    return result.as_legacy_part_e_dict()
 
 
 def describe_values(values: pd.Series | np.ndarray) -> dict[str, float | int]:
@@ -347,18 +340,85 @@ def splitmix64(values: np.ndarray, seed: int) -> np.ndarray:
     return x ^ (x >> np.uint64(31))
 
 
+def formal_target_eligible_mask(frame: pd.DataFrame) -> np.ndarray:
+    """Return the formal Part E target population mask.
+
+    A formal observation must be accepted, have finite delta-T, be marked
+    analysis-eligible, and fall inside the image's target mask.  Older normal
+    visible/thermal results did not persist ``target_mask``; for those results
+    the analysis-eligible mask is the backwards-compatible target definition.
+    """
+    delta_finite = (
+        np.isfinite(pd.to_numeric(frame["delta_t_c"], errors="coerce").to_numpy(float))
+        if "delta_t_c" in frame.columns
+        else np.ones(len(frame), dtype=bool)
+    )
+    accepted = truthy(frame["pixel_accepted"]).to_numpy()
+    analysis_eligible = truthy(
+        frame["analysis_eligible"]
+        if "analysis_eligible" in frame.columns
+        else frame["surface_cover_valid"]
+    ).to_numpy()
+    target_mask = truthy(
+        frame["target_mask"]
+        if "target_mask" in frame.columns
+        else pd.Series(analysis_eligible, index=frame.index)
+    ).to_numpy()
+    return accepted & delta_finite & analysis_eligible & target_mask
+
+
+def gic_open_space_mask(frame: pd.DataFrame) -> pd.Series:
+    """Recognize GIC/open-space in legacy numeric and canonical vocabularies."""
+
+    if frame.empty:
+        return pd.Series(False, index=frame.index, dtype=bool)
+    codes = frame.get("luhk_class_code", pd.Series("", index=frame.index)).astype(str).str.casefold()
+    names = frame.get("luhk_class_name", pd.Series("", index=frame.index)).astype(str).str.casefold()
+    return (
+        codes.isin({"31", "gic_open_space"})
+        | names.str.contains("gic", regex=False)
+        | names.str.contains("open space", regex=False)
+    )
+
+
 def family_eligible_and_group(frame: pd.DataFrame, family: str) -> tuple[np.ndarray, pd.Series]:
-    accepted = frame["pixel_accepted"].astype(bool).to_numpy()
+    # Formal Part E is a delta-temperature analysis. Retain temperature-only
+    # rows in the canonical dataset, but do not fabricate an ambient value or
+    # admit a non-finite delta-T row into sampling.
+    accepted = formal_target_eligible_mask(frame)
+    source_fields = [
+        ("measurement_type", "full_thermal_pixel"),
+        ("temperature_source", "unknown"),
+        ("temperature_definition", "unknown"),
+        ("temperature_unit", "degC"),
+        ("ambient_source", "unavailable"),
+        ("ambient_definition", "unavailable"),
+        ("ambient_unit", "degC"),
+        ("ambient_data_qa_status", "unavailable"),
+        ("ambient_provenance", "unavailable"),
+        ("source_method", "visible_review"),
+        ("surface_cover_provenance", "visible_review"),
+        ("luhk_provenance", "unknown"),
+        ("target_name", ""),
+        ("target_id", ""),
+        ("qa_status", "pass"),
+    ]
+    source = pd.Series("", index=frame.index, dtype=object)
+    for column, default in source_fields:
+        value = frame[column].astype(str) if column in frame else pd.Series(default, index=frame.index)
+        source = source + column + "=" + value + " | "
+    prefix = source
     if family == "luhk":
         eligible = accepted & frame["luhk_label_valid"].astype(bool).to_numpy()
-        group = frame["luhk_class_code"].astype(str) + " | " + frame["luhk_class_name"].astype(str)
+        group = prefix + frame["luhk_class_code"].astype(str) + " | " + frame["luhk_class_name"].astype(str)
     elif family == "surface_cover":
         eligible = accepted & frame["surface_cover_valid"].astype(bool).to_numpy()
-        group = frame["surface_cover_class"].astype(str)
+        group = prefix + frame["surface_cover_class"].astype(str)
     elif family == "luhk_surface_cover":
         eligible = accepted & frame["luhk_label_valid"].astype(bool).to_numpy() & frame["surface_cover_valid"].astype(bool).to_numpy()
         group = (
-            frame["luhk_class_code"].astype(str)
+            prefix
+            + frame["luhk_class_code"].astype(str)
             + " | "
             + frame["luhk_class_name"].astype(str)
             + " | "
@@ -366,10 +426,10 @@ def family_eligible_and_group(frame: pd.DataFrame, family: str) -> tuple[np.ndar
         )
     elif family == "surface_cover_shadow":
         eligible = accepted & frame["surface_cover_valid"].astype(bool).to_numpy() & frame["shadow_valid"].astype(bool).to_numpy()
-        group = frame["surface_cover_class"].astype(str) + " | shadow=" + frame["shadow_flag"].astype("Int64").astype(str)
+        group = prefix + frame["surface_cover_class"].astype(str) + " | shadow=" + frame["shadow_flag"].astype("Int64").astype(str)
     elif family == "image_comparison":
         eligible = accepted
-        group = frame["image_id"].astype(str)
+        group = prefix + frame["image_id"].astype(str)
     else:
         raise KeyError(f"Unknown analysis family: {family}")
     return eligible, group
@@ -398,14 +458,270 @@ def _allocate_quotas(counts: pd.Series, capacity: pd.Series, total: int) -> dict
     return quotas.to_dict()
 
 
-def spatially_thinned_sample(
-    frame: pd.DataFrame, family: str, config: dict[str, Any], seed: int
+def prepare_spatial_sampling_plan(
+    frame: pd.DataFrame,
+    family: str,
+    config: dict[str, Any],
+    *,
+    eligible_groups: tuple[np.ndarray, pd.Series] | None = None,
+) -> dict[str, Any]:
+    """Prepare seed-invariant state for repeated spatially-thinned samples.
+
+    Stability analysis evaluates the same population with many deterministic
+    seeds.  Eligibility, spatial strata, per-image capacities, and allocation
+    quotas are identical for every seed, so rebuilding and factorizing those
+    million-row structures for each seed is pure overhead.  The returned plan
+    keeps the original pixel-level sampling design: each seed still hashes
+    every eligible original pixel, chooses one pixel per spatial tile, and then
+    applies the configured image/group quotas.
+
+    This is intentionally an opt-in fast path.  One-off sampling continues to
+    use :func:`spatially_thinned_sample`'s established implementation.
+    """
+
+    sampling = config["sampling"]
+    eligible, groups = eligible_groups or family_eligible_and_group(frame, family)
+    positions = np.flatnonzero(eligible)
+    plan: dict[str, Any] = {
+        "family": family,
+        "frame_length": len(frame),
+        "positions": positions,
+        "tile_size": int(sampling["spatial_tile_size_px"]),
+        "group_limit": int(sampling["max_pixels_per_group"]),
+        "image_group_limit": int(sampling["max_pixels_per_image_per_group"]),
+        "method": sampling["method"],
+    }
+    if not positions.size:
+        plan["empty"] = True
+        return plan
+
+    image_id = frame.iloc[positions]["image_id"].astype(str).to_numpy()
+    group_name = groups.iloc[positions].astype(str).to_numpy()
+    thermal_row = frame.iloc[positions]["thermal_row"].to_numpy(dtype=np.int32)
+    thermal_col = frame.iloc[positions]["thermal_col"].to_numpy(dtype=np.int32)
+    tile_row = thermal_row // plan["tile_size"]
+    tile_col = thermal_col // plan["tile_size"]
+
+    strata_key, strata_values = pd.factorize(
+        pd.MultiIndex.from_arrays([image_id, group_name, tile_row, tile_col]),
+        sort=True,
+    )
+    pixel_key, _ = pd.factorize(
+        pd.MultiIndex.from_arrays([image_id, thermal_row, thermal_col]),
+        sort=True,
+    )
+    image_group_key, image_group_values = pd.factorize(
+        pd.MultiIndex.from_arrays([image_id, group_name]),
+        sort=True,
+    )
+    group_key, _ = pd.factorize(group_name, sort=True)
+    image_key, _ = pd.factorize(image_id, sort=True)
+
+    # Every stratum belongs to exactly one image/group.  Counts of strata and
+    # eligible pixels therefore determine the seed-independent allocation
+    # capacity without selecting a pixel for any particular seed.
+    first_for_stratum = np.full(len(strata_values), len(positions), dtype=np.int64)
+    np.minimum.at(first_for_stratum, strata_key, np.arange(len(positions), dtype=np.int64))
+    stratum_image_group = image_group_key[first_for_stratum]
+    image_group_count = len(image_group_values)
+    eligible_counts = np.bincount(image_group_key, minlength=image_group_count).astype(np.int64)
+    capacities = np.minimum(
+        np.bincount(stratum_image_group, minlength=image_group_count),
+        plan["image_group_limit"],
+    ).astype(np.int64)
+
+    pair_rows = pd.DataFrame(
+        {
+            "image_group_key": np.arange(image_group_count, dtype=np.int64),
+            "image_id": [str(value[0]) for value in image_group_values],
+            "group_name": [str(value[1]) for value in image_group_values],
+            "eligible_pixel_count": eligible_counts,
+            "capacity": capacities,
+        }
+    )
+    quotas = np.zeros(image_group_count, dtype=np.int64)
+    for _, group_pairs in pair_rows.groupby("group_name", sort=True):
+        indexed = group_pairs.set_index("image_id")
+        allocated = _allocate_quotas(
+            indexed["eligible_pixel_count"],
+            indexed["capacity"],
+            plan["group_limit"],
+        )
+        for row in group_pairs.itertuples(index=False):
+            quotas[int(row.image_group_key)] = int(allocated.get(str(row.image_id), 0))
+
+    manifest_base = pair_rows[
+        ["group_name", "image_id", "eligible_pixel_count", "image_group_key"]
+    ].copy()
+    manifest_base["sampled_pixel_count"] = manifest_base["image_group_key"].map(
+        dict(enumerate(quotas.tolist()))
+    ).astype(int)
+    manifest_base = manifest_base.drop(columns="image_group_key").sort_values(
+        ["group_name", "image_id"], kind="mergesort"
+    ).reset_index(drop=True)
+    manifest_base["sampling_fraction"] = (
+        manifest_base["sampled_pixel_count"] / manifest_base["eligible_pixel_count"]
+    )
+
+    plan.update(
+        {
+            "empty": False,
+            "image_id": image_id,
+            "group_name": group_name,
+            "thermal_row": thermal_row,
+            "thermal_col": thermal_col,
+            "tile_row": tile_row,
+            "tile_col": tile_col,
+            "strata_key": strata_key.astype(np.int64, copy=False),
+            "strata_count": len(strata_values),
+            "base_id": pixel_key.astype(np.uint64, copy=False),
+            "image_group_key": image_group_key.astype(np.int64, copy=False),
+            "group_key": group_key.astype(np.int64, copy=False),
+            "image_key": image_key.astype(np.int64, copy=False),
+            "quota_by_image_group": quotas,
+            "group_population": np.bincount(group_key).astype(np.int64),
+            "manifest_base": manifest_base,
+        }
+    )
+    return plan
+
+
+def _sample_from_spatial_sampling_plan(
+    frame: pd.DataFrame,
+    family: str,
+    config: dict[str, Any],
+    seed: int,
+    plan: dict[str, Any],
+    *,
+    build_manifest: bool,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     sampling = config["sampling"]
-    eligible, groups = family_eligible_and_group(frame, family)
+    expected = (
+        family,
+        len(frame),
+        int(sampling["spatial_tile_size_px"]),
+        int(sampling["max_pixels_per_group"]),
+        int(sampling["max_pixels_per_image_per_group"]),
+        sampling["method"],
+    )
+    actual = (
+        plan.get("family"),
+        plan.get("frame_length"),
+        plan.get("tile_size"),
+        plan.get("group_limit"),
+        plan.get("image_group_limit"),
+        plan.get("method"),
+    )
+    if actual != expected:
+        raise ValueError("Spatial sampling plan does not match the frame, family, or sampling configuration")
+
+    manifest_columns = [
+        "analysis_family", "group_name", "image_id", "eligible_pixel_count",
+        "sampled_pixel_count", "sampling_fraction", "sampling_seed", "sampling_method",
+        "spatial_tile_size_px", "max_pixels_per_group", "max_pixels_per_image_per_group",
+    ]
+    if plan["empty"]:
+        sample_columns = SAMPLE_COLUMNS + [
+            "analysis_family", "group_name", "sampling_seed", "tile_row", "tile_col",
+            "sampling_method", "source_population_count",
+        ]
+        return pd.DataFrame(columns=sample_columns), pd.DataFrame(columns=manifest_columns)
+
+    base_id = plan["base_id"]
+    strata_key = plan["strata_key"]
+    score = splitmix64(base_id, seed)
+
+    # O(N) segmented minimum replaces an O(N log N) global lexicographic sort.
+    # In the vanishingly rare event of a 64-bit score tie, choose the earliest
+    # stratum position, matching the stable order used by the established path.
+    minimum_score = np.full(plan["strata_count"], np.iinfo(np.uint64).max, dtype=np.uint64)
+    np.minimum.at(minimum_score, strata_key, score)
+    tied = np.flatnonzero(score == minimum_score[strata_key])
+    representatives = np.full(plan["strata_count"], len(base_id), dtype=np.int64)
+    np.minimum.at(representatives, strata_key[tied], tied)
+
+    second_score = splitmix64(base_id[representatives], seed ^ 0xA5A5A5A5)
+    image_group = plan["image_group_key"][representatives]
+    representative_order = np.lexsort(
+        (np.arange(len(representatives), dtype=np.int64), second_score, image_group)
+    )
+    ordered_representatives = representatives[representative_order]
+    ordered_image_group = image_group[representative_order]
+    group_starts = np.r_[0, np.flatnonzero(ordered_image_group[1:] != ordered_image_group[:-1]) + 1]
+    group_lengths = np.diff(np.r_[group_starts, len(ordered_image_group)])
+    within_group_rank = np.arange(len(ordered_image_group)) - np.repeat(group_starts, group_lengths)
+    keep = within_group_rank < plan["quota_by_image_group"][ordered_image_group]
+    selected = ordered_representatives[keep]
+
+    # Restore the public sample ordering of the established implementation.
+    selected = selected[
+        np.lexsort(
+            (
+                plan["thermal_col"][selected],
+                plan["thermal_row"][selected],
+                plan["image_key"][selected],
+                plan["group_key"][selected],
+            )
+        )
+    ]
+    sample = frame.iloc[plan["positions"][selected]].copy().reset_index(drop=True)
+    sample["analysis_family"] = family
+    sample["group_name"] = plan["group_name"][selected]
+    sample["sampling_seed"] = int(seed)
+    sample["tile_row"] = plan["tile_row"][selected].astype(np.int16, copy=False)
+    sample["tile_col"] = plan["tile_col"][selected].astype(np.int16, copy=False)
+    sample["sampling_method"] = sampling["method"]
+    sample["source_population_count"] = plan["group_population"][
+        plan["group_key"][selected]
+    ].astype(np.int64, copy=False)
+
+    if not build_manifest:
+        return sample, pd.DataFrame(columns=manifest_columns)
+    manifest = plan["manifest_base"].copy()
+    manifest.insert(0, "analysis_family", family)
+    manifest["sampling_seed"] = int(seed)
+    manifest["sampling_method"] = sampling["method"]
+    manifest["spatial_tile_size_px"] = int(sampling["spatial_tile_size_px"])
+    manifest["max_pixels_per_group"] = int(sampling["max_pixels_per_group"])
+    manifest["max_pixels_per_image_per_group"] = int(
+        sampling["max_pixels_per_image_per_group"]
+    )
+    return sample, manifest
+
+
+def spatially_thinned_sample(
+    frame: pd.DataFrame,
+    family: str,
+    config: dict[str, Any],
+    seed: int,
+    *,
+    eligible_groups: tuple[np.ndarray, pd.Series] | None = None,
+    sampling_plan: dict[str, Any] | None = None,
+    build_manifest: bool = True,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    if sampling_plan is not None:
+        return _sample_from_spatial_sampling_plan(
+            frame,
+            family,
+            config,
+            seed,
+            sampling_plan,
+            build_manifest=build_manifest,
+        )
+    sampling = config["sampling"]
+    eligible, groups = eligible_groups or family_eligible_and_group(frame, family)
     positions = np.flatnonzero(eligible)
     if not positions.size:
-        return pd.DataFrame(columns=SAMPLE_COLUMNS), pd.DataFrame()
+        sample_columns = SAMPLE_COLUMNS + [
+            "analysis_family", "group_name", "sampling_seed", "tile_row", "tile_col",
+            "sampling_method", "source_population_count",
+        ]
+        manifest_columns = [
+            "analysis_family", "group_name", "image_id", "eligible_pixel_count",
+            "sampled_pixel_count", "sampling_fraction", "sampling_seed", "sampling_method",
+            "spatial_tile_size_px", "max_pixels_per_group", "max_pixels_per_image_per_group",
+        ]
+        return pd.DataFrame(columns=sample_columns), pd.DataFrame(columns=manifest_columns)
     work = pd.DataFrame(
         {
             "position": positions,
@@ -415,19 +731,18 @@ def spatially_thinned_sample(
             "thermal_col": frame.iloc[positions]["thermal_col"].to_numpy(dtype=np.int32),
         }
     )
-    image_codes, image_labels = pd.factorize(work["image_id"], sort=True)
-    group_codes, group_labels = pd.factorize(work["group_name"], sort=True)
     tile_size = int(sampling["spatial_tile_size_px"])
-    tile_cols = math.ceil(EXPECTED_SHAPE[1] / tile_size)
-    tile_count = math.ceil(EXPECTED_SHAPE[0] / tile_size) * tile_cols
     work["tile_row"] = work["thermal_row"] // tile_size
     work["tile_col"] = work["thermal_col"] // tile_size
-    tile_code = work["tile_row"].to_numpy(np.int64) * tile_cols + work["tile_col"].to_numpy(np.int64)
-    strata_key = (image_codes.astype(np.int64) * len(group_labels) + group_codes.astype(np.int64)) * tile_count + tile_code
-    base_id = image_codes.astype(np.uint64) * np.uint64(EXPECTED_SHAPE[0] * EXPECTED_SHAPE[1]) + (
-        work["thermal_row"].to_numpy(np.uint64) * np.uint64(EXPECTED_SHAPE[1])
-        + work["thermal_col"].to_numpy(np.uint64)
+    strata_key, _ = pd.factorize(
+        pd.MultiIndex.from_frame(work[["image_id", "group_name", "tile_row", "tile_col"]]),
+        sort=True,
     )
+    pixel_key, _ = pd.factorize(
+        pd.MultiIndex.from_frame(work[["image_id", "thermal_row", "thermal_col"]]),
+        sort=True,
+    )
+    base_id = pixel_key.astype(np.uint64)
     score = splitmix64(base_id, seed)
     order = np.lexsort((score, strata_key))
     sorted_keys = strata_key[order]
@@ -483,8 +798,46 @@ def spatially_thinned_sample(
 
 
 def read_canonical(config: dict[str, Any], columns: list[str] | None = None) -> pd.DataFrame:
-    table = pq.read_table(project_path(config["outputs"]["canonical_parquet"]), columns=columns)
-    return table.to_pandas(strings_to_categorical=True)
+    path = project_path(config["outputs"]["canonical_parquet"])
+    available = set(pq.ParquetFile(path).schema_arrow.names)
+    selected = None if columns is None else [column for column in columns if column in available]
+    frame = pq.read_table(path, columns=selected).to_pandas(strings_to_categorical=True)
+    defaults: dict[str, Any] = {
+        "source_method": "visible_review",
+        "measurement_type": "full_thermal_pixel",
+        "temperature_source": "legacy_part_d",
+        "temperature_definition": "legacy definition unavailable",
+        "temperature_unit": "degC",
+        "ambient_source": "legacy unavailable",
+        "ambient_definition": "legacy unavailable",
+        "ambient_unit": "degC",
+        "ambient_data_qa_status": "legacy unavailable",
+        "ambient_provenance": "legacy unavailable",
+        "ambient_source_record": "",
+        "label_provenance": "visible_review",
+        "surface_cover_provenance": "visible_review",
+        "luhk_provenance": "unknown",
+        "label_known": frame.get("surface_cover_valid", pd.Series(False, index=frame.index)),
+        "analysis_eligible": frame.get("surface_cover_valid", pd.Series(False, index=frame.index)),
+        "target_mask": frame.get(
+            "analysis_eligible",
+            frame.get("surface_cover_valid", pd.Series(False, index=frame.index)),
+        ),
+        "exclusion_reason": "",
+        "target_name": "",
+        "target_id": "",
+        "qa_status": "pass",
+        "annotation_review_status": frame.get("surface_cover_review_status", pd.Series("", index=frame.index)),
+    }
+    for column, value in defaults.items():
+        if column not in frame.columns:
+            frame[column] = value
+    if columns is not None:
+        missing = [column for column in columns if column not in frame.columns]
+        if missing:
+            raise ValueError(f"Canonical dataset is missing required columns: {missing}")
+        return frame[columns]
+    return frame
 
 
 def write_sample_outputs(config: dict[str, Any], family: str, sample: pd.DataFrame) -> None:
@@ -500,7 +853,7 @@ def write_sample_outputs(config: dict[str, Any], family: str, sample: pd.DataFra
         "sampling_method",
         "source_population_count",
     ]
-    output = sample[[column for column in ordered if column in sample.columns]].copy()
+    output = sample.reindex(columns=ordered).copy()
     for column in output.select_dtypes(include="category").columns:
         output[column] = output[column].astype(str)
     output.to_parquet(directory / f"{base}.parquet", index=False, compression="zstd")

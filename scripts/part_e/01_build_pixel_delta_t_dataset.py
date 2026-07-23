@@ -12,7 +12,6 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from part_e_pixel_common import (
-    EXPECTED_SHAPE,
     build_image_records,
     build_luhk_pixel_labels,
     class_mapping,
@@ -35,6 +34,8 @@ CANONICAL_COLUMNS = [
     "luhk_cell_id", "luhk_grid_row", "luhk_grid_col", "luhk_class_code", "luhk_class_name",
     "luhk_assignment_method", "luhk_label_valid",
     "surface_cover_class_id", "surface_cover_class", "surface_cover_valid", "surface_cover_review_status",
+    "source_method", "label_provenance", "label_known", "analysis_eligible", "exclusion_reason",
+    "target_name", "annotation_review_status",
     "shadow_flag", "shadow_valid", "location", "relative_altitude_m", "gps_latitude", "gps_longitude",
     "solar_azimuth", "solar_elevation", "pair_id", "spatial_label_uncertainty",
 ]
@@ -49,6 +50,9 @@ SCHEMA = pa.schema([
     pa.field("luhk_cell_id", pa.string()), pa.field("luhk_grid_row", pa.int32()), pa.field("luhk_grid_col", pa.int32()),
     pa.field("luhk_class_code", pa.int16()), pa.field("luhk_class_name", pa.string()), pa.field("luhk_assignment_method", pa.string()), pa.field("luhk_label_valid", pa.bool_()),
     pa.field("surface_cover_class_id", pa.int16()), pa.field("surface_cover_class", pa.string()), pa.field("surface_cover_valid", pa.bool_()), pa.field("surface_cover_review_status", pa.string()),
+    pa.field("source_method", pa.string()), pa.field("label_provenance", pa.string()), pa.field("label_known", pa.bool_()),
+    pa.field("analysis_eligible", pa.bool_()), pa.field("exclusion_reason", pa.string()),
+    pa.field("target_name", pa.string()), pa.field("annotation_review_status", pa.string()),
     pa.field("shadow_flag", pa.int8()), pa.field("shadow_valid", pa.bool_()), pa.field("location", pa.string()),
     pa.field("relative_altitude_m", pa.float32()), pa.field("gps_latitude", pa.float64()), pa.field("gps_longitude", pa.float64()),
     pa.field("solar_azimuth", pa.float32()), pa.field("solar_elevation", pa.float32()), pa.field("pair_id", pa.string()), pa.field("spatial_label_uncertainty", pa.string()),
@@ -59,6 +63,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", default="config/part_e_delta_t_analysis.json")
     parser.add_argument("--overwrite", action="store_true")
+    parser.add_argument(
+        "--write-full-pixel-csv",
+        action="store_true",
+        help="Explicitly export large per-image pixel CSV files (disabled by default).",
+    )
     return parser.parse_args()
 
 
@@ -73,11 +82,12 @@ def scalar(value: object, default: float = np.nan) -> float:
 def build_image_frame(record: pd.Series, tables: dict[str, pd.DataFrame], config: dict) -> pd.DataFrame:
     image_id = str(record["image_id"])
     temperature = load_temperature(record)
-    cover_mask, shadow_mask = load_masks(record)
-    luhk = build_luhk_pixel_labels(record, tables)
+    height, width = temperature.shape
+    cover_mask, shadow_mask = load_masks(record, temperature.shape)
+    luhk = build_luhk_pixel_labels(record, tables, temperature.shape)
     cover_names = class_mapping(tables)
-    rows = np.repeat(np.arange(EXPECTED_SHAPE[0], dtype=np.int16), EXPECTED_SHAPE[1])
-    cols = np.tile(np.arange(EXPECTED_SHAPE[1], dtype=np.int16), EXPECTED_SHAPE[0])
+    rows = np.repeat(np.arange(height, dtype=np.int16), width)
+    cols = np.tile(np.arange(width, dtype=np.int16), height)
     flat_temperature = temperature.ravel(order="C")
     finite = np.isfinite(flat_temperature)
     ambient = np.float32(record["ambient_temperature_c"])
@@ -101,6 +111,10 @@ def build_image_frame(record: pd.Series, tables: dict[str, pd.DataFrame], config
     cover_name = np.array([cover_names.get(int(value), "unknown_or_unlabelled") for value in cover_id], dtype=object)
     cover_name[~cover_valid] = "unknown_or_unlabelled"
     review_status = np.where(cover_valid, str(record.get("manual_review_status", "all_reviewed")), "unlabelled_or_excluded")
+    analysis_eligible = finite & cover_valid
+    exclusion_reason = np.full(flat_temperature.size, "", dtype=object)
+    exclusion_reason[~finite] = "non_finite_temperature"
+    exclusion_reason[finite & ~cover_valid] = "label_unknown_or_excluded"
 
     if shadow_mask is None:
         shadow_flag = pd.array([pd.NA] * flat_temperature.size, dtype="Int8")
@@ -145,6 +159,13 @@ def build_image_frame(record: pd.Series, tables: dict[str, pd.DataFrame], config
         "surface_cover_class": cover_name,
         "surface_cover_valid": cover_valid,
         "surface_cover_review_status": review_status,
+        "source_method": np.repeat("visible_review", n),
+        "label_provenance": np.repeat("visible_review", n),
+        "label_known": cover_valid,
+        "analysis_eligible": analysis_eligible,
+        "exclusion_reason": exclusion_reason,
+        "target_name": np.repeat("", n),
+        "annotation_review_status": review_status,
         "shadow_flag": shadow_flag,
         "shadow_valid": shadow_valid,
         "location": np.repeat("HKUST", n),
@@ -190,12 +211,14 @@ def main() -> int:
                 raise ValueError(f"Pixel delta-T arithmetic failed for {image_id}.")
             table = pa.Table.from_pandas(frame, schema=SCHEMA, preserve_index=False, safe=False)
             writer.write_table(table, row_group_size=65536)
-            frame.to_csv(excel_source_dir / f"{image_id}_pixel_data.csv", index=False, encoding="utf-8-sig")
+            if args.write_full_pixel_csv or bool(config.get("write_full_pixel_csv", False)):
+                frame.to_csv(excel_source_dir / f"{image_id}_pixel_data.csv", index=False, encoding="utf-8-sig")
             finite_values = frame.loc[accepted, "temperature_c"].astype(float)
             delta_values = frame.loc[accepted, "delta_t_c"].astype(float)
             summaries.append({
                 "image_id": image_id,
-                "image_height": EXPECTED_SHAPE[0], "image_width": EXPECTED_SHAPE[1],
+                "image_height": int(record.get("image_height", frame["thermal_row"].max() + 1)),
+                "image_width": int(record.get("image_width", frame["thermal_col"].max() + 1)),
                 "total_pixel_count": len(frame), "finite_pixel_count": int(accepted.sum()), "accepted_pixel_count": int(accepted.sum()),
                 "luhk_labelled_pixel_count": int(frame["luhk_label_valid"].sum()),
                 "cover_labelled_pixel_count": int(frame["surface_cover_valid"].sum()),

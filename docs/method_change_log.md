@@ -1,5 +1,114 @@
 # Method Change Log
 
+## 2026-07-22 Version 0.3.2 LUHK restoration and same-location temporal analysis
+
+Version 0.3.2 keeps canonical schema `0.2.0` and changes the processing version
+to `heat-index-urop-0.3.2`. This is an orchestration, provenance, and analysis
+validity update; it does not redefine the established LUHK classification.
+The Part C LUHK work is deliberately a reconnection of the older verified
+method, not a new land-use algorithm: it retains the official 10 m cell mapping,
+controlled category vocabulary, and metadata-derived north-up footprint
+assumptions. New work is limited to native-grid exposure, dependency and
+consistency checks, explicit unavailable states, provenance, cache wiring, GUI
+display, and downstream Part E integration.
+
+- Reconnected the existing Part C official 10 m LUHK pixel-centre mapping to
+  normal-route canonical arrays, manifests, cache dependencies, Part C's
+  read-only context panel, and all supported Part E LUHK outputs. The mapping
+  retains its metadata-derived north-up footprint uncertainty and remains
+  separate from user-reviewed visible surface cover.
+- Kept Part C* LUHK target-scoped: accepted polygon pixels may carry reviewed
+  LUHK context, while polygon exterior pixels remain unknown and ineligible.
+- Made temporal analysis opt-in and prohibited automatic grouping by dataset,
+  run, filename, time, source, or cover. Every group now requires explicit
+  same-location and comparable-ROI confirmation; conflicting spatial evidence
+  requires a recorded manual override.
+- Added observed hottest/coolest captures and times, representative ROI and
+  absolute pixel peak-to-trough ranges, compatible ΔT ranges, sampling-window
+  honesty, multiple independent groups, and registration-gated pixelwise maps.
+- Repaired capture-time propagation from EXIF/DJI/user/filename sources through
+  Part A, canonical pixels, Part E, temporal tables, and readable user reports,
+  with explicit fallback provenance for older manifests.
+- Restricted formal Part E sampling and statistics to accepted finite,
+  analysis-eligible target pixels; polygon exterior rows remain in canonical
+  storage but cannot enter target statistics.
+- Made formal Part E output run-scoped. Each workflow run now writes to its own
+  `part_e/schema_0_2/<run_id>/` root, and `USER_RESULTS.md` points to that exact
+  root; persistent canonical images may be reused without overwriting or
+  confusing the scientific outputs of another run.
+- Extended the ordinary-user launcher with conversational temporal decisions,
+  several explicitly selected V/T groups, repeatable TAT3 reports, and readable
+  final results without user-authored JSON or configuration files.
+
+Local real-data acceptance evidence on 2026-07-22 confirmed the GUI terminal
+contract: normal Part C Cancel returned non-accepted and did not create a new
+successful canonical result, while Accept returned accepted and continued to
+canonical creation. It also completed the explicitly confirmed three-capture
+football-field group `hkust-football-field-20260202` under workflow run
+`run_20260722T053855Z`: three EXIF-timed captures produced a 20.362969 degC
+ROI-mean observed range, a 40.37802 degC absolute-pixel range, and a provisional
+24.36297 degC ROI-mean delta-T range. The accepted polygons vary, so the result
+is target-level only; cross-capture pixel registration is unconfirmed and the
+09:11:28--17:04:53 window is not a full day. A separate six-image run
+`run_20260722T055625Z` completed all five normal-pilot routes plus the football
+Part C* route. Its run-scoped Part E subsequently completed final validation
+with exactly six image IDs, 8 spectrum PNG/PDF pairs and 48 spatial PNG/PDF
+pairs. The single football capture receives full descriptive statistics but no
+fabricated temporal trend, peak-to-trough estimate, or blank temporal figure.
+
+The stability stage now caches the seed-invariant eligibility, source strata,
+spatial-tile plan and quotas once per family, then performs an O(N) segmented
+minimum for each deterministic seed. Regression tests compare the complete
+sample and manifest against the prior sampler for multiple seeds; selected
+original pixels and scientific sampling rules are unchanged.
+
+## 2026-07-18 Version 0.3 spatial and temporal integration
+
+Version 0.3 preserves the validated A–E scientific methods and keeps canonical
+schema `0.2.0`, while changing the processing version to
+`heat-index-urop-0.3.1` after the GUI and ordinary-user workflow maintenance release.
+
+- Replaced the legacy five-pilot spatial reader with a canonical-Parquet stage
+  supporting normal and polygon pixels, dynamic dimensions, source strata,
+  optional LUHK/shadow/ambient, target boundaries, unknown and failed pixels,
+  unavailable panels, PNG/PDF output, and file-level completeness validation.
+- Extended the formal Part E runner through `spatial-figures`; an empty spatial
+  directory can no longer be cached as complete.
+- Added a single capture-level temporal implementation. Pixels, polygon pixels,
+  TAT3 points, and TAT3 regions are first summarized within image; cross-time
+  outputs weight each image/capture once.
+- Added deterministic time parsing, explicit timezone assumptions, duplicate
+  diagnostics, irregular intervals, stable target linkage, missing-ambient
+  exclusions, compatibility strata, PNG/PDF figures, QA, and cache invalidation.
+- Added optional `target_id` and mapped temperature/ambient definition fields.
+  They are additive metadata, so a schema bump is not justified; schema-0.2 and
+  schema-0.1 readers remain compatible.
+- The professor's approximately 26°C soccer-field ΔT is not hard-coded or
+  claimed. Accessible conversation text identifies a 2026-02-02 full-day,
+  noon-peak, HKUST soccer-field ad-hoc result, but does not uniquely define its
+  statistic, ambient source, screenshots, or TAT3 parameters.
+
+## 2026-07-17 Version 0.1 modular local MVP
+
+The verified five-image workflow is now exposed through
+`scripts/run_analysis.py` with versioned per-image manifests, compatible-result
+reuse, explicit Part B review states, and a thermal-polygon fallback. This is an
+orchestration and contract change; it does not replace the verified alignment,
+visible review, TAT3/DJI extraction, or formal Part E methods.
+
+Key implications:
+
+- Automatic alignment quality remains candidate evidence and cannot create a
+  final acceptance without manual review.
+- Thermal-polygon labels are known only inside the accepted polygon; exterior
+  pixels remain unknown and are excluded from target analysis.
+- Native thermal dimensions and optional shadow masks are supported.
+- NPY and compressed Parquet are canonical. Full pixel CSV and per-image Excel
+  exports require explicit flags.
+- Source method, label provenance, eligibility, and exclusion reason are
+  retained through common Part E ingestion.
+- Existing pilot outputs remain regression evidence and are not deleted.
+
 ## 2026-07-16 Part E pixel-level spectrum priority
 
 Part E's primary scientific visual result is now the pixel-level ΔT
@@ -146,3 +255,43 @@ Practical implication: LUHK answers "what official land-use context is this
 thermal ROI in?", while visible-image segmentation answers "what surface-cover
 patches are visible inside the thermal ROI?" These should remain separate
 analysis layers.
+
+## 2026-07-17 version 0.2 persistent integration
+
+Version 0.2 modularizes and connects the original A–E scientific functions; it
+does not replace their formulas, class mapping, SLIC method, alignment scoring,
+DJI temperature calculation, spatial thinning, statistical tests, effect sizes,
+or SciPy KDE interpretation.
+
+Changes with demonstrated correctness reasons:
+
+- Added non-centred structural Part B0 triage before full Part B. It is a review
+  boundary, never final alignment acceptance.
+- Extracted reusable Part C final-mask logic and shared Part D SDK extraction so
+  there is one active implementation of each method.
+- Added explicit final Part B review gating, a headlessly testable superpixel
+  review controller/GUI, and audited label-override requirements.
+- Extended Part C* with target-scoped LUHK context; exterior target context is
+  unknown rather than extrapolated.
+- Introduced schema 0.2, dependency-complete cache checks, atomic result/index
+  sequencing, failed-QA isolation, and read-only schema-0.1 compatibility.
+- Adapted schema-0.2 Parquet to the original formal Part E stages, removing
+  fixed pilot-ID/dimension and mandatory LUHK/shadow/ambient assumptions while
+  preserving the validated sampling/statistics/KDE methods.
+- Made source/provenance strata explicit and equal-image dashboards primary;
+  incompatible measurement types are not pooled by default.
+- Added deterministic Min/Max/q99 tables/figures and a separate non-canonical
+  temporary TAT3 point/region workflow.
+- User-acceptance execution of all five pilots exposed that their initial B0
+  scores can be mismatch candidates even though preserved downstream manual
+  review and grid-compatible Part D evidence accepts the pairs. Explicit
+  accepted B0 evidence now takes precedence over the automatic triage
+  candidate only to continue into full Part B, never to accept alignment
+  directly. The applied review decision is also persisted atomically in the
+  Part B0 record. No B0 score, threshold, or scientific alignment method was
+  changed.
+
+The five-image masks and temperature matrices were frozen before the reusable
+Part C/Part D refactors. Exact hashes and numeric summaries are regression
+tested. Intentional differences are schema/provenance fields, review-state
+strictness, target/LUHK semantics, cache completeness, and optional-family QA.
