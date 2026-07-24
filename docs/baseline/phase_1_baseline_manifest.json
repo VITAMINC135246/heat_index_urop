@@ -1,0 +1,689 @@
+{
+  "baseline_manifest_format": 1,
+  "baseline_scope": {
+    "accepted_scientific_baseline": "pre-Phase-1 HEAD plus explicitly recorded accepted artifacts",
+    "capture_date": "2026-07-24",
+    "phase": 1,
+    "phase_2_started": false,
+    "production_behavior_changed": false,
+    "scientific_method_changed": false
+  },
+  "git": {
+    "branch": "main",
+    "commit_sha": "953e97408689736296b4f05198932f54cfea667f",
+    "commit_timestamp": "2026-07-23T23:29:25+08:00",
+    "commit_subject": "Merge v0.3.2 LUHK and temporal workflow",
+    "local_main_sha": "953e97408689736296b4f05198932f54cfea667f",
+    "remote_tracking_ref": "refs/remotes/origin/main",
+    "remote_tracking_sha": "953e97408689736296b4f05198932f54cfea667f",
+    "remote_relationship": "local main matched the already configured origin/main tracking ref; no fetch was performed",
+    "repository_root": ".",
+    "tags_at_head": [],
+    "prior_validation_tags": [
+      {
+        "commit_sha": "90a10d605d19bb3221dfca4353c8df9111f1dc5a",
+        "name": "pre-e2e-validation-2026-07-15"
+      }
+    ],
+    "initial_worktree": {
+      "clean_tracked_and_staged": true,
+      "status_entry_count": 57,
+      "tracked_or_staged_entry_count": 0,
+      "preexisting_untracked_groups": [
+        {
+          "entry_count": 55,
+          "path": "commit_code_exports/",
+          "role": "user-owned code-export archives, patches, and manifest; excluded from baseline evidence"
+        },
+        {
+          "entry_count": 2,
+          "path": "outputs/presentations/",
+          "role": "user-owned presentation and inspection record; excluded from baseline evidence"
+        }
+      ]
+    }
+  },
+  "reference_environment": {
+    "architecture": "AMD64",
+    "implementation": "CPython",
+    "installer_and_build_tools": {
+      "build": "not installed",
+      "pip": "26.1.2",
+      "setuptools": "not installed",
+      "wheel": "not installed"
+    },
+    "native_libraries": {
+      "GDAL": "3.12.1",
+      "GEOS": "3.13.1",
+      "OpenCV": "5.0.0",
+      "PROJ": "9.5.1"
+    },
+    "normalized_python_executable": ".venv/Scripts/python.exe",
+    "operating_system": "Windows 11 10.0.22631",
+    "optional_dependencies_present": {
+      "Pillow": true,
+      "geopandas": true,
+      "openpyxl": true,
+      "pyarrow": true,
+      "pytest": true,
+      "scikit-image": true,
+      "scipy": true,
+      "statsmodels": true
+    },
+    "package_inventory_capture_command": ".venv/Scripts/python.exe -m pip list --format=freeze --disable-pip-version-check",
+    "package_inventory_normalization": "case-preserving freeze lines sorted by Unicode casefold and then original text, joined with LF, with one final LF",
+    "package_inventory_sha256": "dde29788964ea1fb90f0773bd5be21b3f1db69e57fcf0062fc5d1422a5237da4",
+    "packages": [
+      "affine==2.4.0",
+      "attrs==26.1.0",
+      "certifi==2026.6.17",
+      "click==8.4.2",
+      "cligj==0.7.2",
+      "colorama==0.4.6",
+      "contourpy==1.3.3",
+      "cycler==0.12.1",
+      "et_xmlfile==2.0.0",
+      "fonttools==4.63.0",
+      "geopandas==1.1.4",
+      "ImageIO==2.37.3",
+      "iniconfig==2.3.0",
+      "kiwisolver==1.5.0",
+      "lazy-loader==0.5",
+      "matplotlib==3.11.0",
+      "networkx==3.6.1",
+      "numpy==2.5.1",
+      "opencv-python-headless==5.0.0.93",
+      "openpyxl==3.1.5",
+      "packaging==26.2",
+      "pandas==3.0.3",
+      "patsy==1.0.2",
+      "pillow==12.3.0",
+      "pip==26.1.2",
+      "pluggy==1.6.0",
+      "pyarrow==25.0.0",
+      "Pygments==2.20.0",
+      "pyogrio==0.13.0",
+      "pyparsing==3.3.2",
+      "pyproj==3.7.2",
+      "pytest==9.1.1",
+      "python-dateutil==2.9.0.post0",
+      "rasterio==1.5.0",
+      "scikit-image==0.26.0",
+      "scipy==1.18.0",
+      "shapely==2.1.2",
+      "six==1.17.0",
+      "statsmodels==0.14.6",
+      "tifffile==2026.6.1",
+      "tzdata==2026.2"
+    ],
+    "platform": "win-amd64",
+    "python_version": "3.12.13",
+    "python_build": "MSC v.1944 64 bit (AMD64)"
+  },
+  "external_tools": [
+    {
+      "architecture": "x64",
+      "availability": "available and safely version-queryable",
+      "capabilities": [
+        "radiometric measure action",
+        "float32 native-grid output",
+        "distance parameter",
+        "humidity parameter",
+        "emissivity parameter",
+        "ambient parameter",
+        "reflection parameter"
+      ],
+      "identity_source": "non-interactive --version output, executable hash, accepted manifest metadata, and accepted SDK output metadata",
+      "name": "DJI Thermal SDK dji_irp.exe",
+      "normalized_path": "<DJI_SDK_ROOT>/utility/bin/windows/release_x64/dji_irp.exe",
+      "reported_version": "APP version: V1.7",
+      "sha256": "58e693879f8cf504738ed9f9ced8769dd0d1c81a532b0e6683f2c4f2d8654372",
+      "size": 126976
+    },
+    {
+      "architecture": "64-bit Windows distribution",
+      "availability": "distribution present; interactive -k wrapper was not launched",
+      "capabilities": [
+        "image metadata extraction used by Part A inventory tooling"
+      ],
+      "identity_source": "distribution directory name, bundled README, and executable hash",
+      "limitation": "The installed wrapper is named exiftool(-k).exe and is documented as interactive. Version 13.59 is distribution identity evidence, not live command output.",
+      "name": "ExifTool",
+      "normalized_path": "<REPO_LOCAL_EXIFTOOL>/exiftool(-k).exe",
+      "reported_version": "13.59",
+      "sha256": "68c079c32fdae0d6c7130e9a5fb73f8ac9dabdf9ab8da312da4f6c549d6d3385",
+      "size": 58368
+    },
+    {
+      "availability": "no standalone executable identity established",
+      "capabilities": [
+        "accepted radiometric parameter report source",
+        "accepted ambient and reflected parameter source"
+      ],
+      "identity_source": "accepted local report metadata and report hashes",
+      "limitation": "No TAT3 version was invented and no TAT3 GUI was opened. Report files remain ignored local artifacts.",
+      "name": "TAT3",
+      "representative_local_report_hashes": [
+        {
+          "record_id": "<LOCAL_TAT3_REPORT>/combined_report__2026_07_15_22_43_23.docx",
+          "role": "five-pilot parameter source",
+          "sha256": "50fa623f2650e37fea5ccf992abb40532b00ceea37ed36d3959fffb4c2a86023",
+          "size": 4356037
+        },
+        {
+          "record_id": "<LOCAL_TAT3_REPORT>/combined_report__2026_07_17_18_12_48.docx",
+          "role": "football-field 09:11 capture parameter source",
+          "sha256": "7959faef7132c5d30eb85c74f363245362a806347ebb18bcb1e601f974b4dee9",
+          "size": 47141638
+        }
+      ]
+    },
+    {
+      "architecture": "x64",
+      "availability": "installed; not launched",
+      "identity_source": "executable version metadata and hash",
+      "name": "Microsoft Excel",
+      "normalized_path": "<MICROSOFT_OFFICE>/EXCEL.EXE",
+      "product_version": "16.0.20131.20154",
+      "sha256": "99fd42191aec291db9d8988c4f09ad12ff15c424386c30a733499ee5ae281346"
+    },
+    {
+      "availability": "available",
+      "identity_source": "non-interactive CLI version output",
+      "name": "Node.js",
+      "reported_version": "v22.18.0"
+    },
+    {
+      "availability": "available",
+      "edition": "Desktop",
+      "identity_source": "runtime metadata",
+      "name": "Windows PowerShell",
+      "reported_version": "5.1.22621.5624"
+    }
+  ],
+  "configurations": {
+    "tracked_immutable_inputs": [
+      {
+        "path": "config/workflow_v0_3.json",
+        "purpose": "ordinary production workflow configuration",
+        "sha256": "0cd65800b608db15133e1bc8081cb2f9c845a019fa7e0b2c2260a2ec4b53bef8",
+        "size": 1991
+      },
+      {
+        "path": "config/workflow_v0_3_acceptance.json",
+        "purpose": "v0.3 acceptance workflow configuration",
+        "sha256": "fda847841a91646d6be99a3fef8e4c44a9e70f8976231a1b6c0e5439d4ea293f",
+        "size": 2110
+      },
+      {
+        "path": "config/part_d_sdk.template.json",
+        "purpose": "Part D local SDK configuration contract",
+        "sha256": "457ad5c621b20c247e8248cd62c69d5b24f664924e087184b60ce51db250aa30",
+        "size": 147
+      },
+      {
+        "path": "config/part_e_delta_t_analysis.json",
+        "purpose": "production Part E sampling and statistical configuration",
+        "sha256": "a5d597f151515e2c6f89fd66a34521a22c51a7da5c64fe3b3b9aba23b7ca48e3",
+        "size": 4149
+      },
+      {
+        "path": "config/part_e_delta_t_analysis.template.json",
+        "purpose": "Part E configuration template and accepted parameter contract",
+        "sha256": "dc78dea2e6242abd302a594cd6d97cc5295b2cfe48096399d87135bbd9cd58c9",
+        "size": 1007
+      },
+      {
+        "path": "config/acceptance/v0_3_soccer_ambient_template.json",
+        "purpose": "redacted football-field ambient evidence template",
+        "sha256": "019f805f1b0b09a28acf6eba5d6e0ae3dda56c29faba135b697639c715e17803",
+        "size": 402
+      },
+      {
+        "path": "config/acceptance/v0_3_soccer_polygon_template.json",
+        "purpose": "redacted football-field polygon evidence template",
+        "sha256": "4b52509c42946604e08e6bf46340caad51fd37a4a061fcca64f6da02e7dd3e0a",
+        "size": 563
+      },
+      {
+        "path": "data/LUHK2024_SC.xlsx",
+        "purpose": "accepted LUHK category mapping",
+        "sha256": "876030ccf100efd2f945064d6568145729444ac4f553b9fbfc75ce9fadc91983",
+        "size": 6255
+      },
+      {
+        "path": "data/annotations/part_c/surface_cover_class_mapping.xlsx",
+        "purpose": "accepted physical surface-cover mapping",
+        "sha256": "e77902bafc2ef0a8bb680ae0245941bf4c111f4186db85ef6bcd3e8b008edcec",
+        "size": 5507
+      },
+      {
+        "path": "data/annotations/part_c/shadow_flag_mapping.xlsx",
+        "purpose": "accepted shadow mapping",
+        "sha256": "ae4f95333f10bf28d7d59cfcb896555639208797991a5b486c1e9c9b2236d23c",
+        "size": 5050
+      },
+      {
+        "path": "data/metadata/visible_camera_profiles.xlsx",
+        "purpose": "accepted camera profiles",
+        "sha256": "4cbb839639373fdc5f35b1ab4e2bfaa43325244b850adfaa796bf3823b899aba",
+        "size": 5510
+      },
+      {
+        "path": "data/metadata/part_e_ambient_temperature_manifest.csv",
+        "purpose": "accepted pilot ambient provenance",
+        "sha256": "aa052600e7f9e373c1776125c90836e777626e062adcf5744e7f97f710de5313",
+        "size": 1313
+      },
+      {
+        "path": "data/metadata/part_b_pilot_pairs.xlsx",
+        "purpose": "accepted pilot pairing and Part B source contract",
+        "sha256": "36abdfd9ed9c616dcffb2aec77d21ce85031033902e86eae7526336cf7a2ba9f",
+        "size": 7678
+      }
+    ],
+    "ignored_local_part_d_configuration": {
+      "file_hash_not_recorded": true,
+      "normalization": "Only non-path scalar keys were serialized as compact JSON in fixed key order. Operational sdk_root and dji_irp_exe values were excluded.",
+      "normalized_scientific_and_output_control_values": {
+        "ambient_temperature_c": 25.0,
+        "distance_m": 5.0,
+        "emissivity": 1.0,
+        "keep_sdk_raw": false,
+        "measure_format": "float32",
+        "reflected_temperature_c": 23.0,
+        "relative_humidity_percent": 70.0,
+        "write_matrix_csv": true
+      },
+      "normalized_values_sha256": "a8b841bba3d5a80998b275966c4baefd4571c89d5088ad60cd171ea703ac12b1",
+      "path_label": "config/part_d_sdk.local.json",
+      "role_limitation": "These local defaults are not the accepted per-image effective radiometric values. Accepted outputs record per-image TAT3-derived values and configuration hashes."
+    }
+  },
+  "tests": {
+    "collection_command": ".venv/Scripts/python.exe -m pytest --collect-only -q -p no:cacheprovider",
+    "collected_count": 117,
+    "collection_duration_seconds": 4.23,
+    "framework": "pytest 9.1.1",
+    "local_integration": {
+      "collected_count": 1,
+      "result": "passed",
+      "scope": "read ignored named local TAT3 ambient reports; no mutation"
+    },
+    "markers": [
+      "local_integration: reads ignored local assets without modifying them"
+    ],
+    "observed_result": {
+      "duration_reported_by_pytest_seconds": 186.21,
+      "end": "2026-07-24T02:55:10.4162365+08:00",
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 117,
+      "skipped": 0,
+      "start": "2026-07-24T02:52:03.2881831+08:00",
+      "wall_duration_seconds": 187.128,
+      "warnings_reported": 0,
+      "xfail": 0
+    },
+    "pollution_controls": {
+      "MPLBACKEND": "Agg",
+      "MPLCONFIGDIR": "<OS_TEMP>/heat_index_phase1_tests_<random>/mpl",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "pytest_cacheprovider": "disabled",
+      "temporary_state": "<OS_TEMP>/heat_index_phase1_tests_<random>"
+    },
+    "repository_status_unchanged": true,
+    "successful_command": ".venv/Scripts/python.exe -m pytest -ra -p no:cacheprovider",
+    "tool_exercise": "No Excel, GUI, real DJI extraction, or production workflow was exercised. SDK extraction tests used mocks. The local integration test parsed existing ignored reports."
+  },
+  "scientific_evidence": {
+    "comparison_policies": {
+      "immutable": "Byte-level SHA-256 mismatch requires explicit review.",
+      "scientific_equivalence": "Byte differences may be acceptable only when the recorded schema, provenance, masks, native-grid metrics, values, eligibility, statistics, and safeguards remain equivalent."
+    },
+    "accepted_run_scope": {
+      "part_e_run": "outputs/runs/v0_3_user_acceptance/part_e/schema_0_2/run_20260722T055625Z/",
+      "reason": "Explicitly recorded accepted six-image run: five normal Part C routes and one Part C* route.",
+      "workflow_run": "outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/"
+    },
+    "immutable_records": [
+      {
+        "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/run_summary.json",
+        "role": "accepted six-route workflow index",
+        "sha256": "8ce23b2d91fb75b773fc40b394e56af93e5092e0967dc9ff8ff1659d6b750ccd",
+        "size": 6367
+      },
+      {
+        "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/groups/DJI_20260107143259_0005/part_a.json",
+        "role": "normal-route Part A validation and capture-time record",
+        "sha256": "0c188842d060deb3a0cc885ea8f8798cdf170e3bee585ea369729c6e3c258f37",
+        "size": 3981
+      },
+      {
+        "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/groups/DJI_20260107143259_0005/part_b0/part_b0.json",
+        "role": "normal-route B0 triage and explicit review record",
+        "sha256": "8f65811293314af69119aa28d727a0a92c0ce8a6de20309dd2cbdf6838a62140",
+        "size": 1489
+      },
+      {
+        "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/groups/DJI_20260107143259_0005/part_b/part_b.json",
+        "role": "normal-route final scene-correspondence and full-support review record",
+        "sha256": "dcc7e70c17ef04b77c5b48692f859897054e709b5addbaa35e7c68c83999880e",
+        "size": 15668
+      },
+      {
+        "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/groups/DJI_20260202091128_0058/part_a.json",
+        "role": "polygon-route Part A validation and pairing-warning record",
+        "sha256": "1015b0f47d86afd7400d780cff51c090fcc4062895939c64183fc20f235ee779",
+        "size": 4014
+      },
+      {
+        "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/groups/DJI_20260202091128_0058/part_b0/part_b0.json",
+        "role": "polygon fallback B0 rejection record",
+        "sha256": "dac4a6663fa34ec5c487f381328434eb77cb676a0031207ac1e5dd4d7ff7c583",
+        "size": 1481
+      },
+      {
+        "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/groups/DJI_20260202091128_0058/part_c_star/polygon_gui_result.json",
+        "role": "accepted Part C* polygon review result",
+        "sha256": "32e07914f357adc7a08596fe04bf0ae6197f19f8ad40b6bf708e0f28d20a7ee7",
+        "size": 672
+      },
+      {
+        "path": "outputs/runs/v0_3_user_acceptance/part_e/schema_0_2/run_20260722T055625Z/qa/part_e_stage_state.json",
+        "role": "accepted run-scoped canonical and validation identity",
+        "sha256": "1ed7ab5d3323b621c2a1d0e17e5d479f15bbf8e56b6a0f82a8c2341ad295f906",
+        "size": 558
+      }
+    ],
+    "normal_route_representative": {
+      "canonical_manifest": {
+        "configuration_hash": "fd503bbc6f86d3bc019cb65672a04b46d3b59314a4b879ec5aa1fb33ad3aa0f2",
+        "path": "outputs/runs/v0_3_user_acceptance/canonical/images/DJI_20260107143259_0005/manifest.json",
+        "processing_version": "heat-index-urop-0.3.2",
+        "review_status": "accepted",
+        "schema_version": "0.2.0",
+        "sha256": "157b516560bf33afa47948fc3d9de7bc2594640dbf6cbc5f4904610cd88efc11",
+        "size": 35432
+      },
+      "image_id": "DJI_20260107143259_0005",
+      "mask_metrics": {
+        "analysis_eligible_false": 0,
+        "analysis_eligible_true": 327680,
+        "known_false": 0,
+        "known_true": 327680,
+        "luhk_counts": {
+          "gic_open_space": 222592,
+          "other_urban_built_up": 200,
+          "woodland_shrubland_grassland_wetland": 104888
+        },
+        "surface_cover_class_counts": {
+          "1": 30014,
+          "2": 20871,
+          "4": 262255,
+          "5": 14540
+        },
+        "target_false": 0,
+        "target_true": 327680
+      },
+      "native_grid": {
+        "duplicate_native_coordinates": 0,
+        "shape": [
+          512,
+          640
+        ],
+        "temperature_array_sha256": "814ef8337c79ab6646c7ccc3be6c1fd14b3323079a3c984bcba647d87627b80a",
+        "temperature_dtype": "float32",
+        "temperature_finite_count": 327680,
+        "temperature_max_c": 45.51720428466797,
+        "temperature_mean_c": 14.280268694061226,
+        "temperature_min_c": -17.569128036499023,
+        "temperature_nonfinite_count": 0,
+        "temperature_quantiles_c": {
+          "0": -17.569128036499023,
+          "1": 9.678461074829102,
+          "5": 10.742029190063477,
+          "25": 11.803552627563477,
+          "50": 13.014337539672852,
+          "75": 14.826074600219727,
+          "95": 24.705224990844727,
+          "99": 28.7086124420166,
+          "100": 45.51720428466797
+        },
+        "temperature_std_population_c": 4.11202258076433
+      },
+      "pixels": {
+        "column_count": 51,
+        "delta_t_mean_eligible_c": 3.2802686942042785,
+        "measurement_type": "full_thermal_pixel",
+        "path": "outputs/runs/v0_3_user_acceptance/canonical/images/DJI_20260107143259_0005/pixels.parquet",
+        "row_count": 327680,
+        "row_normalized_csv_sha256": "c7a436d38fc65021285b48280dfa0d853ba52ab17029e0277510a7f955872744",
+        "sha256": "7203abd414d7371630dee4c99f1fa4b9c66a549072e010f2cde6e1030212710a",
+        "source_method": "visible_review"
+      },
+      "provenance": {
+        "ambient_definition": "TAT3 exported ambient parameter; not independently validated meteorological air temperature",
+        "ambient_temperature_c": 11.0,
+        "capture_datetime": "2026-01-07T14:32:59+08:00",
+        "capture_time_source": "exif_datetime_original",
+        "luhk_provenance": "official_luhk_lookup",
+        "processing_route": "normal_visible_thermal",
+        "scene_correspondence": "accepted",
+        "surface_cover_provenance": "visible_review",
+        "thermal_coverage": "thermal_fully_supported_by_visible"
+      }
+    },
+    "accepted_run_scoped_canonical_aggregate": {
+      "column_count": 80,
+      "duplicate_native_coordinates": 0,
+      "image_ids": [
+        "DJI_20260107143259_0005",
+        "DJI_20260107143320_0007",
+        "DJI_20260107143328_0008",
+        "DJI_20260107143344_0009",
+        "DJI_20260107143401_0011",
+        "DJI_20260202091128_0058"
+      ],
+      "path": "outputs/runs/v0_3_user_acceptance/part_e/schema_0_2/run_20260722T055625Z/part_e_schema_0_2_pixels.parquet",
+      "row_count": 1966080,
+      "schema_version": "0.2.0",
+      "sha256": "aa2c3fefa1dd64620d43d2180af05958b35cefdfd93fe59957260cfe76f79a1b",
+      "size": 8854137
+    },
+    "polygon_route_representative_from_accepted_run_snapshot": {
+      "ambient_definition": "TAT3 exported ambient parameter; not independently validated meteorological air temperature",
+      "ambient_temperature_c": 10.8,
+      "delta_t_eligible_metrics_c": {
+        "count": 21047,
+        "max": 15.148724555969238,
+        "mean": 12.40711257773442,
+        "min": 8.347638130187988,
+        "std_population": 0.8196871661214118
+      },
+      "image_id": "DJI_20260202091128_0058",
+      "luhk_provenance": "user_supplied_luhk",
+      "measurement_type": "polygon_selected_thermal_pixel",
+      "native_grid_row_count": 327680,
+      "outside_target_analysis_eligible_true": 0,
+      "outside_target_known_true": 0,
+      "outside_target_luhk_known_true": 0,
+      "surface_cover_counts": {
+        "-1_unknown": 306633,
+        "5": 21047
+      },
+      "target_false": 306633,
+      "target_id": "hkust-football-field-natural-turf",
+      "target_name": "HKUST football field",
+      "target_true": 21047,
+      "temperature_definition": "per-pixel radiometric surface temperature",
+      "temperature_eligible_metrics_c": {
+        "count": 21047,
+        "max": 25.9487247467041,
+        "mean": 23.207112768469283,
+        "min": 19.14763832092285,
+        "quantiles": {
+          "0": 19.14763832092285,
+          "1": 20.867700576782227,
+          "5": 21.838342666625977,
+          "25": 22.8071231842041,
+          "50": 23.17986488342285,
+          "75": 23.626794815063477,
+          "95": 24.66839027404785,
+          "99": 25.3445987701416,
+          "100": 25.9487247467041
+        },
+        "std_population": 0.8196871661214118
+      }
+    },
+    "part_d": {
+      "extraction_method": "DJI Thermal SDK dji_irp.exe measure float32",
+      "native_dimensions": [
+        512,
+        640
+      ],
+      "qa_status": "warn",
+      "qa_flag": "outside_typical_surface_temperature_review_range",
+      "radiometric_parameter_source": "TAT3 exported report",
+      "temperature_definition": "per-pixel radiometric surface temperature",
+      "tool_sha256": "58e693879f8cf504738ed9f9ced8769dd0d1c81a532b0e6683f2c4f2d8654372",
+      "units": "degC"
+    },
+    "part_e": {
+      "comparison_policy": "scientific_equivalence; CSV schemas, exact hashes, counts, seeds, and numerical fields are baseline evidence",
+      "representative_figure": {
+        "associated_data_sha256": "aa2c3fefa1dd64620d43d2180af05958b35cefdfd93fe59957260cfe76f79a1b",
+        "dimensions": [
+          1674,
+          1069
+        ],
+        "format": "PNG",
+        "path": "outputs/runs/v0_3_user_acceptance/part_e/schema_0_2/run_20260722T055625Z/figures/spatial/DJI_20260202091128_0058_temperature_map.png",
+        "sha256": "cd957b54b79c494a3296426a848f5b067986b7f23816d027d0a7c766c0d7cec5",
+        "size": 587799,
+        "validation_record_sha256": "b5e08f425bfd5143cb6d9d81a841022948459099237919c5a979902107e1d825"
+      },
+      "tables": [
+        {
+          "path": "tables/part_e_schema_0_2_source_summary.csv",
+          "row_count": 6,
+          "sha256": "ca7b483897de87c9bbfc90a0c609ed8063213ad31d759cf1b70ff969b6e30348"
+        },
+        {
+          "path": "tables/part_e_inclusion_exclusion.csv",
+          "row_count": 6,
+          "sha256": "4224d82cb684c2cc367c83a880ef12647c8301a2844473c861932907a1b0f748"
+        },
+        {
+          "path": "tables/part_e_pixel_sampling_manifest.csv",
+          "row_count": 93,
+          "sampling_seed": 20260715,
+          "spatial_tile_size_px": 8,
+          "sha256": "a1e1586a0ced2d3a11d60badbb8423ba88c5de22ccd98cfb6f17980a37884249"
+        },
+        {
+          "adjusted_p_value_range": [
+            0.0,
+            0.1942745339111793
+          ],
+          "path": "tables/part_e_pixel_statistical_tests.csv",
+          "row_count": 90,
+          "sha256": "3c717015cb08f232456e04f0fb3293aa248f36ecb385961da32e7d3b2eb111ac"
+        },
+        {
+          "effect_size_range": [
+            -0.411114376407348,
+            0.8765043802958494
+          ],
+          "path": "tables/part_e_pixel_effect_sizes.csv",
+          "row_count": 86,
+          "sha256": "c7e72305159f8fac883e20912e15c70a71c27af0e969824509a1c86aa081a5d9"
+        }
+      ]
+    },
+    "temporal": {
+      "multi_capture_accepted": {
+        "eligible_capture_count": 3,
+        "included_capture_ids": [
+          "DJI_20260202091128_0058",
+          "DJI_20260202140815_0054",
+          "DJI_20260202170453_0045"
+        ],
+        "location_id": "hkust-football-field",
+        "path": "outputs/runs/v0_3_user_acceptance/part_e/schema_0_2/run_20260722T053855Z/temporal/temporal_run_manifest.json",
+        "pixelwise_available": false,
+        "pixelwise_unavailable_reason": "cross_capture_registration_not_confirmed",
+        "primary_delta_t_range_c": 24.36296968993641,
+        "primary_temperature_range_c": 20.362968759467122,
+        "registration_confirmed": false,
+        "roi_comparable_confirmed": true,
+        "same_location_confirmed": true,
+        "sampling_coverage_status": "partial_observation_window",
+        "sha256": "a9530244e0a28a39a50299ab562dcfec47ed776bc1da7ed740b818e4499c7d94",
+        "target_id": "hkust-football-field-natural-turf",
+        "temporal_requested": true,
+        "temporal_series_available": true,
+        "trend_status": "multi_capture_observed_series"
+      },
+      "not_requested": {
+        "group_count": 0,
+        "path": "outputs/runs/v0_3_user_acceptance/part_e/schema_0_2/run_20260722T064301Z/temporal/temporal_run_manifest.json",
+        "peak_to_trough_available": false,
+        "pixelwise_available": false,
+        "sha256": "a5fb060851d5f8a502fcfc190ecf6e2c364cb4a864657df026ee0eb374bc9ab2",
+        "status": "complete",
+        "temporal_requested": false,
+        "temporal_series_available": false
+      },
+      "single_capture_descriptive": {
+        "eligible_capture_count": 1,
+        "path": "outputs/runs/v0_3_user_acceptance/part_e/schema_0_2/run_20260722T055625Z/temporal/temporal_run_manifest.json",
+        "peak_to_trough_available": false,
+        "pixelwise_available": false,
+        "sampling_coverage_status": "single_capture",
+        "sha256": "1b211f956503ae01f8a7f1eefe6678e6500e965e1d115d0363e844375bc820ef",
+        "temporal_requested": true,
+        "temporal_series_available": false,
+        "trend_status": "single_capture_descriptive_no_trend"
+      }
+    },
+    "mutable_canonical_cache_divergence": {
+      "accepted_snapshot_target_pixels": 21047,
+      "current_cache_manifest_sha256": "467c688c3944992c3174fc264060af8dc627ad38e730fb7b568e57259604cbdd",
+      "current_cache_target_pixels": 21748,
+      "decision": "The current shared-cache football manifest is not used to redefine the explicitly accepted run_20260722T055625Z baseline. The accepted run-scoped Parquet and stage-state hash remain primary evidence.",
+      "image_id": "DJI_20260202091128_0058",
+      "reason": "The persistent canonical image cache was replaced by a later workflow run after the accepted six-image Part E bundle was created.",
+      "review_requirement": "Future regression comparison must select an explicit run scope and must not assume the mutable shared cache is identical to an earlier accepted run bundle."
+    }
+  },
+  "characterization_coverage": {
+    "added_tests": [],
+    "decision": "No characterization test added.",
+    "justification": "The 117-test suite already covers the accepted routing, manual-review gates, Part C save/cancel/close semantics, normal and polygon masks, native-grid behavior, temperature provenance, schema 0.2.0, Part E target scope, sampling, and temporal safeguards."
+  },
+  "privacy_and_licensing": {
+    "absolute_paths_committed": false,
+    "binaries_committed": false,
+    "local_config_committed": false,
+    "path_normalization_labels": [
+      "<DJI_SDK_ROOT>",
+      "<LOCAL_TAT3_REPORT>",
+      "<MICROSOFT_OFFICE>",
+      "<OS_TEMP>",
+      "<REPO_LOCAL_EXIFTOOL>"
+    ],
+    "proprietary_reports_committed": false,
+    "secrets_committed": false
+  },
+  "phase_1_files": [
+    "docs/baseline/phase_1_accepted_baseline.md",
+    "docs/baseline/phase_1_baseline_manifest.json",
+    "docs/baseline/phase_1_baseline_checksums.sha256"
+  ],
+  "rollback": {
+    "preexisting_targets": false,
+    "procedure": "After confirming these exact paths are still the Phase 1-created files, remove only the three paths listed in phase_1_files. Do not use reset, restore, clean, checkout, or recursive directory deletion."
+  }
+}
