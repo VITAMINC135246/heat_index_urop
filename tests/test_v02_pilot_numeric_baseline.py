@@ -6,6 +6,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pytest
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -57,6 +58,7 @@ class PilotNumericBaselineTests(unittest.TestCase):
             self.assertTrue(path.is_file(), path)
             self.assertEqual(sha256(path), expected)
 
+    @pytest.mark.local_integration
     def test_part_d_temperature_numeric_baseline(self) -> None:
         summary = pd.read_csv(
             PROJECT_ROOT

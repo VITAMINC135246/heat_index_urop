@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
+import pytest
 from PIL import Image
 
 from scripts.workflow.part_c_review_gui import ReviewState, SuperpixelReviewController, SuperpixelReviewGUI
@@ -229,6 +230,7 @@ class V032NativeLUHKIntegrationTests(unittest.TestCase):
             plt.close("all")
 
 
+@pytest.mark.local_integration
 class V032PilotLUHKWiringTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:

@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from scripts.workflow.models import SourceMethod
 from scripts.workflow.pilot_adapter import adapt_pilot_image
@@ -26,6 +27,7 @@ class PilotRegressionTests(unittest.TestCase):
         self.assertTrue(temperatures["extraction_status"].eq("success").all())
         self.assertTrue(temperatures["temperature_shape"].eq("512x640").all())
 
+    @pytest.mark.local_integration
     def test_existing_part_e_row_count_when_local_parquet_is_available(self) -> None:
         path = PROJECT_ROOT / "data" / "processed" / "part_e" / "part_e_pixel_delta_t.parquet"
         if not path.is_file():
@@ -34,6 +36,7 @@ class PilotRegressionTests(unittest.TestCase):
 
         self.assertEqual(pq.ParquetFile(path).metadata.num_rows, 5 * 512 * 640)
 
+    @pytest.mark.local_integration
     def test_normal_part_c_pilot_adapter_builds_versioned_manifest(self) -> None:
         import tempfile
 
