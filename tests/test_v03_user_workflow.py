@@ -13,12 +13,25 @@ from PIL import Image
 import pandas as pd
 
 from scripts.run_analysis import temporal_user_summary_lines
-from scripts.run_user_workflow import build_command
+from scripts.run_user_workflow import build_command, workflow_python
+from scripts.workflow_gui import WorkflowGUI
 from scripts.workflow.polygon_annotation import run_polygon_gui_subprocess
 from scripts.workflow.temporal_interactive import _capture_cards, collect_temporal_plan
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
 class UserWorkflowTests(unittest.TestCase):
+    def test_gui_pythonw_launcher_uses_console_python_for_child_logs(self) -> None:
+        with patch("scripts.run_user_workflow.os.name", "nt"), patch(
+            "scripts.run_user_workflow.sys.executable", str(PROJECT_ROOT / ".venv" / "Scripts" / "pythonw.exe")
+        ):
+            self.assertEqual(
+                workflow_python(),
+                str(PROJECT_ROOT / ".venv" / "Scripts" / "python.exe"),
+            )
+
     @staticmethod
     def _temporal_card(
         image_id: str,
@@ -285,6 +298,60 @@ class UserWorkflowTests(unittest.TestCase):
             self.assertEqual(command.count("--polygon-image-id"), 2)
             self.assertEqual(command.count("--reprocess-image-id"), 2)
             self.assertEqual(command[command.index("--temporal") + 1], "ask")
+
+    def test_one_group_can_resume_a_saved_part_c_draft(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            visible = root / "DJI_20260202091127_0058_V.JPG"
+            thermal = root / "DJI_20260202091128_0058_T.JPG"
+            draft = root / "superpixel_review.json"
+            Image.new("RGB", (4, 3), "green").save(visible)
+            Image.new("RGB", (4, 3), "gray").save(thermal)
+            draft.write_text("{}", encoding="utf-8")
+            command = build_command(
+                Namespace(
+                    production=False,
+                    open_results=False,
+                    workflow="group",
+                    visible=str(visible),
+                    thermal=str(thermal),
+                    tat3_report=[],
+                    resume_part_c=str(draft),
+                    redraw_review=False,
+                )
+            )
+            value = command[command.index("--part-c-review") + 1]
+            self.assertEqual(value, f"DJI_20260202091128_0058={draft.resolve()}")
+
+    def test_desktop_gui_builds_a_several_group_command(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            pairs: list[tuple[str, str]] = []
+            for index in (1, 2):
+                visible = root / f"group_{index}_V.JPG"
+                thermal = root / f"group_{index}_T.JPG"
+                visible.write_bytes(b"visible")
+                thermal.write_bytes(b"thermal")
+                pairs.append((str(visible), str(thermal)))
+            value = lambda result: SimpleNamespace(get=lambda: result)
+            gui = WorkflowGUI.__new__(WorkflowGUI)
+            gui.mode = value("多组 V/T 图片")
+            gui.production = value(False)
+            gui.group_pairs = pairs
+            gui.tat3 = value("")
+            gui.redraw = value(True)
+            gui.polygon_all = value(True)
+            gui.target_name = value("HKUST football field")
+            gui.target_id = value("hkust-football-field-natural-turf")
+            gui.surface_cover = value("grass_low_vegetation")
+            gui.luhk = value("GIC / open space")
+            gui.confidence = value("medium")
+            command = gui._command()
+            self.assertEqual(command.count("--group"), 2)
+            self.assertIn("groups", command)
+            self.assertIn("--redraw-review", command)
+            self.assertIn("--polygon-all", command)
+            self.assertIn("hkust-football-field-natural-turf", command)
 
     def test_user_report_surfaces_primary_and_absolute_temporal_ranges(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

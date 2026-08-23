@@ -4,15 +4,19 @@ import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import numpy as np
 from PIL import Image
+
+from scripts.run_analysis import PILOT_TAT3_PARAMETERS, temperature_for_group
 
 from scripts.workflow.temperature_extraction import (
     build_sdk_command,
     extract_temperature,
     load_temperature_override,
     load_report_parameter_row,
+    TemperatureResult,
     temperature_qa,
 )
 
@@ -80,13 +84,42 @@ class TemperatureExtractionTests(unittest.TestCase):
                 "humidity_use_status": "not_used_unreliable_tat3_export",
                 "report_capture_datetime": "2026-02-02 09:11:28",
             }
-            from unittest.mock import patch
-
             with patch("scripts.workflow.tat3_manual_measurement._ambient_entries", return_value=[row]):
                 result = load_report_parameter_row(report, row["image_id"])
             self.assertEqual(result["ambient_temperature_c"], 10.8)
             self.assertEqual(result["relative_humidity_percent"], 50.0)
             self.assertEqual(result["distance_m"], 5.0)
+
+    def test_missing_pilot_matrix_falls_back_to_pilot_tat3_parameters_and_sdk(self) -> None:
+        image_id = "DJI_20260107143259_0005"
+        expected = TemperatureResult(
+            matrix=np.arange(6, dtype=np.float32).reshape(2, 3),
+            metadata={"extraction_method": "DJI Thermal SDK"},
+            qa_status="pass",
+            qa_flags=[],
+        )
+        args = SimpleNamespace(
+            tat3_report=[], tat3_params_csv="", irp_exe="", sdk_root="",
+            sdk_config="config/part_d_sdk.local.json", keep_sdk_raw=False,
+        )
+        with (
+            patch("scripts.run_analysis.legacy_temperature", return_value=None),
+            patch("scripts.run_analysis.pilot_image_ids", return_value=[image_id]),
+            patch("scripts.run_analysis.load_parameter_row", return_value=PARAMETERS) as load_parameters,
+            patch("scripts.run_analysis.resolve_irp_exe", return_value=Path("dji_irp.exe")),
+            patch("scripts.run_analysis.extract_temperature", return_value=expected) as extract,
+        ):
+            result = temperature_for_group(
+                image_id=image_id,
+                thermal_path=Path("pilot_T.JPG"),
+                native_shape=(2, 3),
+                overrides={},
+                ambient_payload={},
+                args=args,
+            )
+        load_parameters.assert_called_once_with(PILOT_TAT3_PARAMETERS, image_id)
+        extract.assert_called_once()
+        self.assertIs(result, expected)
 
 
 if __name__ == "__main__":

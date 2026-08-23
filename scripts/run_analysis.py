@@ -78,6 +78,11 @@ from scripts.workflow.temporal_analysis import TemporalAnalysisPlan, parse_tempo
 from scripts.workflow.temporal_interactive import collect_temporal_plan
 
 
+PILOT_TAT3_PARAMETERS = (
+    PROJECT_ROOT / "outputs" / "part_d" / "qa" / "tat3_parameter_audit" / "part_d_tat3_pilot_parameters.csv"
+)
+
+
 def project_path(value: str | Path) -> Path:
     path = Path(value)
     return path if path.is_absolute() else PROJECT_ROOT / path
@@ -267,6 +272,8 @@ def temperature_for_group(
         parameters = report_parameters_for_image(args, image_id)
     elif args.tat3_params_csv:
         parameters = load_parameter_row(project_path(args.tat3_params_csv), image_id)
+    elif image_id in set(pilot_image_ids(PROJECT_ROOT)) and PILOT_TAT3_PARAMETERS.is_file():
+        parameters = load_parameter_row(PILOT_TAT3_PARAMETERS, image_id)
     else:
         raise ValueError(
             "temperature_matrix_unavailable: provide --temperature-npy, --tat3-report, "
@@ -825,7 +832,41 @@ def main() -> int:
                 int(validation.thermal_camera_metadata["width"]),
             )
             if route.route == ProcessingRoute.NORMAL_VT and image_id in pilot_ids:
-                print(f"[{group_number}/{len(groups)}] {image_id}: using accepted pilot labels and temperature matrix", flush=True)
+                print(
+                    f"[{group_number}/{len(groups)}] {image_id}: resolving temperature through the common Part D entrance; "
+                    "reusing accepted pilot Part C labels",
+                    flush=True,
+                )
+                temperature = temperature_for_group(
+                    image_id=image_id,
+                    thermal_path=Path(validation.thermal_path),
+                    native_shape=native_shape,
+                    overrides=temperature_overrides,
+                    ambient_payload=ambient_payload,
+                    args=args,
+                )
+                legacy_matrix_path = (
+                    PROJECT_ROOT
+                    / "data"
+                    / "processed"
+                    / "part_d"
+                    / "temperature_matrices"
+                    / f"{image_id}_temperature_celsius.npy"
+                )
+                if not legacy_matrix_path.is_file():
+                    legacy_matrix_path.parent.mkdir(parents=True, exist_ok=True)
+                    temporary_matrix = legacy_matrix_path.with_suffix(".npy.tmp")
+                    with temporary_matrix.open("wb") as handle:
+                        np.save(handle, temperature.matrix.astype(np.float32, copy=False), allow_pickle=False)
+                        handle.flush()
+                        os.fsync(handle.fileno())
+                    temporary_matrix.replace(legacy_matrix_path)
+                    print(
+                        f"[{group_number}/{len(groups)}] {image_id}: persisted reusable Part D matrix: "
+                        f"{display_path(legacy_matrix_path)}",
+                        flush=True,
+                    )
+                    hashes = source_hashes(source_paths)
                 manifest, manifest_path = adapt_pilot_image(
                     PROJECT_ROOT,
                     image_id,
@@ -834,6 +875,7 @@ def main() -> int:
                     source_file_hashes_value=hashes,
                     dependency_fingerprints_value=dependencies,
                     part_a=validation.to_dict(),
+                    temperature_result=temperature,
                 )
                 manifest.dependency_fingerprints = dependencies
                 manifest.part_a = validation.to_dict()

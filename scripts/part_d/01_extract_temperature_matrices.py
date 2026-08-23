@@ -214,6 +214,7 @@ def find_exiftool() -> str:
         "exiftool.exe",
         str(PROJECT_ROOT / "exiftool.exe"),
         str(PROJECT_ROOT / "exiftool-13.59_64" / "exiftool.exe"),
+        r"D:\exiftool-13.59_64\exiftool.exe",
     ]
     for candidate in candidates:
         try:

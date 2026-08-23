@@ -26,6 +26,16 @@ def resolve(value: str | Path) -> Path:
     return path.resolve() if path.is_absolute() else (PROJECT_ROOT / path).resolve()
 
 
+def workflow_python() -> str:
+    """Use console Python for the child so GUI launchers receive its live stdout."""
+    executable = Path(sys.executable)
+    if os.name == "nt" and executable.name.casefold() == "pythonw.exe":
+        console = executable.with_name("python.exe")
+        if console.is_file():
+            return str(console)
+    return str(executable)
+
+
 def pilot_groups() -> list[tuple[Path, Path]]:
     table = pd.read_excel(PILOT_TABLE)
     groups: list[tuple[Path, Path]] = []
@@ -71,6 +81,11 @@ def parser() -> argparse.ArgumentParser:
     group.add_argument("visible")
     group.add_argument("thermal")
     group.add_argument("--tat3-report", action="append", default=[])
+    group.add_argument(
+        "--resume-part-c",
+        default="",
+        help="Resume a saved Part C superpixel_review.json draft for this thermal image.",
+    )
     group.add_argument("--redraw-review", action="store_true", help="Reopen Part C/Part C* even if an accepted cache exists.")
     dataset = subparsers.add_parser("dataset", help="Explore every image group in a dataset directory interactively.")
     dataset.add_argument("dataset")
@@ -156,6 +171,7 @@ def interactive_session() -> argparse.Namespace:
                 "visible": ask("Visible image path"),
                 "thermal": ask("Thermal image path"),
                 "tat3_report": ask("TAT3 DOCX report path(s), separated by ; (optional)"),
+                "resume_part_c": ask("Saved Part C superpixel_review.json (optional)"),
                 "redraw_review": ask_yes_no("Reopen Part C even if this image already has an accepted result?"),
             }
         )
@@ -212,7 +228,7 @@ def report_values(value: object) -> list[str]:
 def build_command(args: argparse.Namespace) -> list[str]:
     config = "config/workflow_v0_3.json" if args.production else "config/workflow_v0_3_acceptance.json"
     command = [
-        sys.executable,
+        workflow_python(),
         str(PROJECT_ROOT / "scripts" / "run_analysis.py"),
         "--config",
         config,
@@ -262,6 +278,12 @@ def build_command(args: argparse.Namespace) -> list[str]:
                 raise FileNotFoundError(f"Group {label} does not exist: {path}")
         for report in report_values(args.tat3_report):
             command.extend(["--tat3-report", str(resolve(report))])
+        resume_part_c = str(getattr(args, "resume_part_c", "") or "").strip()
+        if resume_part_c:
+            review_path = resolve(resume_part_c)
+            if not review_path.is_file():
+                raise FileNotFoundError(f"Saved Part C review does not exist: {review_path}")
+            command.extend(["--part-c-review", f"{image_id(thermal)}={review_path}"])
         command.append("--launch-part-c-gui")
         groups.append((visible, thermal))
         if bool(getattr(args, "redraw_review", False)):
