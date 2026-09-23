@@ -1,0 +1,104 @@
+[
+  {
+    "image_id": "DJI_20260107143259_0005",
+    "shape": [
+      512,
+      640
+    ],
+    "luhk_status": "available",
+    "luhk_counts": {
+      "gic_open_space": 222592,
+      "other_urban_built_up": 200,
+      "woodland_shrubland_grassland_wetland": 104888
+    },
+    "luhk_known": 327680,
+    "cover_counts": {
+      "1": 30014,
+      "2": 20871,
+      "4": 262255,
+      "5": 14540
+    },
+    "spatial_uncertainty": "Approximate context only: LUHK is assigned through a metadata-derived, north-up rectangular thermal footprint; yaw is not applied and Part B image-space alignment does not improve map georegistration."
+  },
+  {
+    "image_id": "DJI_20260107143320_0007",
+    "shape": [
+      512,
+      640
+    ],
+    "luhk_status": "available",
+    "luhk_counts": {
+      "gic_open_space": 319447,
+      "woodland_shrubland_grassland_wetland": 8233
+    },
+    "luhk_known": 327680,
+    "cover_counts": {
+      "1": 91251,
+      "2": 67562,
+      "4": 145962,
+      "5": 14241,
+      "6": 8664
+    },
+    "spatial_uncertainty": "Approximate context only: LUHK is assigned through a metadata-derived, north-up rectangular thermal footprint; yaw is not applied and Part B image-space alignment does not improve map georegistration."
+  },
+  {
+    "image_id": "DJI_20260107143328_0008",
+    "shape": [
+      512,
+      640
+    ],
+    "luhk_status": "available",
+    "luhk_counts": {
+      "gic_open_space": 326558,
+      "woodland_shrubland_grassland_wetland": 1122
+    },
+    "luhk_known": 327680,
+    "cover_counts": {
+      "1": 124088,
+      "2": 64721,
+      "4": 130564,
+      "5": 6749,
+      "6": 1558
+    },
+    "spatial_uncertainty": "Approximate context only: LUHK is assigned through a metadata-derived, north-up rectangular thermal footprint; yaw is not applied and Part B image-space alignment does not improve map georegistration."
+  },
+  {
+    "image_id": "DJI_20260107143344_0009",
+    "shape": [
+      512,
+      640
+    ],
+    "luhk_status": "available",
+    "luhk_counts": {
+      "gic_open_space": 327680
+    },
+    "luhk_known": 327680,
+    "cover_counts": {
+      "1": 163090,
+      "2": 75342,
+      "4": 86417,
+      "5": 2831
+    },
+    "spatial_uncertainty": "Approximate context only: LUHK is assigned through a metadata-derived, north-up rectangular thermal footprint; yaw is not applied and Part B image-space alignment does not improve map georegistration."
+  },
+  {
+    "image_id": "DJI_20260107143401_0011",
+    "shape": [
+      512,
+      640
+    ],
+    "luhk_status": "available",
+    "luhk_counts": {
+      "gic_open_space": 327188,
+      "woodland_shrubland_grassland_wetland": 492
+    },
+    "luhk_known": 327680,
+    "cover_counts": {
+      "1": 161158,
+      "2": 94360,
+      "4": 71131,
+      "5": 1031
+    },
+    "spatial_uncertainty": "Approximate context only: LUHK is assigned through a metadata-derived, north-up rectangular thermal footprint; yaw is not applied and Part B image-space alignment does not improve map georegistration."
+  }
+]

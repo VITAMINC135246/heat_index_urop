@@ -1,0 +1,113 @@
+{
+  "decision": "case_b_stabilize_phase2",
+  "recommended_parent_branch": "phase-2-safety-net",
+  "recommended_parent_sha": "8eb389c6fac5fb4c410282f81b5d8c5145543c94",
+  "scientific_reference_branch": "main",
+  "scientific_reference_sha": "06c61b499e9c3e2f30daaeddc29fa4e98d61066e",
+  "shadow_implementation_ready": false,
+  "full_real_data_equivalence_verified": false,
+  "checks": [
+    {
+      "id": "git-history",
+      "status": "pass",
+      "evidence": "main is ancestor; Phase 2 ahead by 3 commits; baseline checksums valid"
+    },
+    {
+      "id": "common-tracked-artifacts",
+      "status": "pass",
+      "evidence": "289 of 289 common data/config/output files byte-identical"
+    },
+    {
+      "id": "tracked-spatial-replay",
+      "status": "pass",
+      "evidence": "5 native LUHK results identical; normal representative matches accepted counts"
+    },
+    {
+      "id": "synthetic-formal-replay",
+      "status": "pass",
+      "evidence": "24 arrays, 31 tables, 1 empty table, 41 PNG pixel arrays exactly equal"
+    },
+    {
+      "id": "pilot-temperature-provenance",
+      "status": "fail",
+      "evidence": "Runtime path loses temperature_definition and changes unit label"
+    },
+    {
+      "id": "temperature-cache-lifecycle",
+      "status": "unverified_risk",
+      "evidence": "Bare persisted NPY can be reused with stale legacy metadata; static analysis"
+    },
+    {
+      "id": "accepted-real-data-replay",
+      "status": "blocked_missing_artifacts",
+      "evidence": "Actual thermal matrices and immutable accepted run snapshots absent"
+    },
+    {
+      "id": "ci-workflow",
+      "status": "fail",
+      "evidence": "GitHub rejects runner.temp at job env; zero jobs"
+    },
+    {
+      "id": "mac-ci-selected-tests",
+      "status": "fail",
+      "evidence": "113 passed, 1 failed, 1 skipped, 6 deselected; launcher test is non-hermetic"
+    },
+    {
+      "id": "windows-real-sdk-integration",
+      "status": "not_run",
+      "evidence": "Requires Windows runtime and original input; intentionally separate"
+    },
+    {
+      "id": "mac-native-dependencies",
+      "status": "pass_scoped",
+      "evidence": "Pinned Python 3.12.13 environment installs/imports and pip check passes"
+    },
+    {
+      "id": "data-root",
+      "status": "incomplete",
+      "evidence": "Configurable dataset/output paths but no unified data_root"
+    },
+    {
+      "id": "git-data-boundary",
+      "status": "incomplete",
+      "evidence": "Missing production v0.3 canonical/index ignores and case-sensitive uppercase image protection"
+    },
+    {
+      "id": "independent-shadow-schema",
+      "status": "partial",
+      "evidence": "Independent mask/column exists; per-pixel unknown/review semantics incomplete"
+    },
+    {
+      "id": "real-positive-shadow-fixture",
+      "status": "missing",
+      "evidence": "All five tracked pilot thermal shadow masks contain only zero"
+    }
+  ],
+  "next_actions": [
+    {
+      "order": 1,
+      "action": "Repair CI and hermetic Mac/Windows test environments on a stabilization branch",
+      "done": false
+    },
+    {
+      "order": 2,
+      "action": "Restore immutable small real-data regression fixtures",
+      "done": false
+    },
+    {
+      "order": 3,
+      "action": "Repair thermal provenance/persistence contract and explicit Windows boundary",
+      "done": false
+    },
+    {
+      "order": 4,
+      "action": "Add configurable data root and close Git ignore gaps",
+      "done": false
+    },
+    {
+      "order": 5,
+      "action": "Specify shadow validity/review semantics and validate a positive fixture before feature work",
+      "done": false
+    }
+  ]
+}

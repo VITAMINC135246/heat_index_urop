@@ -1,0 +1,756 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="2" failures="4" skipped="3" tests="139" time="114.956" timestamp="2026-09-23T13:01:06.901845+08:00" hostname="VITAMINC-MACBOOKMacBook-Air-4.local"><testcase classname="tests.test_part_e_dynamic_sampling.DynamicSamplingTests" name="test_repeated_seed_plan_is_exactly_equivalent_to_established_sampler" time="0.103" /><testcase classname="tests.test_part_e_dynamic_sampling.DynamicSamplingTests" name="test_variable_native_shapes_are_sampled_deterministically" time="0.025" /><testcase classname="tests.test_part_e_multi_source.PartEMultiSourceTests" name="test_normal_and_polygon_results_keep_separate_provenance" time="1.021" /><testcase classname="tests.test_pilot_regression.PilotRegressionTests" name="test_existing_part_e_row_count_when_local_parquet_is_available" time="0.000"><skipped type="pytest.skip" message="Local reproducible Part E Parquet is not present.">/private/tmp/heat-index-phase2-worktree-audit/tests/test_pilot_regression.py:30: Local reproducible Part E Parquet is not present.</skipped></testcase><testcase classname="tests.test_pilot_regression.PilotRegressionTests" name="test_five_pilot_artifact_contracts_remain_compatible" time="0.068" /><testcase classname="tests.test_pilot_regression.PilotRegressionTests" name="test_normal_part_c_pilot_adapter_builds_versioned_manifest" time="0.015"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'">self = &lt;tests.test_pilot_regression.PilotRegressionTests testMethod=test_normal_part_c_pilot_adapter_builds_versioned_manifest&gt;
+
+    @pytest.mark.local_integration
+    def test_normal_part_c_pilot_adapter_builds_versioned_manifest(self) -&gt; None:
+        import tempfile
+    
+        image_id = pd.read_excel(PROJECT_ROOT / "data" / "metadata" / "part_b_pilot_pairs.xlsx").iloc[0]["image_id"]
+        with tempfile.TemporaryDirectory() as directory:
+&gt;           manifest, path = adapt_pilot_image(
+                PROJECT_ROOT, str(image_id), output_root=Path(directory), write_pixels_parquet=False
+            )
+
+tests/test_pilot_regression.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/workflow/pilot_adapter.py:118: in adapt_pilot_image
+    temperature = np.load(_project_path(project_root, temperature_row["npy_path"]))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+file = PosixPath('/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy')
+mmap_mode = None, allow_pickle = False, fix_imports = True, encoding = 'ASCII'
+max_header_size = 10000
+
+    @set_module('numpy')
+    def load(file, mmap_mode=None, allow_pickle=False, fix_imports=True,
+             encoding='ASCII', *, max_header_size=_MAX_HEADER_SIZE):
+        """
+        Load arrays or pickled objects from ``.npy``, ``.npz`` or pickled files.
+    
+        .. warning:: Loading files that contain object arrays uses the ``pickle``
+                     module, which is not secure against erroneous or maliciously
+                     constructed data. Consider passing ``allow_pickle=False`` to
+                     load data that is known not to contain object arrays for the
+                     safer handling of untrusted sources.
+    
+        Parameters
+        ----------
+        file : file-like object, string, or pathlib.Path
+            The file to read. File-like objects must support the
+            ``seek()`` and ``read()`` methods and must always
+            be opened in binary mode.  Pickled files require that the
+            file-like object support the ``readline()`` method as well.
+        mmap_mode : {None, 'r+', 'r', 'w+', 'c'}, optional
+            If not None, then memory-map the file, using the given mode (see
+            `numpy.memmap` for a detailed description of the modes).  A
+            memory-mapped array is kept on disk. However, it can be accessed
+            and sliced like any ndarray.  Memory mapping is especially useful
+            for accessing small fragments of large files without reading the
+            entire file into memory.
+        allow_pickle : bool, optional
+            Allow loading pickled object arrays stored in npy files. Reasons for
+            disallowing pickles include security, as loading pickled data can
+            execute arbitrary code. If pickles are disallowed, loading object
+            arrays will fail. Default: False
+        fix_imports : bool, optional
+            Only useful when loading Python 2 generated pickled files,
+            which includes npy/npz files containing object arrays. If `fix_imports`
+            is True, pickle will try to map the old Python 2 names to the new names
+            used in Python 3.
+        encoding : str, optional
+            What encoding to use when reading Python 2 strings. Only useful when
+            loading Python 2 generated pickled files, which includes
+            npy/npz files containing object arrays. Values other than 'latin1',
+            'ASCII', and 'bytes' are not allowed, as they can corrupt numerical
+            data. Default: 'ASCII'
+        max_header_size : int, optional
+            Maximum allowed size of the header.  Large headers may not be safe
+            to load securely and thus require explicitly passing a larger value.
+            See :py:func:`ast.literal_eval()` for details.
+            This option is ignored when `allow_pickle` is passed.  In that case
+            the file is by definition trusted and the limit is unnecessary.
+    
+        Returns
+        -------
+        result : array, tuple, dict, etc.
+            Data stored in the file. For ``.npz`` files, the returned instance
+            of NpzFile class must be closed to avoid leaking file descriptors.
+    
+        Raises
+        ------
+        OSError
+            If the input file does not exist or cannot be read.
+        UnpicklingError
+            If ``allow_pickle=True``, but the file cannot be loaded as a pickle.
+        ValueError
+            The file contains an object array, but ``allow_pickle=False`` given.
+        EOFError
+            When calling ``np.load`` multiple times on the same file handle,
+            if all data has already been read
+    
+        See Also
+        --------
+        save, savez, savez_compressed, loadtxt
+        memmap : Create a memory-map to an array stored in a file on disk.
+        lib.format.open_memmap : Create or load a memory-mapped ``.npy`` file.
+    
+        Notes
+        -----
+        - If the file contains pickle data, then whatever object is stored
+          in the pickle is returned.
+        - If the file is a ``.npy`` file, then a single array is returned.
+        - If the file is a ``.npz`` file, then a dictionary-like object is
+          returned, containing ``{filename: array}`` key-value pairs, one for
+          each file in the archive.
+        - If the file is a ``.npz`` file, the returned value supports the
+          context manager protocol in a similar fashion to the open function::
+    
+            with load('foo.npz') as data:
+                a = data['a']
+    
+          The underlying file descriptor is closed when exiting the 'with'
+          block.
+    
+        Examples
+        --------
+        &gt;&gt;&gt; import numpy as np
+    
+        Store data to disk, and load it again:
+    
+        &gt;&gt;&gt; np.save('/tmp/123', np.array([[1, 2, 3], [4, 5, 6]]))
+        &gt;&gt;&gt; np.load('/tmp/123.npy')
+        array([[1, 2, 3],
+               [4, 5, 6]])
+    
+        Store compressed data to disk, and load it again:
+    
+        &gt;&gt;&gt; a=np.array([[1, 2, 3], [4, 5, 6]])
+        &gt;&gt;&gt; b=np.array([1, 2])
+        &gt;&gt;&gt; np.savez('/tmp/123.npz', a=a, b=b)
+        &gt;&gt;&gt; data = np.load('/tmp/123.npz')
+        &gt;&gt;&gt; data['a']
+        array([[1, 2, 3],
+               [4, 5, 6]])
+        &gt;&gt;&gt; data['b']
+        array([1, 2])
+        &gt;&gt;&gt; data.close()
+    
+        Mem-map the stored array, and then access the second row
+        directly from disk:
+    
+        &gt;&gt;&gt; X = np.load('/tmp/123.npy', mmap_mode='r')
+        &gt;&gt;&gt; X[1, :]
+        memmap([4, 5, 6])
+    
+        """
+        if encoding not in ('ASCII', 'latin1', 'bytes'):
+            # The 'encoding' value for pickle also affects what encoding
+            # the serialized binary data of NumPy arrays is loaded
+            # in. Pickle does not pass on the encoding information to
+            # NumPy. The unpickling code in numpy._core.multiarray is
+            # written to assume that unicode data appearing where binary
+            # should be is in 'latin1'. 'bytes' is also safe, as is 'ASCII'.
+            #
+            # Other encoding values can corrupt binary data, and we
+            # purposefully disallow them. For the same reason, the errors=
+            # argument is not exposed, as values other than 'strict'
+            # result can similarly silently corrupt numerical data.
+            raise ValueError("encoding must be 'ASCII', 'latin1', or 'bytes'")
+    
+        pickle_kwargs = {'encoding': encoding, 'fix_imports': fix_imports}
+    
+        with contextlib.ExitStack() as stack:
+            if hasattr(file, 'read'):
+                fid = file
+                own_fid = False
+            else:
+&gt;               fid = stack.enter_context(open(os.fspath(file), "rb"))
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'
+
+/tmp/heat-index-audit-py312-tk/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py:454: FileNotFoundError</failure></testcase><testcase classname="tests.test_polygon_and_canonical.PolygonCanonicalTests" name="test_cancelled_annotation_cannot_be_successful_canonical_result" time="0.000" /><testcase classname="tests.test_polygon_and_canonical.PolygonCanonicalTests" name="test_dynamic_dimensions_and_optional_shadow" time="0.013" /><testcase classname="tests.test_polygon_and_canonical.PolygonCanonicalTests" name="test_polygon_inside_known_outside_unknown" time="0.000" /><testcase classname="tests.test_polygon_and_canonical.PolygonCanonicalTests" name="test_polygon_requires_luhk_dimension_match_and_preserves_provenance_kind" time="0.000" /><testcase classname="tests.test_polygon_and_canonical.PolygonCanonicalTests" name="test_unknown_storage_sentinel_is_enforced" time="0.000" /><testcase classname="tests.test_result_index.ResultIndexTests" name="test_compatible_cache_hit_and_hash_mismatch" time="0.057" /><testcase classname="tests.test_routing.RoutingTests" name="test_auto_candidate_never_implies_acceptance" time="0.000" /><testcase classname="tests.test_routing.RoutingTests" name="test_cancelled_part_b_does_not_enter_polygon" time="0.000" /><testcase classname="tests.test_routing.RoutingTests" name="test_final_status_takes_precedence_over_candidate_quality" time="0.001" /><testcase classname="tests.test_routing.RoutingTests" name="test_manual_full_coverage_acceptance_enters_normal_route" time="0.000" /><testcase classname="tests.test_routing.RoutingTests" name="test_missing_thermal_fails" time="0.000" /><testcase classname="tests.test_routing.RoutingTests" name="test_unusable_visible_with_valid_thermal_enters_polygon" time="0.000" /><testcase classname="tests.test_run_analysis_integration.RunAnalysisIntegrationTests" name="test_cancelled_polygon_does_not_enter_part_e" time="1.470" /><testcase classname="tests.test_run_analysis_integration.RunAnalysisIntegrationTests" name="test_invalid_thermal_fails_without_annotation" time="1.891" /><testcase classname="tests.test_run_analysis_integration.RunAnalysisIntegrationTests" name="test_rejected_b0_uses_polygon_then_cache_and_part_e" time="3.093" /><testcase classname="tests.test_v02_cache_schema_extremes.CacheAndSchemaTests" name="test_dependency_and_artifact_corruption_invalidate_cache" time="0.065" /><testcase classname="tests.test_v02_cache_schema_extremes.CacheAndSchemaTests" name="test_failed_qa_cannot_register_and_schema_01_is_read_only_compatible" time="0.033" /><testcase classname="tests.test_v02_cache_schema_extremes.CacheAndSchemaTests" name="test_missing_artifact_schema_mismatch_and_atomic_failure_are_not_reusable" time="0.061" /><testcase classname="tests.test_v02_cache_schema_extremes.ExtremeTemperatureTests" name="test_deterministic_ties_q99_delta_and_polygon_figure" time="0.242" /><testcase classname="tests.test_v02_cache_schema_extremes.ExtremeTemperatureTests" name="test_manual_measurement_without_coordinates_does_not_invent_location" time="0.004" /><testcase classname="tests.test_v02_part_a_b0_and_full_b.PartAAndB0Tests" name="test_b0_match_mismatch_ambiguous_and_manual_routes" time="0.775" /><testcase classname="tests.test_v02_part_a_b0_and_full_b.PartAAndB0Tests" name="test_part_a_metadata_and_native_shape_validation" time="0.410" /><testcase classname="tests.test_v02_part_a_b0_and_full_b.PartAAndB0Tests" name="test_visible_only_failure_routes_to_polygon_and_identifier_mismatch_needs_review" time="0.115" /><testcase classname="tests.test_v02_part_a_b0_and_full_b.FullPartBAdapterTests" name="test_existing_candidate_evidence_is_retained_but_review_controls_route" time="0.003" /><testcase classname="tests.test_v02_part_c_controller.PartCControllerTests" name="test_draft_resume_cancel_and_bare_override_rejection" time="0.001" /><testcase classname="tests.test_v02_part_c_controller.PartCControllerTests" name="test_embedded_windows_python_uses_repository_tcl_bootstrap" time="0.000"><skipped type="pytest.skip" message="Windows Tcl bootstrap">/private/tmp/heat-index-phase2-worktree-audit/tests/test_v02_part_c_controller.py:134: Windows Tcl bootstrap</skipped></testcase><testcase classname="tests.test_v02_part_c_controller.PartCControllerTests" name="test_gui_keeps_an_existing_interactive_backend" time="0.000" /><testcase classname="tests.test_v02_part_c_controller.PartCControllerTests" name="test_gui_switches_from_headless_agg_to_tk_backend" time="0.000" /><testcase classname="tests.test_v02_part_c_controller.PartCControllerTests" name="test_multi_assignment_unknown_shadow_undo_redo_and_masks" time="0.005" /><testcase classname="tests.test_v02_part_c_controller.PartCControllerTests" name="test_reopened_acceptance_requires_fresh_accept_and_gui_buttons_persist_status" time="0.211" /><testcase classname="tests.test_v02_part_c_controller.PartCControllerTests" name="test_suggestion_prefill_is_visible_undoable_and_gui_retains_widgets" time="0.389" /><testcase classname="tests.test_v02_part_c_controller.PartCControllerTests" name="test_workflow_distinguishes_explicit_part_c_cancel" time="0.001" /><testcase classname="tests.test_v02_part_e_formal.FormalPartEV02IntegrationTests" name="test_schema_02_sampling_statistics_kde_qa_report_and_resume" time="24.204" /><testcase classname="tests.test_v02_pilot_numeric_baseline.PilotNumericBaselineTests" name="test_part_d_temperature_numeric_baseline" time="0.002"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'">self = &lt;tests.test_v02_pilot_numeric_baseline.PilotNumericBaselineTests testMethod=test_part_d_temperature_numeric_baseline&gt;
+
+    @pytest.mark.local_integration
+    def test_part_d_temperature_numeric_baseline(self) -&gt; None:
+        summary = pd.read_csv(
+            PROJECT_ROOT
+            / "outputs"
+            / "part_d"
+            / "summaries"
+            / "part_d_tat3_parameter_temperature_extraction_summary.csv",
+            keep_default_na=False,
+        ).set_index("image_id")
+        self.assertEqual(set(summary.index), set(EXPECTED_TEMPERATURE))
+        for image_id, expected in EXPECTED_TEMPERATURE.items():
+&gt;           matrix = np.load(PROJECT_ROOT / str(summary.loc[image_id, "npy_path"]))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_v02_pilot_numeric_baseline.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+file = PosixPath('/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy')
+mmap_mode = None, allow_pickle = False, fix_imports = True, encoding = 'ASCII'
+max_header_size = 10000
+
+    @set_module('numpy')
+    def load(file, mmap_mode=None, allow_pickle=False, fix_imports=True,
+             encoding='ASCII', *, max_header_size=_MAX_HEADER_SIZE):
+        """
+        Load arrays or pickled objects from ``.npy``, ``.npz`` or pickled files.
+    
+        .. warning:: Loading files that contain object arrays uses the ``pickle``
+                     module, which is not secure against erroneous or maliciously
+                     constructed data. Consider passing ``allow_pickle=False`` to
+                     load data that is known not to contain object arrays for the
+                     safer handling of untrusted sources.
+    
+        Parameters
+        ----------
+        file : file-like object, string, or pathlib.Path
+            The file to read. File-like objects must support the
+            ``seek()`` and ``read()`` methods and must always
+            be opened in binary mode.  Pickled files require that the
+            file-like object support the ``readline()`` method as well.
+        mmap_mode : {None, 'r+', 'r', 'w+', 'c'}, optional
+            If not None, then memory-map the file, using the given mode (see
+            `numpy.memmap` for a detailed description of the modes).  A
+            memory-mapped array is kept on disk. However, it can be accessed
+            and sliced like any ndarray.  Memory mapping is especially useful
+            for accessing small fragments of large files without reading the
+            entire file into memory.
+        allow_pickle : bool, optional
+            Allow loading pickled object arrays stored in npy files. Reasons for
+            disallowing pickles include security, as loading pickled data can
+            execute arbitrary code. If pickles are disallowed, loading object
+            arrays will fail. Default: False
+        fix_imports : bool, optional
+            Only useful when loading Python 2 generated pickled files,
+            which includes npy/npz files containing object arrays. If `fix_imports`
+            is True, pickle will try to map the old Python 2 names to the new names
+            used in Python 3.
+        encoding : str, optional
+            What encoding to use when reading Python 2 strings. Only useful when
+            loading Python 2 generated pickled files, which includes
+            npy/npz files containing object arrays. Values other than 'latin1',
+            'ASCII', and 'bytes' are not allowed, as they can corrupt numerical
+            data. Default: 'ASCII'
+        max_header_size : int, optional
+            Maximum allowed size of the header.  Large headers may not be safe
+            to load securely and thus require explicitly passing a larger value.
+            See :py:func:`ast.literal_eval()` for details.
+            This option is ignored when `allow_pickle` is passed.  In that case
+            the file is by definition trusted and the limit is unnecessary.
+    
+        Returns
+        -------
+        result : array, tuple, dict, etc.
+            Data stored in the file. For ``.npz`` files, the returned instance
+            of NpzFile class must be closed to avoid leaking file descriptors.
+    
+        Raises
+        ------
+        OSError
+            If the input file does not exist or cannot be read.
+        UnpicklingError
+            If ``allow_pickle=True``, but the file cannot be loaded as a pickle.
+        ValueError
+            The file contains an object array, but ``allow_pickle=False`` given.
+        EOFError
+            When calling ``np.load`` multiple times on the same file handle,
+            if all data has already been read
+    
+        See Also
+        --------
+        save, savez, savez_compressed, loadtxt
+        memmap : Create a memory-map to an array stored in a file on disk.
+        lib.format.open_memmap : Create or load a memory-mapped ``.npy`` file.
+    
+        Notes
+        -----
+        - If the file contains pickle data, then whatever object is stored
+          in the pickle is returned.
+        - If the file is a ``.npy`` file, then a single array is returned.
+        - If the file is a ``.npz`` file, then a dictionary-like object is
+          returned, containing ``{filename: array}`` key-value pairs, one for
+          each file in the archive.
+        - If the file is a ``.npz`` file, the returned value supports the
+          context manager protocol in a similar fashion to the open function::
+    
+            with load('foo.npz') as data:
+                a = data['a']
+    
+          The underlying file descriptor is closed when exiting the 'with'
+          block.
+    
+        Examples
+        --------
+        &gt;&gt;&gt; import numpy as np
+    
+        Store data to disk, and load it again:
+    
+        &gt;&gt;&gt; np.save('/tmp/123', np.array([[1, 2, 3], [4, 5, 6]]))
+        &gt;&gt;&gt; np.load('/tmp/123.npy')
+        array([[1, 2, 3],
+               [4, 5, 6]])
+    
+        Store compressed data to disk, and load it again:
+    
+        &gt;&gt;&gt; a=np.array([[1, 2, 3], [4, 5, 6]])
+        &gt;&gt;&gt; b=np.array([1, 2])
+        &gt;&gt;&gt; np.savez('/tmp/123.npz', a=a, b=b)
+        &gt;&gt;&gt; data = np.load('/tmp/123.npz')
+        &gt;&gt;&gt; data['a']
+        array([[1, 2, 3],
+               [4, 5, 6]])
+        &gt;&gt;&gt; data['b']
+        array([1, 2])
+        &gt;&gt;&gt; data.close()
+    
+        Mem-map the stored array, and then access the second row
+        directly from disk:
+    
+        &gt;&gt;&gt; X = np.load('/tmp/123.npy', mmap_mode='r')
+        &gt;&gt;&gt; X[1, :]
+        memmap([4, 5, 6])
+    
+        """
+        if encoding not in ('ASCII', 'latin1', 'bytes'):
+            # The 'encoding' value for pickle also affects what encoding
+            # the serialized binary data of NumPy arrays is loaded
+            # in. Pickle does not pass on the encoding information to
+            # NumPy. The unpickling code in numpy._core.multiarray is
+            # written to assume that unicode data appearing where binary
+            # should be is in 'latin1'. 'bytes' is also safe, as is 'ASCII'.
+            #
+            # Other encoding values can corrupt binary data, and we
+            # purposefully disallow them. For the same reason, the errors=
+            # argument is not exposed, as values other than 'strict'
+            # result can similarly silently corrupt numerical data.
+            raise ValueError("encoding must be 'ASCII', 'latin1', or 'bytes'")
+    
+        pickle_kwargs = {'encoding': encoding, 'fix_imports': fix_imports}
+    
+        with contextlib.ExitStack() as stack:
+            if hasattr(file, 'read'):
+                fid = file
+                own_fid = False
+            else:
+&gt;               fid = stack.enter_context(open(os.fspath(file), "rb"))
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'
+
+/tmp/heat-index-audit-py312-tk/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py:454: FileNotFoundError</failure></testcase><testcase classname="tests.test_v02_pilot_numeric_baseline.PilotNumericBaselineTests" name="test_pilot_part_e_row_counts_and_selected_numeric_summaries" time="0.004" /><testcase classname="tests.test_v02_pilot_numeric_baseline.PilotNumericBaselineTests" name="test_reviewed_part_c_mask_bytes_are_frozen" time="0.003" /><testcase classname="tests.test_v02_run_analysis_routes.RunAnalysisV02Routes" name="test_needs_part_b0_review_cannot_silently_enter_part_c" time="1.370" /><testcase classname="tests.test_v02_run_analysis_routes.RunAnalysisV02Routes" name="test_verified_normal_route_runs_a_to_e_on_cache_miss_then_hits_cache" time="7.052" /><testcase classname="tests.test_v02_tat3_manual.TAT3ManualParserTests" name="test_missing_ambient_mismatch_units_and_duplicate_ids" time="0.006" /><testcase classname="tests.test_v02_tat3_manual.TAT3ManualParserTests" name="test_missing_coordinates_are_reported_without_invented_locations" time="0.101" /><testcase classname="tests.test_v02_tat3_manual.TAT3ManualParserTests" name="test_point_multiple_points_region_and_mixed_fixtures" time="0.011" /><testcase classname="tests.test_v02_tat3_manual.TAT3ManualParserTests" name="test_temporary_bundle_does_not_touch_persistent_index" time="0.151" /><testcase classname="tests.test_v02_tat3_manual" name="test_named_local_ambient_reports_have_185_entries_and_no_manual_measurements" time="0.000"><skipped type="pytest.skip" message="Named local TAT3 ambient reports are not available.">/private/tmp/heat-index-phase2-worktree-audit/tests/test_v02_tat3_manual.py:120: Named local TAT3 ambient reports are not available.</skipped></testcase><testcase classname="tests.test_v02_temperature_extraction.TemperatureExtractionTests" name="test_missing_pilot_matrix_falls_back_to_pilot_tat3_parameters_and_sdk" time="0.001" /><testcase classname="tests.test_v02_temperature_extraction.TemperatureExtractionTests" name="test_override_missing_ambient_and_failed_qa_are_retained" time="0.001" /><testcase classname="tests.test_v02_temperature_extraction.TemperatureExtractionTests" name="test_report_parameters_are_selected_by_image_without_intermediate_csv" time="0.001" /><testcase classname="tests.test_v02_temperature_extraction.TemperatureExtractionTests" name="test_shared_sdk_command_and_mocked_float32_extraction" time="0.001" /><testcase classname="tests.test_v032_capture_time.CaptureTimeV032Tests" name="test_atomic_bundle_rejects_contradictory_local_and_utc_instants" time="0.000" /><testcase classname="tests.test_v032_capture_time.CaptureTimeV032Tests" name="test_atomic_bundle_rejects_explicit_invalid_source_and_does_not_mix_fields" time="0.001" /><testcase classname="tests.test_v032_capture_time.CaptureTimeV032Tests" name="test_aware_source_time_is_not_converted_to_analysis_default_timezone" time="0.001" /><testcase classname="tests.test_v032_capture_time.CaptureTimeV032Tests" name="test_canonical_capture_bundle_falls_back_atomically_to_part_a" time="0.007" /><testcase classname="tests.test_v032_capture_time.CaptureTimeV032Tests" name="test_dji_metadata_precedes_user_and_filename_and_filename_is_last_fallback" time="0.001" /><testcase classname="tests.test_v032_capture_time.CaptureTimeV032Tests" name="test_exif_subsecond_precedes_dji_user_and_filename" time="0.001" /><testcase classname="tests.test_v032_capture_time.CaptureTimeV032Tests" name="test_explicitly_invalid_metadata_falls_through_to_next_priority" time="0.001" /><testcase classname="tests.test_v032_capture_time.CaptureTimeV032Tests" name="test_legacy_part_a_capture_time_fallback_is_explicit_in_part_e" time="0.015" /><testcase classname="tests.test_v032_capture_time.CaptureTimeV032Tests" name="test_pilot_adapter_does_not_overwrite_exif_with_part_a" time="0.041" /><testcase classname="tests.test_v032_luhk_integration.V032NativeLUHKIntegrationTests" name="test_all_five_pilots_have_complete_native_grid_official_luhk" time="2.961" /><testcase classname="tests.test_v032_luhk_integration.V032NativeLUHKIntegrationTests" name="test_legacy_part_e_helper_delegates_without_numeric_change" time="0.212" /><testcase classname="tests.test_v032_luhk_integration.V032NativeLUHKIntegrationTests" name="test_missing_geospatial_context_is_explicitly_unavailable" time="0.006" /><testcase classname="tests.test_v032_luhk_integration.V032NativeLUHKIntegrationTests" name="test_one_native_image_preserves_multiple_official_categories" time="0.471" /><testcase classname="tests.test_v032_luhk_integration.V032NativeLUHKIntegrationTests" name="test_part_c_luhk_reference_has_no_annotation_entry_point" time="0.096" /><testcase classname="tests.test_v032_luhk_integration.V032NativeLUHKIntegrationTests" name="test_project_loader_records_official_sources_and_uncertainty" time="2.113" /><testcase classname="tests.test_v032_luhk_integration.V032NativeLUHKIntegrationTests" name="test_unique_image_id_safely_resolves_a_stale_pair_identifier" time="0.221" /><testcase classname="tests.test_v032_luhk_integration.V032PilotLUHKWiringTests" name="test_luhk_source_or_dependency_change_invalidates_cache" time="0.016"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'&quot;">cls = &lt;class 'tests.test_v032_luhk_integration.V032PilotLUHKWiringTests'&gt;
+
+    @classmethod
+    def setUpClass(cls) -&gt; None:
+        cls._temporary = tempfile.TemporaryDirectory()
+        cls.output_root = Path(cls._temporary.name) / "canonical"
+        cls.image_id = "DJI_20260107143259_0005"
+&gt;       cls.manifest, cls.manifest_path = adapt_pilot_image(
+            PROJECT_ROOT,
+            cls.image_id,
+            output_root=cls.output_root,
+            write_pixels_parquet=True,
+            configuration_hash_value="v032-luhk-wiring",
+            source_file_hashes_value=PILOT_SOURCE_HASHES,
+            dependency_fingerprints_value=PILOT_CACHE_DEPENDENCIES,
+            part_a={
+                "capture_datetime": "2026-01-07T14:32:59+08:00",
+                "capture_time_local": "2026-01-07T14:32:59+08:00",
+                "capture_timezone": "Asia/Hong_Kong",
+                "capture_time_source": "test_preserved_part_a",
+                "capture_time_valid": True,
+            },
+        )
+
+tests/test_v032_luhk_integration.py:240: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/workflow/pilot_adapter.py:118: in adapt_pilot_image
+    temperature = np.load(_project_path(project_root, temperature_row["npy_path"]))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+file = PosixPath('/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy')
+mmap_mode = None, allow_pickle = False, fix_imports = True, encoding = 'ASCII'
+max_header_size = 10000
+
+    @set_module('numpy')
+    def load(file, mmap_mode=None, allow_pickle=False, fix_imports=True,
+             encoding='ASCII', *, max_header_size=_MAX_HEADER_SIZE):
+        """
+        Load arrays or pickled objects from ``.npy``, ``.npz`` or pickled files.
+    
+        .. warning:: Loading files that contain object arrays uses the ``pickle``
+                     module, which is not secure against erroneous or maliciously
+                     constructed data. Consider passing ``allow_pickle=False`` to
+                     load data that is known not to contain object arrays for the
+                     safer handling of untrusted sources.
+    
+        Parameters
+        ----------
+        file : file-like object, string, or pathlib.Path
+            The file to read. File-like objects must support the
+            ``seek()`` and ``read()`` methods and must always
+            be opened in binary mode.  Pickled files require that the
+            file-like object support the ``readline()`` method as well.
+        mmap_mode : {None, 'r+', 'r', 'w+', 'c'}, optional
+            If not None, then memory-map the file, using the given mode (see
+            `numpy.memmap` for a detailed description of the modes).  A
+            memory-mapped array is kept on disk. However, it can be accessed
+            and sliced like any ndarray.  Memory mapping is especially useful
+            for accessing small fragments of large files without reading the
+            entire file into memory.
+        allow_pickle : bool, optional
+            Allow loading pickled object arrays stored in npy files. Reasons for
+            disallowing pickles include security, as loading pickled data can
+            execute arbitrary code. If pickles are disallowed, loading object
+            arrays will fail. Default: False
+        fix_imports : bool, optional
+            Only useful when loading Python 2 generated pickled files,
+            which includes npy/npz files containing object arrays. If `fix_imports`
+            is True, pickle will try to map the old Python 2 names to the new names
+            used in Python 3.
+        encoding : str, optional
+            What encoding to use when reading Python 2 strings. Only useful when
+            loading Python 2 generated pickled files, which includes
+            npy/npz files containing object arrays. Values other than 'latin1',
+            'ASCII', and 'bytes' are not allowed, as they can corrupt numerical
+            data. Default: 'ASCII'
+        max_header_size : int, optional
+            Maximum allowed size of the header.  Large headers may not be safe
+            to load securely and thus require explicitly passing a larger value.
+            See :py:func:`ast.literal_eval()` for details.
+            This option is ignored when `allow_pickle` is passed.  In that case
+            the file is by definition trusted and the limit is unnecessary.
+    
+        Returns
+        -------
+        result : array, tuple, dict, etc.
+            Data stored in the file. For ``.npz`` files, the returned instance
+            of NpzFile class must be closed to avoid leaking file descriptors.
+    
+        Raises
+        ------
+        OSError
+            If the input file does not exist or cannot be read.
+        UnpicklingError
+            If ``allow_pickle=True``, but the file cannot be loaded as a pickle.
+        ValueError
+            The file contains an object array, but ``allow_pickle=False`` given.
+        EOFError
+            When calling ``np.load`` multiple times on the same file handle,
+            if all data has already been read
+    
+        See Also
+        --------
+        save, savez, savez_compressed, loadtxt
+        memmap : Create a memory-map to an array stored in a file on disk.
+        lib.format.open_memmap : Create or load a memory-mapped ``.npy`` file.
+    
+        Notes
+        -----
+        - If the file contains pickle data, then whatever object is stored
+          in the pickle is returned.
+        - If the file is a ``.npy`` file, then a single array is returned.
+        - If the file is a ``.npz`` file, then a dictionary-like object is
+          returned, containing ``{filename: array}`` key-value pairs, one for
+          each file in the archive.
+        - If the file is a ``.npz`` file, the returned value supports the
+          context manager protocol in a similar fashion to the open function::
+    
+            with load('foo.npz') as data:
+                a = data['a']
+    
+          The underlying file descriptor is closed when exiting the 'with'
+          block.
+    
+        Examples
+        --------
+        &gt;&gt;&gt; import numpy as np
+    
+        Store data to disk, and load it again:
+    
+        &gt;&gt;&gt; np.save('/tmp/123', np.array([[1, 2, 3], [4, 5, 6]]))
+        &gt;&gt;&gt; np.load('/tmp/123.npy')
+        array([[1, 2, 3],
+               [4, 5, 6]])
+    
+        Store compressed data to disk, and load it again:
+    
+        &gt;&gt;&gt; a=np.array([[1, 2, 3], [4, 5, 6]])
+        &gt;&gt;&gt; b=np.array([1, 2])
+        &gt;&gt;&gt; np.savez('/tmp/123.npz', a=a, b=b)
+        &gt;&gt;&gt; data = np.load('/tmp/123.npz')
+        &gt;&gt;&gt; data['a']
+        array([[1, 2, 3],
+               [4, 5, 6]])
+        &gt;&gt;&gt; data['b']
+        array([1, 2])
+        &gt;&gt;&gt; data.close()
+    
+        Mem-map the stored array, and then access the second row
+        directly from disk:
+    
+        &gt;&gt;&gt; X = np.load('/tmp/123.npy', mmap_mode='r')
+        &gt;&gt;&gt; X[1, :]
+        memmap([4, 5, 6])
+    
+        """
+        if encoding not in ('ASCII', 'latin1', 'bytes'):
+            # The 'encoding' value for pickle also affects what encoding
+            # the serialized binary data of NumPy arrays is loaded
+            # in. Pickle does not pass on the encoding information to
+            # NumPy. The unpickling code in numpy._core.multiarray is
+            # written to assume that unicode data appearing where binary
+            # should be is in 'latin1'. 'bytes' is also safe, as is 'ASCII'.
+            #
+            # Other encoding values can corrupt binary data, and we
+            # purposefully disallow them. For the same reason, the errors=
+            # argument is not exposed, as values other than 'strict'
+            # result can similarly silently corrupt numerical data.
+            raise ValueError("encoding must be 'ASCII', 'latin1', or 'bytes'")
+    
+        pickle_kwargs = {'encoding': encoding, 'fix_imports': fix_imports}
+    
+        with contextlib.ExitStack() as stack:
+            if hasattr(file, 'read'):
+                fid = file
+                own_fid = False
+            else:
+&gt;               fid = stack.enter_context(open(os.fspath(file), "rb"))
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'
+
+/tmp/heat-index-audit-py312-tk/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py:454: FileNotFoundError</error></testcase><testcase classname="tests.test_v032_luhk_integration.V032PilotLUHKWiringTests" name="test_pilot_canonical_manifest_and_pixels_preserve_official_luhk" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'&quot;">cls = &lt;class 'tests.test_v032_luhk_integration.V032PilotLUHKWiringTests'&gt;
+
+    @classmethod
+    def setUpClass(cls) -&gt; None:
+        cls._temporary = tempfile.TemporaryDirectory()
+        cls.output_root = Path(cls._temporary.name) / "canonical"
+        cls.image_id = "DJI_20260107143259_0005"
+&gt;       cls.manifest, cls.manifest_path = adapt_pilot_image(
+            PROJECT_ROOT,
+            cls.image_id,
+            output_root=cls.output_root,
+            write_pixels_parquet=True,
+            configuration_hash_value="v032-luhk-wiring",
+            source_file_hashes_value=PILOT_SOURCE_HASHES,
+            dependency_fingerprints_value=PILOT_CACHE_DEPENDENCIES,
+            part_a={
+                "capture_datetime": "2026-01-07T14:32:59+08:00",
+                "capture_time_local": "2026-01-07T14:32:59+08:00",
+                "capture_timezone": "Asia/Hong_Kong",
+                "capture_time_source": "test_preserved_part_a",
+                "capture_time_valid": True,
+            },
+        )
+
+tests/test_v032_luhk_integration.py:240: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/workflow/pilot_adapter.py:118: in adapt_pilot_image
+    temperature = np.load(_project_path(project_root, temperature_row["npy_path"]))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+file = PosixPath('/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy')
+mmap_mode = None, allow_pickle = False, fix_imports = True, encoding = 'ASCII'
+max_header_size = 10000
+
+    @set_module('numpy')
+    def load(file, mmap_mode=None, allow_pickle=False, fix_imports=True,
+             encoding='ASCII', *, max_header_size=_MAX_HEADER_SIZE):
+        """
+        Load arrays or pickled objects from ``.npy``, ``.npz`` or pickled files.
+    
+        .. warning:: Loading files that contain object arrays uses the ``pickle``
+                     module, which is not secure against erroneous or maliciously
+                     constructed data. Consider passing ``allow_pickle=False`` to
+                     load data that is known not to contain object arrays for the
+                     safer handling of untrusted sources.
+    
+        Parameters
+        ----------
+        file : file-like object, string, or pathlib.Path
+            The file to read. File-like objects must support the
+            ``seek()`` and ``read()`` methods and must always
+            be opened in binary mode.  Pickled files require that the
+            file-like object support the ``readline()`` method as well.
+        mmap_mode : {None, 'r+', 'r', 'w+', 'c'}, optional
+            If not None, then memory-map the file, using the given mode (see
+            `numpy.memmap` for a detailed description of the modes).  A
+            memory-mapped array is kept on disk. However, it can be accessed
+            and sliced like any ndarray.  Memory mapping is especially useful
+            for accessing small fragments of large files without reading the
+            entire file into memory.
+        allow_pickle : bool, optional
+            Allow loading pickled object arrays stored in npy files. Reasons for
+            disallowing pickles include security, as loading pickled data can
+            execute arbitrary code. If pickles are disallowed, loading object
+            arrays will fail. Default: False
+        fix_imports : bool, optional
+            Only useful when loading Python 2 generated pickled files,
+            which includes npy/npz files containing object arrays. If `fix_imports`
+            is True, pickle will try to map the old Python 2 names to the new names
+            used in Python 3.
+        encoding : str, optional
+            What encoding to use when reading Python 2 strings. Only useful when
+            loading Python 2 generated pickled files, which includes
+            npy/npz files containing object arrays. Values other than 'latin1',
+            'ASCII', and 'bytes' are not allowed, as they can corrupt numerical
+            data. Default: 'ASCII'
+        max_header_size : int, optional
+            Maximum allowed size of the header.  Large headers may not be safe
+            to load securely and thus require explicitly passing a larger value.
+            See :py:func:`ast.literal_eval()` for details.
+            This option is ignored when `allow_pickle` is passed.  In that case
+            the file is by definition trusted and the limit is unnecessary.
+    
+        Returns
+        -------
+        result : array, tuple, dict, etc.
+            Data stored in the file. For ``.npz`` files, the returned instance
+            of NpzFile class must be closed to avoid leaking file descriptors.
+    
+        Raises
+        ------
+        OSError
+            If the input file does not exist or cannot be read.
+        UnpicklingError
+            If ``allow_pickle=True``, but the file cannot be loaded as a pickle.
+        ValueError
+            The file contains an object array, but ``allow_pickle=False`` given.
+        EOFError
+            When calling ``np.load`` multiple times on the same file handle,
+            if all data has already been read
+    
+        See Also
+        --------
+        save, savez, savez_compressed, loadtxt
+        memmap : Create a memory-map to an array stored in a file on disk.
+        lib.format.open_memmap : Create or load a memory-mapped ``.npy`` file.
+    
+        Notes
+        -----
+        - If the file contains pickle data, then whatever object is stored
+          in the pickle is returned.
+        - If the file is a ``.npy`` file, then a single array is returned.
+        - If the file is a ``.npz`` file, then a dictionary-like object is
+          returned, containing ``{filename: array}`` key-value pairs, one for
+          each file in the archive.
+        - If the file is a ``.npz`` file, the returned value supports the
+          context manager protocol in a similar fashion to the open function::
+    
+            with load('foo.npz') as data:
+                a = data['a']
+    
+          The underlying file descriptor is closed when exiting the 'with'
+          block.
+    
+        Examples
+        --------
+        &gt;&gt;&gt; import numpy as np
+    
+        Store data to disk, and load it again:
+    
+        &gt;&gt;&gt; np.save('/tmp/123', np.array([[1, 2, 3], [4, 5, 6]]))
+        &gt;&gt;&gt; np.load('/tmp/123.npy')
+        array([[1, 2, 3],
+               [4, 5, 6]])
+    
+        Store compressed data to disk, and load it again:
+    
+        &gt;&gt;&gt; a=np.array([[1, 2, 3], [4, 5, 6]])
+        &gt;&gt;&gt; b=np.array([1, 2])
+        &gt;&gt;&gt; np.savez('/tmp/123.npz', a=a, b=b)
+        &gt;&gt;&gt; data = np.load('/tmp/123.npz')
+        &gt;&gt;&gt; data['a']
+        array([[1, 2, 3],
+               [4, 5, 6]])
+        &gt;&gt;&gt; data['b']
+        array([1, 2])
+        &gt;&gt;&gt; data.close()
+    
+        Mem-map the stored array, and then access the second row
+        directly from disk:
+    
+        &gt;&gt;&gt; X = np.load('/tmp/123.npy', mmap_mode='r')
+        &gt;&gt;&gt; X[1, :]
+        memmap([4, 5, 6])
+    
+        """
+        if encoding not in ('ASCII', 'latin1', 'bytes'):
+            # The 'encoding' value for pickle also affects what encoding
+            # the serialized binary data of NumPy arrays is loaded
+            # in. Pickle does not pass on the encoding information to
+            # NumPy. The unpickling code in numpy._core.multiarray is
+            # written to assume that unicode data appearing where binary
+            # should be is in 'latin1'. 'bytes' is also safe, as is 'ASCII'.
+            #
+            # Other encoding values can corrupt binary data, and we
+            # purposefully disallow them. For the same reason, the errors=
+            # argument is not exposed, as values other than 'strict'
+            # result can similarly silently corrupt numerical data.
+            raise ValueError("encoding must be 'ASCII', 'latin1', or 'bytes'")
+    
+        pickle_kwargs = {'encoding': encoding, 'fix_imports': fix_imports}
+    
+        with contextlib.ExitStack() as stack:
+            if hasattr(file, 'read'):
+                fid = file
+                own_fid = False
+            else:
+&gt;               fid = stack.enter_context(open(os.fspath(file), "rb"))
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'
+
+/tmp/heat-index-audit-py312-tk/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py:454: FileNotFoundError</error></testcase><testcase classname="tests.test_v032_part_e_target_scope.PartETargetScopeTests" name="test_formal_groups_do_not_pool_incompatible_ambient_definitions" time="0.005" /><testcase classname="tests.test_v032_part_e_target_scope.PartETargetScopeTests" name="test_gic_filter_accepts_canonical_string_and_legacy_numeric_codes" time="0.001" /><testcase classname="tests.test_v032_part_e_target_scope.PartETargetScopeTests" name="test_normal_result_without_legacy_target_mask_keeps_full_image_behavior" time="0.014" /><testcase classname="tests.test_v032_part_e_target_scope.PartETargetScopeTests" name="test_polygon_outside_pixels_do_not_enter_overall_or_image_statistics" time="0.065" /><testcase classname="tests.test_v03_config_and_cli.V03ConfigAndCliTests" name="test_temporal_cli_accepts_manifests_and_run_summary" time="1.654" /><testcase classname="tests.test_v03_config_and_cli.V03ConfigAndCliTests" name="test_v03_configs_and_scientific_templates_are_isolated" time="0.003" /><testcase classname="tests.test_v03_spatial_figures.V03CanonicalSpatialFigureTests" name="test_completeness_validation_rejects_deleted_figure" time="3.845" /><testcase classname="tests.test_v03_spatial_figures.V03CanonicalSpatialFigureTests" name="test_non_pixel_sources_are_recorded_not_silently_completed_empty" time="0.004" /><testcase classname="tests.test_v03_spatial_figures.V03CanonicalSpatialFigureTests" name="test_normal_polygon_dynamic_missing_layers_and_boundary_outputs" time="3.839" /><testcase classname="tests.test_v03_spatial_figures.V03CanonicalSpatialFigureTests" name="test_validation_rejects_outputs_from_a_different_spatial_method" time="3.872" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_compatibility_helpers_do_not_claim_a_series_without_explicit_plan" time="0.024" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_default_local_dates_do_not_pool_across_dates_but_explicit_window_can" time="0.639" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_delta_t_requires_compatible_ambient_source_and_definition" time="1.357" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_duplicate_timestamps_and_missing_timestamp_are_explicit_exclusions" time="0.199" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_explicit_invalid_capture_time_and_missing_source_are_hard_exclusions" time="0.577" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_full_day_claim_requires_confirmed_dense_day_and_night_sampling" time="1.290" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_gps_conflict_is_a_core_gate_and_requires_a_reasoned_override" time="0.672" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_identity_conflict_requires_confirmed_override_and_reason" time="0.611" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_incompatible_ambient_strata_are_reported_separately_never_pooled" time="0.611" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_multiple_temporal_groups_are_stored_and_analyzed_separately" time="1.203" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_one_capture_is_descriptive_without_range_trend_or_figure" time="0.055" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_pixelwise_maps_reject_multiple_eligible_strata_or_windows" time="0.693" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_pixelwise_maps_require_explicit_registration_and_comparable_grid_intersection" time="2.049" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_plan_is_json_serializable_and_never_infers_groups" time="0.000" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_primary_robust_and_absolute_peak_to_trough_results_are_correct" time="0.606" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_same_location_and_roi_confirmation_are_hard_gates" time="0.119" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_sampling_coverage_reports_gaps_and_does_not_claim_true_daily_range" time="0.568" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_standalone_cli_defaults_to_no_and_accepts_only_explicit_temporal_opt_in" time="1.478" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_target_name_registration_and_explicit_roi_non_overlap_are_identity_conflicts" time="0.064" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_temperature_source_definition_unit_roi_and_qa_form_compatibility_gates" time="0.453" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_temporal_not_requested_is_clean_complete_skip_with_zero_figures" time="0.600" /><testcase classname="tests.test_v03_temporal_analysis.V03TemporalAnalysisTests" name="test_varying_roi_boundaries_are_explicitly_target_level_only" time="0.585" /><testcase classname="tests.test_v03_user_workflow.UserWorkflowTests" name="test_accepted_spatial_override_records_confirmation_and_reason" time="0.000" /><testcase classname="tests.test_v03_user_workflow.UserWorkflowTests" name="test_all_command_needs_real_inputs_but_no_user_json_or_config_authoring" time="0.008" /><testcase classname="tests.test_v03_user_workflow.UserWorkflowTests" name="test_capture_cards_select_one_valid_time_bundle_without_mixing_sources" time="0.001" /><testcase classname="tests.test_v03_user_workflow.UserWorkflowTests" name="test_declining_spatial_conflict_override_rejects_group" time="0.000" /><testcase classname="tests.test_v03_user_workflow.UserWorkflowTests" name="test_desktop_gui_builds_a_several_group_command" time="0.001" /><testcase classname="tests.test_v03_user_workflow.UserWorkflowTests" name="test_gui_pythonw_launcher_uses_console_python_for_child_logs" time="0.000"><failure message="NotImplementedError: cannot instantiate 'WindowsPath' on your system">self = &lt;tests.test_v03_user_workflow.UserWorkflowTests testMethod=test_gui_pythonw_launcher_uses_console_python_for_child_logs&gt;
+
+    def test_gui_pythonw_launcher_uses_console_python_for_child_logs(self) -&gt; None:
+        with patch("scripts.run_user_workflow.os.name", "nt"), patch(
+            "scripts.run_user_workflow.sys.executable", str(PROJECT_ROOT / ".venv" / "Scripts" / "pythonw.exe")
+        ):
+            self.assertEqual(
+&gt;               workflow_python(),
+                ^^^^^^^^^^^^^^^^^
+                str(PROJECT_ROOT / ".venv" / "Scripts" / "python.exe"),
+            )
+
+tests/test_v03_user_workflow.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/run_user_workflow.py:33: in workflow_python
+    console = executable.with_name("python.exe")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/tmp/heat-index-audit-py312-tk/lib/python3.12/pathlib.py:635: in with_name
+    return self._from_parsed_parts(self.drive, self.root,
+/tmp/heat-index-audit-py312-tk/lib/python3.12/pathlib.py:422: in _from_parsed_parts
+    path = self.with_segments(path_str)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/tmp/heat-index-audit-py312-tk/lib/python3.12/pathlib.py:385: in with_segments
+    return type(self)(*pathsegments)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = &lt;class 'pathlib.WindowsPath'&gt;
+args = ('\\private\\tmp\\heat-index-phase2-worktree-audit\\.venv\\Scripts\\python.exe',)
+kwargs = {}
+
+    def __new__(cls, *args, **kwargs):
+&gt;       raise NotImplementedError(
+            f"cannot instantiate {cls.__name__!r} on your system")
+E       NotImplementedError: cannot instantiate 'WindowsPath' on your system
+
+/tmp/heat-index-audit-py312-tk/lib/python3.12/pathlib.py:1434: NotImplementedError</failure></testcase><testcase classname="tests.test_v03_user_workflow.UserWorkflowTests" name="test_one_group_can_resume_a_saved_part_c_draft" time="0.001" /><testcase classname="tests.test_v03_user_workflow.UserWorkflowTests" name="test_polygon_subprocess_distinguishes_window_close_from_cancel" time="0.001" /><testcase classname="tests.test_v03_user_workflow.UserWorkflowTests" name="test_several_groups_and_reports_are_supported_without_user_json" time="0.001" /><testcase classname="tests.test_v03_user_workflow.UserWorkflowTests" name="test_temporal_prompt_defaults_to_no_when_standard_input_is_closed" time="0.000" /><testcase classname="tests.test_v03_user_workflow.UserWorkflowTests" name="test_user_report_states_clean_temporal_skip_without_json_inspection" time="0.000" /><testcase classname="tests.test_v03_user_workflow.UserWorkflowTests" name="test_user_report_surfaces_primary_and_absolute_temporal_ranges" time="0.004" /><testcase classname="tests.test_workflow_models_and_inputs.InputValidationTests" name="test_dataset_discovery_does_not_guess_between_ambiguous_visible_candidates" time="0.001" /><testcase classname="tests.test_workflow_models_and_inputs.InputValidationTests" name="test_dataset_discovery_pairs_unique_adjacent_dji_timestamps" time="0.001"><failure message="AssertionError: PosixPath('/private/var/folders/98/rgkcc9kx5z9dqgkmfj[74 chars]JPG') != PosixPath('/var/folders/98/rgkcc9kx5z9dqgkmfj7xrmz400[66 chars]JPG')">self = &lt;tests.test_workflow_models_and_inputs.InputValidationTests testMethod=test_dataset_discovery_pairs_unique_adjacent_dji_timestamps&gt;
+
+    def test_dataset_discovery_pairs_unique_adjacent_dji_timestamps(self) -&gt; None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "DJI_202602020853_001"
+            visible = root / "DJI_20260202091127_0058_V.JPG"
+            thermal = root / "DJI_20260202091128_0058_T.JPG"
+            self.make_image(visible)
+            self.make_image(thermal)
+            groups = discover_dataset_groups(root, "real-pattern")
+            self.assertEqual(len(groups), 1)
+&gt;           self.assertEqual(Path(groups[0].visible_path), visible)
+E           AssertionError: PosixPath('/private/var/folders/98/rgkcc9kx5z9dqgkmfj[74 chars]JPG') != PosixPath('/var/folders/98/rgkcc9kx5z9dqgkmfj7xrmz400[66 chars]JPG')
+
+tests/test_workflow_models_and_inputs.py:77: AssertionError</failure></testcase><testcase classname="tests.test_workflow_models_and_inputs.InputValidationTests" name="test_dataset_discovery_retains_thermal_only_fallback_groups" time="0.001" /><testcase classname="tests.test_workflow_models_and_inputs.InputValidationTests" name="test_invalid_thermal_fails_clearly" time="0.065" /><testcase classname="tests.test_workflow_models_and_inputs.InputValidationTests" name="test_missing_thermal_fails_clearly" time="0.044" /><testcase classname="tests.test_workflow_models_and_inputs.InputValidationTests" name="test_valid_vt_group_returns_structured_record" time="0.043" /></testsuite></testsuites>

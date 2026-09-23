@@ -1,0 +1,53 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.13, pytest-9.1.1, pluggy-1.6.0
+rootdir: /private/tmp/heat-index-phase2-safetynet-initial-audit
+configfile: pytest.ini
+collected 117 items / 6 deselected / 111 selected
+
+tests/test_part_e_dynamic_sampling.py ..                                 [  1%]
+tests/test_part_e_multi_source.py .                                      [  2%]
+tests/test_pilot_regression.py .                                         [  3%]
+tests/test_polygon_and_canonical.py .....                                [  8%]
+tests/test_result_index.py .                                             [  9%]
+tests/test_routing.py ......                                             [ 14%]
+tests/test_run_analysis_integration.py ...                               [ 17%]
+tests/test_v02_cache_schema_extremes.py .....                            [ 21%]
+tests/test_v02_part_a_b0_and_full_b.py ....                              [ 25%]
+tests/test_v02_part_c_controller.py .s......                             [ 32%]
+tests/test_v02_part_e_formal.py .                                        [ 33%]
+tests/test_v02_pilot_numeric_baseline.py ..                              [ 35%]
+tests/test_v02_run_analysis_routes.py ..                                 [ 36%]
+tests/test_v02_tat3_manual.py ....                                       [ 40%]
+tests/test_v02_temperature_extraction.py ...                             [ 43%]
+tests/test_v032_capture_time.py .........                                [ 51%]
+tests/test_v032_luhk_integration.py .......                              [ 57%]
+tests/test_v032_part_e_target_scope.py ....                              [ 61%]
+tests/test_v03_config_and_cli.py ..                                      [ 63%]
+tests/test_v03_spatial_figures.py ....                                   [ 66%]
+tests/test_v03_temporal_analysis.py ......................               [ 86%]
+tests/test_v03_user_workflow.py .........                                [ 94%]
+tests/test_workflow_models_and_inputs.py .F....                          [100%]
+
+=================================== FAILURES ===================================
+_ InputValidationTests.test_dataset_discovery_pairs_unique_adjacent_dji_timestamps _
+
+self = <tests.test_workflow_models_and_inputs.InputValidationTests testMethod=test_dataset_discovery_pairs_unique_adjacent_dji_timestamps>
+
+    def test_dataset_discovery_pairs_unique_adjacent_dji_timestamps(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "DJI_202602020853_001"
+            visible = root / "DJI_20260202091127_0058_V.JPG"
+            thermal = root / "DJI_20260202091128_0058_T.JPG"
+            self.make_image(visible)
+            self.make_image(thermal)
+            groups = discover_dataset_groups(root, "real-pattern")
+            self.assertEqual(len(groups), 1)
+>           self.assertEqual(Path(groups[0].visible_path), visible)
+E           AssertionError: PosixPath('/private/var/folders/98/rgkcc9kx5z9dqgkmfj[74 chars]JPG') != PosixPath('/var/folders/98/rgkcc9kx5z9dqgkmfj7xrmz400[66 chars]JPG')
+
+tests/test_workflow_models_and_inputs.py:77: AssertionError
+- generated xml file: /tmp/heat-index-audit-evidence/phase2-initial-pinned-ci.xml -
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_v02_part_c_controller.py:134: Windows Tcl bootstrap
+FAILED tests/test_workflow_models_and_inputs.py::InputValidationTests::test_dataset_discovery_pairs_unique_adjacent_dji_timestamps
+====== 1 failed, 109 passed, 1 skipped, 6 deselected in 114.87s (0:01:54) ======

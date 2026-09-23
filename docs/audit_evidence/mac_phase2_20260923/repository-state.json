@@ -1,0 +1,12 @@
+{
+  "workspace": "/Volumes/My Passport for Mac/Projects/HEAT_INDEX_ESTIMATION_UROP_2627FALL",
+  "initial_workspace": "empty, not a Git repository",
+  "repository": "https://github.com/VITAMINC135246/heat_index_urop.git",
+  "head": "06c61b499e9c3e2f30daaeddc29fa4e98d61066e",
+  "local_branches": "main 06c61b499e9c3e2f30daaeddc29fa4e98d61066e",
+  "remote_branches": "origin 06c61b499e9c3e2f30daaeddc29fa4e98d61066e\norigin/main 06c61b499e9c3e2f30daaeddc29fa4e98d61066e\norigin/phase-2-safety-net 8eb389c6fac5fb4c410282f81b5d8c5145543c94",
+  "remotes": "origin\thttps://github.com/VITAMINC135246/heat_index_urop.git (fetch)\norigin\thttps://github.com/VITAMINC135246/heat_index_urop.git (push)",
+  "divergence": "0\t3",
+  "tags": "dc825972a3d6d5f78180eb2f8a9243d558816082 refs/tags/pre-e2e-validation-2026-07-15",
+  "audit_changes": "docs/mac_phase2_architecture_regression_audit.md and docs/audit_evidence/mac_phase2_20260923 only"
+}

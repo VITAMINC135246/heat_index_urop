@@ -1,0 +1,230 @@
+{
+  "main-full": {
+    "failures": 3,
+    "errors": 2,
+    "skipped": 3,
+    "seconds": 108.726,
+    "details": [
+      {
+        "test": "tests.test_pilot_regression.PilotRegressionTests::test_existing_part_e_row_count_when_local_parquet_is_available",
+        "status": "skipped",
+        "message": "Local reproducible Part E Parquet is not present."
+      },
+      {
+        "test": "tests.test_pilot_regression.PilotRegressionTests::test_normal_part_c_pilot_adapter_builds_versioned_manifest",
+        "status": "failure",
+        "message": "FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-baseline-audit-20260923/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'"
+      },
+      {
+        "test": "tests.test_v02_part_c_controller.PartCControllerTests::test_embedded_windows_python_uses_repository_tcl_bootstrap",
+        "status": "skipped",
+        "message": "Windows Tcl bootstrap"
+      },
+      {
+        "test": "tests.test_v02_pilot_numeric_baseline.PilotNumericBaselineTests::test_part_d_temperature_numeric_baseline",
+        "status": "failure",
+        "message": "FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-baseline-audit-20260923/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'"
+      },
+      {
+        "test": "tests.test_v02_tat3_manual::test_named_local_ambient_reports_have_185_entries_and_no_manual_measurements",
+        "status": "skipped",
+        "message": "Named local TAT3 ambient reports are not available."
+      },
+      {
+        "test": "tests.test_v032_luhk_integration.V032PilotLUHKWiringTests::test_luhk_source_or_dependency_change_invalidates_cache",
+        "status": "error",
+        "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-baseline-audit-20260923/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'\""
+      },
+      {
+        "test": "tests.test_v032_luhk_integration.V032PilotLUHKWiringTests::test_pilot_canonical_manifest_and_pixels_preserve_official_luhk",
+        "status": "error",
+        "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-baseline-audit-20260923/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'\""
+      },
+      {
+        "test": "tests.test_workflow_models_and_inputs.InputValidationTests::test_dataset_discovery_pairs_unique_adjacent_dji_timestamps",
+        "status": "failure",
+        "message": "AssertionError: PosixPath('/private/var/folders/98/rgkcc9kx5z9dqgkmfj[74 chars]JPG') != PosixPath('/var/folders/98/rgkcc9kx5z9dqgkmfj7xrmz400[66 chars]JPG')"
+      }
+    ],
+    "junit_reported_tests_including_subtests": 135,
+    "pytest_summary": "3 failed, 109 passed, 3 skipped, 2 errors in 108.73s (0:01:48)",
+    "passed": 109,
+    "failed": 3,
+    "deselected": 0
+  },
+  "main-pinned-full": {
+    "failures": 3,
+    "errors": 2,
+    "skipped": 3,
+    "seconds": 114.934,
+    "details": [
+      {
+        "test": "tests.test_pilot_regression.PilotRegressionTests::test_existing_part_e_row_count_when_local_parquet_is_available",
+        "status": "skipped",
+        "message": "Local reproducible Part E Parquet is not present."
+      },
+      {
+        "test": "tests.test_pilot_regression.PilotRegressionTests::test_normal_part_c_pilot_adapter_builds_versioned_manifest",
+        "status": "failure",
+        "message": "FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-baseline-audit-20260923/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'"
+      },
+      {
+        "test": "tests.test_v02_part_c_controller.PartCControllerTests::test_embedded_windows_python_uses_repository_tcl_bootstrap",
+        "status": "skipped",
+        "message": "Windows Tcl bootstrap"
+      },
+      {
+        "test": "tests.test_v02_pilot_numeric_baseline.PilotNumericBaselineTests::test_part_d_temperature_numeric_baseline",
+        "status": "failure",
+        "message": "FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-baseline-audit-20260923/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'"
+      },
+      {
+        "test": "tests.test_v02_tat3_manual::test_named_local_ambient_reports_have_185_entries_and_no_manual_measurements",
+        "status": "skipped",
+        "message": "Named local TAT3 ambient reports are not available."
+      },
+      {
+        "test": "tests.test_v032_luhk_integration.V032PilotLUHKWiringTests::test_luhk_source_or_dependency_change_invalidates_cache",
+        "status": "error",
+        "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-baseline-audit-20260923/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'\""
+      },
+      {
+        "test": "tests.test_v032_luhk_integration.V032PilotLUHKWiringTests::test_pilot_canonical_manifest_and_pixels_preserve_official_luhk",
+        "status": "error",
+        "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-baseline-audit-20260923/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'\""
+      },
+      {
+        "test": "tests.test_workflow_models_and_inputs.InputValidationTests::test_dataset_discovery_pairs_unique_adjacent_dji_timestamps",
+        "status": "failure",
+        "message": "AssertionError: PosixPath('/private/var/folders/98/rgkcc9kx5z9dqgkmfj[74 chars]JPG') != PosixPath('/var/folders/98/rgkcc9kx5z9dqgkmfj7xrmz400[66 chars]JPG')"
+      }
+    ],
+    "junit_reported_tests_including_subtests": 135,
+    "pytest_summary": "3 failed, 109 passed, 3 skipped, 2 errors in 114.94s (0:01:54)",
+    "passed": 109,
+    "failed": 3,
+    "deselected": 0
+  },
+  "phase2-full": {
+    "failures": 0,
+    "errors": 1,
+    "skipped": 0,
+    "seconds": 27.878,
+    "details": [
+      {
+        "test": "::tests.test_v03_user_workflow",
+        "status": "error",
+        "message": "collection failure"
+      }
+    ],
+    "junit_reported_tests_including_subtests": 1,
+    "pytest_summary": "1 error in 27.88s",
+    "passed": 0,
+    "failed": 0,
+    "deselected": 0
+  },
+  "phase2-initial-pinned-ci": {
+    "failures": 1,
+    "errors": 0,
+    "skipped": 1,
+    "seconds": 114.867,
+    "details": [
+      {
+        "test": "tests.test_v02_part_c_controller.PartCControllerTests::test_embedded_windows_python_uses_repository_tcl_bootstrap",
+        "status": "skipped",
+        "message": "Windows Tcl bootstrap"
+      },
+      {
+        "test": "tests.test_workflow_models_and_inputs.InputValidationTests::test_dataset_discovery_pairs_unique_adjacent_dji_timestamps",
+        "status": "failure",
+        "message": "AssertionError: PosixPath('/private/var/folders/98/rgkcc9kx5z9dqgkmfj[74 chars]JPG') != PosixPath('/var/folders/98/rgkcc9kx5z9dqgkmfj7xrmz400[66 chars]JPG')"
+      }
+    ],
+    "junit_reported_tests_including_subtests": 129,
+    "pytest_summary": "1 failed, 109 passed, 1 skipped, 6 deselected in 114.87s (0:01:54)",
+    "passed": 109,
+    "failed": 1,
+    "deselected": 6
+  },
+  "phase2-pinned-ci": {
+    "failures": 1,
+    "errors": 0,
+    "skipped": 1,
+    "seconds": 55.162,
+    "details": [
+      {
+        "test": "tests.test_v02_part_c_controller.PartCControllerTests::test_embedded_windows_python_uses_repository_tcl_bootstrap",
+        "status": "skipped",
+        "message": "Windows Tcl bootstrap"
+      },
+      {
+        "test": "tests.test_v03_user_workflow.UserWorkflowTests::test_gui_pythonw_launcher_uses_console_python_for_child_logs",
+        "status": "failure",
+        "message": "NotImplementedError: cannot instantiate 'WindowsPath' on your system"
+      }
+    ],
+    "junit_reported_tests_including_subtests": 133,
+    "pytest_summary": "1 failed, 113 passed, 1 skipped, 6 deselected in 55.16s",
+    "passed": 113,
+    "failed": 1,
+    "deselected": 6
+  },
+  "phase2-pinned-full": {
+    "failures": 4,
+    "errors": 2,
+    "skipped": 3,
+    "seconds": 114.956,
+    "details": [
+      {
+        "test": "tests.test_pilot_regression.PilotRegressionTests::test_existing_part_e_row_count_when_local_parquet_is_available",
+        "status": "skipped",
+        "message": "Local reproducible Part E Parquet is not present."
+      },
+      {
+        "test": "tests.test_pilot_regression.PilotRegressionTests::test_normal_part_c_pilot_adapter_builds_versioned_manifest",
+        "status": "failure",
+        "message": "FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'"
+      },
+      {
+        "test": "tests.test_v02_part_c_controller.PartCControllerTests::test_embedded_windows_python_uses_repository_tcl_bootstrap",
+        "status": "skipped",
+        "message": "Windows Tcl bootstrap"
+      },
+      {
+        "test": "tests.test_v02_pilot_numeric_baseline.PilotNumericBaselineTests::test_part_d_temperature_numeric_baseline",
+        "status": "failure",
+        "message": "FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'"
+      },
+      {
+        "test": "tests.test_v02_tat3_manual::test_named_local_ambient_reports_have_185_entries_and_no_manual_measurements",
+        "status": "skipped",
+        "message": "Named local TAT3 ambient reports are not available."
+      },
+      {
+        "test": "tests.test_v032_luhk_integration.V032PilotLUHKWiringTests::test_luhk_source_or_dependency_change_invalidates_cache",
+        "status": "error",
+        "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'\""
+      },
+      {
+        "test": "tests.test_v032_luhk_integration.V032PilotLUHKWiringTests::test_pilot_canonical_manifest_and_pixels_preserve_official_luhk",
+        "status": "error",
+        "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/heat-index-phase2-worktree-audit/data/processed/part_d/temperature_matrices/DJI_20260107143259_0005_temperature_celsius.npy'\""
+      },
+      {
+        "test": "tests.test_v03_user_workflow.UserWorkflowTests::test_gui_pythonw_launcher_uses_console_python_for_child_logs",
+        "status": "failure",
+        "message": "NotImplementedError: cannot instantiate 'WindowsPath' on your system"
+      },
+      {
+        "test": "tests.test_workflow_models_and_inputs.InputValidationTests::test_dataset_discovery_pairs_unique_adjacent_dji_timestamps",
+        "status": "failure",
+        "message": "AssertionError: PosixPath('/private/var/folders/98/rgkcc9kx5z9dqgkmfj[74 chars]JPG') != PosixPath('/var/folders/98/rgkcc9kx5z9dqgkmfj7xrmz400[66 chars]JPG')"
+      }
+    ],
+    "junit_reported_tests_including_subtests": 139,
+    "pytest_summary": "4 failed, 112 passed, 3 skipped, 2 errors in 114.96s (0:01:54)",
+    "passed": 112,
+    "failed": 4,
+    "deselected": 0
+  }
+}

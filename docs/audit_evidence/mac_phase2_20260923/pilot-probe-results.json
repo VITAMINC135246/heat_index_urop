@@ -1,0 +1,32 @@
+{
+  "phase2/legacy/DJI_20260107143259_0005": {
+    "rows": 320,
+    "changed_columns": [],
+    "changes": {}
+  },
+  "phase2/runtime/DJI_20260107143259_0005": {
+    "rows": 320,
+    "changed_columns": [
+      "temperature_definition",
+      "temperature_unit"
+    ],
+    "changes": {
+      "temperature_definition": {
+        "main": [
+          "per-pixel radiometric surface temperature"
+        ],
+        "phase2": [
+          ""
+        ]
+      },
+      "temperature_unit": {
+        "main": [
+          "Celsius interpreted from SDK measure output"
+        ],
+        "phase2": [
+          "degC"
+        ]
+      }
+    }
+  }
+}

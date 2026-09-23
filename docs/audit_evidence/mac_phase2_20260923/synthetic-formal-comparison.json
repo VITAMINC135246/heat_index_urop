@@ -1,0 +1,849 @@
+{
+  "comparisons": [
+    {
+      "path": "canonical/missing_ambient_001/luhk_known_mask.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/missing_ambient_001/luhk_labels.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/missing_ambient_001/pixels.parquet",
+      "kind": "table",
+      "rows": 9216,
+      "columns": 51,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "canonical/missing_ambient_001/surface_cover_known_mask.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/missing_ambient_001/surface_cover_labels.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/missing_ambient_001/target_mask.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/missing_ambient_001/temperature.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/normal_001/luhk_known_mask.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/normal_001/luhk_labels.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/normal_001/pixels.parquet",
+      "kind": "table",
+      "rows": 9216,
+      "columns": 51,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "canonical/normal_001/surface_cover_known_mask.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/normal_001/surface_cover_labels.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/normal_001/target_mask.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/normal_001/temperature.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/polygon_001/luhk_known_mask.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/polygon_001/luhk_labels.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/polygon_001/pixels.parquet",
+      "kind": "table",
+      "rows": 9216,
+      "columns": 51,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "canonical/polygon_001/surface_cover_known_mask.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/polygon_001/surface_cover_labels.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/polygon_001/target_mask.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/polygon_001/temperature.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/zero_eligible_001/luhk_known_mask.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/zero_eligible_001/luhk_labels.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/zero_eligible_001/pixels.parquet",
+      "kind": "table",
+      "rows": 9216,
+      "columns": 51,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "canonical/zero_eligible_001/surface_cover_known_mask.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/zero_eligible_001/surface_cover_labels.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/zero_eligible_001/target_mask.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "canonical/zero_eligible_001/temperature.npy",
+      "kind": "array",
+      "shape": [
+        96,
+        96
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/missing_ambient_001_analysis_eligibility_mask.png",
+      "kind": "figure",
+      "size": [
+        1563,
+        1069
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/missing_ambient_001_combined_qa_panel.png",
+      "kind": "figure",
+      "size": [
+        3551,
+        1781
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/missing_ambient_001_delta_t_map.png",
+      "kind": "figure",
+      "size": [
+        1570,
+        840
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/missing_ambient_001_luhk_overlay.png",
+      "kind": "figure",
+      "size": [
+        1570,
+        840
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/missing_ambient_001_shadow_overlay.png",
+      "kind": "figure",
+      "size": [
+        1570,
+        840
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/missing_ambient_001_surface_cover_overlay.png",
+      "kind": "figure",
+      "size": [
+        1667,
+        1157
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/missing_ambient_001_target_overlay.png",
+      "kind": "figure",
+      "size": [
+        1570,
+        840
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/missing_ambient_001_temperature_map.png",
+      "kind": "figure",
+      "size": [
+        1656,
+        1069
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/normal_001_analysis_eligibility_mask.png",
+      "kind": "figure",
+      "size": [
+        1563,
+        1069
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/normal_001_combined_qa_panel.png",
+      "kind": "figure",
+      "size": [
+        3583,
+        1781
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/normal_001_delta_t_map.png",
+      "kind": "figure",
+      "size": [
+        1656,
+        1069
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/normal_001_luhk_overlay.png",
+      "kind": "figure",
+      "size": [
+        1741,
+        1157
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/normal_001_shadow_overlay.png",
+      "kind": "figure",
+      "size": [
+        1419,
+        840
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/normal_001_surface_cover_overlay.png",
+      "kind": "figure",
+      "size": [
+        1667,
+        1157
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/normal_001_target_overlay.png",
+      "kind": "figure",
+      "size": [
+        1419,
+        840
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/normal_001_temperature_map.png",
+      "kind": "figure",
+      "size": [
+        1656,
+        1069
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/polygon_001_analysis_eligibility_mask.png",
+      "kind": "figure",
+      "size": [
+        1531,
+        1069
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/polygon_001_combined_qa_panel.png",
+      "kind": "figure",
+      "size": [
+        3568,
+        1781
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/polygon_001_delta_t_map.png",
+      "kind": "figure",
+      "size": [
+        1654,
+        1069
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/polygon_001_luhk_overlay.png",
+      "kind": "figure",
+      "size": [
+        1646,
+        1157
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/polygon_001_shadow_overlay.png",
+      "kind": "figure",
+      "size": [
+        1612,
+        840
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/polygon_001_surface_cover_overlay.png",
+      "kind": "figure",
+      "size": [
+        1646,
+        1157
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/polygon_001_target_overlay.png",
+      "kind": "figure",
+      "size": [
+        1531,
+        1069
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/polygon_001_temperature_map.png",
+      "kind": "figure",
+      "size": [
+        1654,
+        1069
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/spatial_figure_exclusions.csv",
+      "kind": "table",
+      "rows": 0,
+      "columns": 5,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/figures/spatial/spatial_figure_manifest.csv",
+      "kind": "table",
+      "rows": 4,
+      "columns": 20,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/figures/spatial/zero_eligible_001_analysis_eligibility_mask.png",
+      "kind": "figure",
+      "size": [
+        1563,
+        1069
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/zero_eligible_001_combined_qa_panel.png",
+      "kind": "figure",
+      "size": [
+        3551,
+        1781
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/zero_eligible_001_delta_t_map.png",
+      "kind": "figure",
+      "size": [
+        1656,
+        1069
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/zero_eligible_001_luhk_overlay.png",
+      "kind": "figure",
+      "size": [
+        1570,
+        840
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/zero_eligible_001_shadow_overlay.png",
+      "kind": "figure",
+      "size": [
+        1570,
+        840
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/zero_eligible_001_surface_cover_overlay.png",
+      "kind": "figure",
+      "size": [
+        1570,
+        840
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/zero_eligible_001_target_overlay.png",
+      "kind": "figure",
+      "size": [
+        1570,
+        840
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spatial/zero_eligible_001_temperature_map.png",
+      "kind": "figure",
+      "size": [
+        1656,
+        1069
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spectrum/fig00_pixel_delta_t_spectrum_overall.png",
+      "kind": "figure",
+      "size": [
+        3167,
+        975
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spectrum/fig01_pixel_delta_t_spectrum_by_luhk_facets.png",
+      "kind": "figure",
+      "size": [
+        3192,
+        1888
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spectrum/fig02_pixel_delta_t_spectrum_by_surface_cover_facets.png",
+      "kind": "figure",
+      "size": [
+        3192,
+        1013
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spectrum/fig03_pixel_delta_t_spectrum_within_gic_by_cover_facets.png",
+      "kind": "figure",
+      "size": [
+        3192,
+        1013
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spectrum/fig04_pixel_delta_t_spectrum_within_gic_overlay.png",
+      "kind": "figure",
+      "size": [
+        1919,
+        975
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spectrum/fig05_pixel_delta_t_spectrum_by_image_facets.png",
+      "kind": "figure",
+      "size": [
+        3192,
+        1013
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spectrum/fig07_pixel_delta_t_sampling_stability.png",
+      "kind": "figure",
+      "size": [
+        9795,
+        1461
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/figures/spectrum/fig08_pixel_delta_t_surface_cover_bootstrap_ci.png",
+      "kind": "figure",
+      "size": [
+        9715,
+        1422
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/part_e_schema_0_2_pixels.parquet",
+      "kind": "table",
+      "rows": 36864,
+      "columns": 80,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/qa/part_e_sampling_reproducibility.csv",
+      "kind": "table",
+      "rows": 5,
+      "columns": 9,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/samples/part_e_sample_image_comparison.csv",
+      "kind": "table",
+      "rows": 288,
+      "columns": 49,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/samples/part_e_sample_image_comparison.parquet",
+      "kind": "table",
+      "rows": 288,
+      "columns": 49,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/samples/part_e_sample_luhk.csv",
+      "kind": "table",
+      "rows": 288,
+      "columns": 49,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/samples/part_e_sample_luhk.parquet",
+      "kind": "table",
+      "rows": 288,
+      "columns": 49,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/samples/part_e_sample_luhk_surface_cover.csv",
+      "kind": "table",
+      "rows": 288,
+      "columns": 49,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/samples/part_e_sample_luhk_surface_cover.parquet",
+      "kind": "table",
+      "rows": 288,
+      "columns": 49,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/samples/part_e_sample_surface_cover.csv",
+      "kind": "table",
+      "rows": 288,
+      "columns": 49,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/samples/part_e_sample_surface_cover.parquet",
+      "kind": "table",
+      "rows": 288,
+      "columns": 49,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/samples/part_e_sample_surface_cover_shadow.csv",
+      "kind": "table",
+      "rows": 0,
+      "columns": 49,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/samples/part_e_sample_surface_cover_shadow.parquet",
+      "kind": "table",
+      "rows": 0,
+      "columns": 49,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/source_dashboard/part_e_source_stratified_dashboard.csv",
+      "kind": "table",
+      "rows": 3,
+      "columns": 15,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/source_dashboard/part_e_source_stratified_dashboard.png",
+      "kind": "figure",
+      "size": [
+        1440,
+        900
+      ],
+      "exact_equal": true
+    },
+    {
+      "path": "formal/tables/part_e_delta_t_by_image_pixels.csv",
+      "kind": "table",
+      "rows": 2,
+      "columns": 30,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/tables/part_e_delta_t_by_luhk_pixels.csv",
+      "kind": "table",
+      "rows": 3,
+      "columns": 31,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/tables/part_e_delta_t_by_luhk_surface_cover_pixels.csv",
+      "kind": "table",
+      "rows": 3,
+      "columns": 32,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/tables/part_e_delta_t_by_surface_cover_pixels.csv",
+      "kind": "table",
+      "rows": 2,
+      "columns": 30,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/tables/part_e_delta_t_by_surface_cover_shadow_pixels.csv",
+      "kind": "empty_table",
+      "exact_equal": true
+    },
+    {
+      "path": "formal/tables/part_e_inclusion_exclusion.csv",
+      "kind": "table",
+      "rows": 4,
+      "columns": 8,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/tables/part_e_pixel_delta_t_spectrum_summary.csv",
+      "kind": "table",
+      "rows": 10,
+      "columns": 24,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/tables/part_e_pixel_effect_sizes.csv",
+      "kind": "table",
+      "rows": 8,
+      "columns": 15,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/tables/part_e_pixel_sample_coverage.csv",
+      "kind": "table",
+      "rows": 10,
+      "columns": 9,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/tables/part_e_pixel_sampling_manifest.csv",
+      "kind": "table",
+      "rows": 10,
+      "columns": 11,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/tables/part_e_pixel_statistical_tests.csv",
+      "kind": "table",
+      "rows": 12,
+      "columns": 20,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/tables/part_e_sampling_stability.csv",
+      "kind": "table",
+      "rows": 189,
+      "columns": 21,
+      "exact_equal": true,
+      "changed_columns": []
+    },
+    {
+      "path": "formal/tables/part_e_schema_0_2_source_summary.csv",
+      "kind": "table",
+      "rows": 4,
+      "columns": 41,
+      "exact_equal": true,
+      "changed_columns": []
+    }
+  ],
+  "counts": {
+    "array": 24,
+    "table": 31,
+    "empty_table": 1,
+    "figure": 41
+  },
+  "nonidentical": []
+}

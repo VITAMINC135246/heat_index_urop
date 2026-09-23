@@ -1,0 +1,27 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.5, pytest-9.1.1, pluggy-1.6.0
+rootdir: /private/tmp/heat-index-phase2-audit-20260923
+configfile: pytest.ini
+collected 109 items / 1 error
+
+==================================== ERRORS ====================================
+_______________ ERROR collecting tests/test_v03_user_workflow.py _______________
+ImportError while importing test module '/private/tmp/heat-index-phase2-audit-20260923/tests/test_v03_user_workflow.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Users/vitaminc-macbook/.pyenv/versions/3.12.5/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_v03_user_workflow.py:17: in <module>
+    from scripts.workflow_gui import WorkflowGUI
+scripts/workflow_gui.py:14: in <module>
+    import tkinter as tk
+/Users/vitaminc-macbook/.pyenv/versions/3.12.5/lib/python3.12/tkinter/__init__.py:38: in <module>
+    import _tkinter # If this fails your Python may not be configured for Tk
+    ^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named '_tkinter'
+------ generated xml file: /tmp/heat-index-audit-evidence/phase2-full.xml ------
+=========================== short test summary info ============================
+ERROR tests/test_v03_user_workflow.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+============================== 1 error in 27.88s ===============================

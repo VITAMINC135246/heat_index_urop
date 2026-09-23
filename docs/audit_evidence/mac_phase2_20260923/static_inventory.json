@@ -1,0 +1,442 @@
+{
+  "main": {
+    "python_files": 65,
+    "largest_modules": [
+      [
+        2682,
+        "scripts/workflow/temporal_analysis.py"
+      ],
+      [
+        1266,
+        "scripts/run_analysis.py"
+      ],
+      [
+        1198,
+        "scripts/part_c/01_prepare_round1_review.py"
+      ],
+      [
+        1083,
+        "scripts/part_b/b05_refine_vt_alignment.py"
+      ],
+      [
+        1063,
+        "scripts/part_d/01_extract_temperature_matrices.py"
+      ],
+      [
+        1019,
+        "scripts/part_b/01_prepare_round1_review.py"
+      ],
+      [
+        1004,
+        "scripts/part_d/02_qa_subzero_temperature_pixels.py"
+      ],
+      [
+        968,
+        "scripts/02_extract_dji_metadata.py"
+      ],
+      [
+        895,
+        "scripts/part_e/part_e_pixel_common.py"
+      ]
+    ],
+    "static_import_cycles": [],
+    "identical_function_duplicates": [
+      [
+        "scripts/04_create_10m_grids_pilot.py:122:check_dependencies",
+        "scripts/05_assign_luhk_landuse_pilot_overlays.py:74:check_dependencies"
+      ],
+      [
+        "scripts/04_create_10m_grids_pilot.py:307:json_ready",
+        "scripts/05_assign_luhk_landuse_pilot_overlays.py:330:json_ready"
+      ],
+      [
+        "scripts/03_estimate_image_footprints.py:114:resolve_project_path",
+        "scripts/05_assign_luhk_landuse_pilot_overlays.py:63:resolve_project_path"
+      ],
+      [
+        "scripts/part_b/b06_generate_alignment_refinement_review.py:70:thumbnail_copy",
+        "scripts/part_b/01_prepare_round1_review.py:362:thumbnail_copy"
+      ],
+      [
+        "scripts/part_b/b05_refine_vt_alignment.py:68:resolve_project_path",
+        "scripts/part_b/01_prepare_round1_review.py:78:resolve_project_path",
+        "scripts/part_d/01_extract_temperature_matrices.py:98:resolve_project_path",
+        "scripts/part_d/02_qa_subzero_temperature_pixels.py:84:resolve_project_path",
+        "scripts/part_c/02_prefill_surface_cover_annotations.py:78:resolve_project_path",
+        "scripts/part_c/01_prepare_round1_review.py:109:resolve_project_path",
+        "scripts/part_c/03_generate_final_masks_and_summaries.py:109:resolve_project_path"
+      ],
+      [
+        "scripts/part_b/b05_refine_vt_alignment.py:81:as_float",
+        "scripts/part_b/01_prepare_round1_review.py:104:as_float",
+        "scripts/part_c/01_prepare_round1_review.py:121:as_float"
+      ],
+      [
+        "scripts/part_b/b05_refine_vt_alignment.py:96:as_int",
+        "scripts/part_c/01_prepare_round1_review.py:136:as_int"
+      ],
+      [
+        "scripts/part_e/05_generate_pixel_spatial_figures.py:56:sha256_file",
+        "scripts/part_e/10_validate_part_e_outputs.py:34:sha256_file",
+        "scripts/part_e/run_part_e_pipeline.py:21:sha256_file"
+      ],
+      [
+        "scripts/part_e/11_generate_part_e_report.py:14:parse_args",
+        "scripts/part_e/00_audit_part_e_inputs.py:27:parse_args",
+        "scripts/part_e/07_build_main_excel_workbook.py:16:parse_args",
+        "scripts/part_e/04_generate_pixel_delta_t_spectra.py:89:parse_args"
+      ],
+      [
+        "scripts/part_c/01_prepare_round1_review.py:221:save_image",
+        "scripts/part_c/03_generate_final_masks_and_summaries.py:178:save_image"
+      ],
+      [
+        "scripts/workflow/temporal_analysis.py:348:_atomic_text",
+        "scripts/workflow/part_e_runner.py:70:_atomic_text"
+      ]
+    ],
+    "tree_counts": {
+      "pytest.ini": 1,
+      "requirements.txt": 1,
+      "README.md": 1,
+      ".gitignore": 1,
+      "config/workflow_v0_2.json": 1,
+      "config/part_e_delta_t_analysis.json": 1,
+      "config/workflow_v0_3.json": 1,
+      "config/part_d_sdk.template.json": 1,
+      "config/workflow_v0_2_acceptance.json": 1,
+      "config/workflow_v0_3_acceptance.json": 1,
+      "config/part_e_delta_t_analysis.template.json": 1,
+      "config/workflow_v0_1.json": 1,
+      "tests/test_part_e_dynamic_sampling.py": 1,
+      "tests/test_v02_part_e_formal.py": 1,
+      "tests/test_v02_part_c_controller.py": 1,
+      "tests/test_part_e_multi_source.py": 1,
+      "tests/test_v02_pilot_numeric_baseline.py": 1,
+      "tests/test_workflow_models_and_inputs.py": 1,
+      "tests/test_v02_tat3_manual.py": 1,
+      "tests/test_polygon_and_canonical.py": 1,
+      "tests/test_v03_config_and_cli.py": 1,
+      "tests/test_v032_capture_time.py": 1,
+      "tests/test_v02_part_a_b0_and_full_b.py": 1,
+      "tests/test_pilot_regression.py": 1,
+      "tests/test_v02_temperature_extraction.py": 1,
+      "tests/__init__.py": 1,
+      "tests/test_v02_run_analysis_routes.py": 1,
+      "tests/test_routing.py": 1,
+      "tests/test_run_analysis_integration.py": 1,
+      "tests/test_result_index.py": 1,
+      "tests/test_v032_part_e_target_scope.py": 1,
+      "tests/test_v032_luhk_integration.py": 1,
+      "tests/test_v02_cache_schema_extremes.py": 1,
+      "tests/test_v03_temporal_analysis.py": 1,
+      "tests/test_v03_spatial_figures.py": 1,
+      "tests/test_v03_user_workflow.py": 1,
+      "docs/part_a_inventory_spatial_foundation_summary.md": 1,
+      "docs/v0_3_spatial_figures.md": 1,
+      "docs/v0_2_user_acceptance_test_plan.md": 1,
+      "docs/v0_3_temporal_analysis.md": 1,
+      "docs/revised_project_overview.md": 1,
+      "docs/v0_2_canonical_schema.md": 1,
+      "docs/method_change_log.md": 1,
+      "docs/v0_1_workflow.md": 1,
+      "docs/v0_3_canonical_schema.md": 1,
+      "docs/v0_2_workflow.md": 1,
+      "docs/repository_inventory.md": 1,
+      "docs/part_b_semi_auto_workflow.md": 1,
+      "docs/part_b_round1_outputs_status.md": 1,
+      "docs/part_c_automation_and_baseline_methods.md": 1,
+      "docs/v0_3_benchmark.md": 1,
+      "docs/v0_2_benchmark.md": 1,
+      "docs/part_e_delta_t_statistical_analysis.md": 1,
+      "docs/v0_3_gui_and_soccer_field.md": 1,
+      "docs/part_b_land_use_surface_cover_scheme.txt": 1,
+      "docs/camera_parameter_assumptions.md": 1,
+      "docs/part_b_vt_alignment_and_thermal_roi.md": 1,
+      "docs/v0_3_user_acceptance_test_plan.md": 1,
+      "docs/v0_2_gui_and_tat3.md": 1,
+      "docs/part_d_temperature_extraction.md": 1,
+      "docs/v0_3_workflow.md": 1,
+      "docs/part_c_luhk_surface_cover_classification.md": 1,
+      "scripts/benchmark_v0_3.py": 1,
+      "scripts/run_analysis.py": 1,
+      "scripts/table_io.py": 1,
+      "scripts/run_temporal_analysis.py": 1,
+      "scripts/benchmark_v0_2.py": 1,
+      "scripts/04_create_10m_grids_pilot.py": 1,
+      "scripts/run_tat3_manual_analysis.py": 1,
+      "scripts/camera_profiles.py": 1,
+      "scripts/01_create_vt_pairs.py": 1,
+      "scripts/02_extract_dji_metadata.py": 1,
+      "scripts/03_estimate_image_footprints.py": 1,
+      "scripts/run_user_workflow.py": 1,
+      "scripts/inspect_camera_metadata.py": 1,
+      "scripts/benchmark_v0_1.py": 1,
+      "scripts/05_assign_luhk_landuse_pilot_overlays.py": 1,
+      "data/LUHK2024_SC.xlsx": 1,
+      "config/acceptance": 5,
+      "docs/baseline": 3,
+      "docs/archive": 3,
+      "scripts/part_b": 3,
+      "scripts/part_e": 17,
+      "scripts/part_d": 3,
+      "scripts/part_c": 3,
+      "scripts/workflow": 24,
+      "scripts/deprecated": 4,
+      "data/annotations": 30,
+      "data/metadata": 8,
+      "data/processed": 6,
+      "outputs/geodata": 3,
+      "outputs/figures": 11,
+      "outputs/reports": 6,
+      "outputs/archive": 5,
+      "outputs/part_b": 22,
+      "outputs/part_e": 113,
+      "outputs/part_d": 21,
+      "outputs/part_c": 50
+    }
+  },
+  "phase2": {
+    "python_files": 67,
+    "largest_modules": [
+      [
+        2682,
+        "scripts/workflow/temporal_analysis.py"
+      ],
+      [
+        1308,
+        "scripts/run_analysis.py"
+      ],
+      [
+        1198,
+        "scripts/part_c/01_prepare_round1_review.py"
+      ],
+      [
+        1083,
+        "scripts/part_b/b05_refine_vt_alignment.py"
+      ],
+      [
+        1064,
+        "scripts/part_d/01_extract_temperature_matrices.py"
+      ],
+      [
+        1019,
+        "scripts/part_b/01_prepare_round1_review.py"
+      ],
+      [
+        1004,
+        "scripts/part_d/02_qa_subzero_temperature_pixels.py"
+      ],
+      [
+        968,
+        "scripts/02_extract_dji_metadata.py"
+      ],
+      [
+        895,
+        "scripts/part_e/part_e_pixel_common.py"
+      ]
+    ],
+    "static_import_cycles": [],
+    "identical_function_duplicates": [
+      [
+        "scripts/04_create_10m_grids_pilot.py:122:check_dependencies",
+        "scripts/05_assign_luhk_landuse_pilot_overlays.py:74:check_dependencies"
+      ],
+      [
+        "scripts/04_create_10m_grids_pilot.py:307:json_ready",
+        "scripts/05_assign_luhk_landuse_pilot_overlays.py:330:json_ready"
+      ],
+      [
+        "scripts/03_estimate_image_footprints.py:114:resolve_project_path",
+        "scripts/05_assign_luhk_landuse_pilot_overlays.py:63:resolve_project_path"
+      ],
+      [
+        "scripts/part_b/b06_generate_alignment_refinement_review.py:70:thumbnail_copy",
+        "scripts/part_b/01_prepare_round1_review.py:362:thumbnail_copy"
+      ],
+      [
+        "scripts/part_b/b05_refine_vt_alignment.py:68:resolve_project_path",
+        "scripts/part_b/01_prepare_round1_review.py:78:resolve_project_path",
+        "scripts/part_d/01_extract_temperature_matrices.py:98:resolve_project_path",
+        "scripts/part_d/02_qa_subzero_temperature_pixels.py:84:resolve_project_path",
+        "scripts/part_c/02_prefill_surface_cover_annotations.py:78:resolve_project_path",
+        "scripts/part_c/01_prepare_round1_review.py:109:resolve_project_path",
+        "scripts/part_c/03_generate_final_masks_and_summaries.py:109:resolve_project_path"
+      ],
+      [
+        "scripts/part_b/b05_refine_vt_alignment.py:81:as_float",
+        "scripts/part_b/01_prepare_round1_review.py:104:as_float",
+        "scripts/part_c/01_prepare_round1_review.py:121:as_float"
+      ],
+      [
+        "scripts/part_b/b05_refine_vt_alignment.py:96:as_int",
+        "scripts/part_c/01_prepare_round1_review.py:136:as_int"
+      ],
+      [
+        "scripts/part_e/05_generate_pixel_spatial_figures.py:56:sha256_file",
+        "scripts/part_e/10_validate_part_e_outputs.py:34:sha256_file",
+        "scripts/part_e/run_part_e_pipeline.py:21:sha256_file"
+      ],
+      [
+        "scripts/part_e/11_generate_part_e_report.py:14:parse_args",
+        "scripts/part_e/00_audit_part_e_inputs.py:27:parse_args",
+        "scripts/part_e/07_build_main_excel_workbook.py:16:parse_args",
+        "scripts/part_e/04_generate_pixel_delta_t_spectra.py:89:parse_args"
+      ],
+      [
+        "scripts/part_c/01_prepare_round1_review.py:221:save_image",
+        "scripts/part_c/03_generate_final_masks_and_summaries.py:178:save_image"
+      ],
+      [
+        "scripts/workflow/temporal_analysis.py:348:_atomic_text",
+        "scripts/workflow/part_e_runner.py:70:_atomic_text"
+      ]
+    ],
+    "tree_counts": {
+      "pytest.ini": 1,
+      "requirements.txt": 1,
+      "README.md": 1,
+      ".gitignore": 1,
+      "launch_workflow_gui.cmd": 1,
+      "constraints/windows-py312-reference.txt": 1,
+      "config/workflow_v0_2.json": 1,
+      "config/part_e_delta_t_analysis.json": 1,
+      "config/workflow_v0_3.json": 1,
+      "config/part_d_sdk.template.json": 1,
+      "config/workflow_v0_2_acceptance.json": 1,
+      "config/workflow_v0_3_acceptance.json": 1,
+      "config/part_e_delta_t_analysis.template.json": 1,
+      "config/workflow_v0_1.json": 1,
+      "tests/test_part_e_dynamic_sampling.py": 1,
+      "tests/test_v02_part_e_formal.py": 1,
+      "tests/test_v02_part_c_controller.py": 1,
+      "tests/test_part_e_multi_source.py": 1,
+      "tests/test_v02_pilot_numeric_baseline.py": 1,
+      "tests/test_workflow_models_and_inputs.py": 1,
+      "tests/test_v02_tat3_manual.py": 1,
+      "tests/test_polygon_and_canonical.py": 1,
+      "tests/test_v03_config_and_cli.py": 1,
+      "tests/test_v032_capture_time.py": 1,
+      "tests/test_v02_part_a_b0_and_full_b.py": 1,
+      "tests/test_pilot_regression.py": 1,
+      "tests/test_v02_temperature_extraction.py": 1,
+      "tests/__init__.py": 1,
+      "tests/test_v02_run_analysis_routes.py": 1,
+      "tests/test_routing.py": 1,
+      "tests/test_run_analysis_integration.py": 1,
+      "tests/test_result_index.py": 1,
+      "tests/test_v032_part_e_target_scope.py": 1,
+      "tests/test_v032_luhk_integration.py": 1,
+      "tests/test_v02_cache_schema_extremes.py": 1,
+      "tests/test_v03_temporal_analysis.py": 1,
+      "tests/test_v03_spatial_figures.py": 1,
+      "tests/test_v03_user_workflow.py": 1,
+      "docs/part_a_inventory_spatial_foundation_summary.md": 1,
+      "docs/v0_3_spatial_figures.md": 1,
+      "docs/v0_2_user_acceptance_test_plan.md": 1,
+      "docs/phase_2_environment_and_ci.md": 1,
+      "docs/v0_3_temporal_analysis.md": 1,
+      "docs/revised_project_overview.md": 1,
+      "docs/v0_2_canonical_schema.md": 1,
+      "docs/method_change_log.md": 1,
+      "docs/v0_1_workflow.md": 1,
+      "docs/v0_3_canonical_schema.md": 1,
+      "docs/v0_2_workflow.md": 1,
+      "docs/repository_inventory.md": 1,
+      "docs/part_b_semi_auto_workflow.md": 1,
+      "docs/part_b_round1_outputs_status.md": 1,
+      "docs/part_c_automation_and_baseline_methods.md": 1,
+      "docs/v0_3_benchmark.md": 1,
+      "docs/v0_2_benchmark.md": 1,
+      "docs/part_e_delta_t_statistical_analysis.md": 1,
+      "docs/v0_3_gui_and_soccer_field.md": 1,
+      "docs/part_b_land_use_surface_cover_scheme.txt": 1,
+      "docs/camera_parameter_assumptions.md": 1,
+      "docs/part_b_vt_alignment_and_thermal_roi.md": 1,
+      "docs/v0_3_user_acceptance_test_plan.md": 1,
+      "docs/v0_2_gui_and_tat3.md": 1,
+      "docs/part_d_temperature_extraction.md": 1,
+      "docs/v0_3_workflow.md": 1,
+      "docs/part_c_luhk_surface_cover_classification.md": 1,
+      "scripts/benchmark_v0_3.py": 1,
+      "scripts/build_urop_report_full_rewrite_v102.py": 1,
+      "scripts/run_analysis.py": 1,
+      "scripts/table_io.py": 1,
+      "scripts/run_temporal_analysis.py": 1,
+      "scripts/benchmark_v0_2.py": 1,
+      "scripts/04_create_10m_grids_pilot.py": 1,
+      "scripts/run_tat3_manual_analysis.py": 1,
+      "scripts/camera_profiles.py": 1,
+      "scripts/01_create_vt_pairs.py": 1,
+      "scripts/02_extract_dji_metadata.py": 1,
+      "scripts/03_estimate_image_footprints.py": 1,
+      "scripts/run_user_workflow.py": 1,
+      "scripts/inspect_camera_metadata.py": 1,
+      "scripts/workflow_gui.py": 1,
+      "scripts/benchmark_v0_1.py": 1,
+      "scripts/05_assign_luhk_landuse_pilot_overlays.py": 1,
+      "data/LUHK2024_SC.xlsx": 1,
+      "config/acceptance": 5,
+      "docs/baseline": 3,
+      "docs/archive": 3,
+      "scripts/part_b": 3,
+      "scripts/part_e": 17,
+      "scripts/part_d": 3,
+      "scripts/part_c": 3,
+      "scripts/workflow": 24,
+      "scripts/deprecated": 4,
+      ".github/workflows": 1,
+      "data/annotations": 30,
+      "data/metadata": 8,
+      "data/processed": 6,
+      "outputs/geodata": 3,
+      "outputs/figures": 11,
+      "outputs/reports": 7,
+      "outputs/archive": 5,
+      "outputs/part_b": 22,
+      "outputs/part_e": 113,
+      "outputs/part_d": 21,
+      "outputs/part_c": 50
+    }
+  },
+  "tracked_bytes": {
+    ".github": 1128,
+    ".gitignore": 3855,
+    "README.md": 16823,
+    "config": 15047,
+    "constraints": 959,
+    "data": 5947667,
+    "docs": 274530,
+    "launch_workflow_gui.cmd": 327,
+    "outputs": 125009439,
+    "pytest.ini": 106,
+    "requirements.txt": 442,
+    "scripts": 1305316,
+    "tests": 230199
+  },
+  "tracked_counts": {
+    ".github": 1,
+    ".gitignore": 1,
+    "README.md": 1,
+    "config": 13,
+    "constraints": 1,
+    "data": 45,
+    "docs": 33,
+    "launch_workflow_gui.cmd": 1,
+    "outputs": 232,
+    "pytest.ini": 1,
+    "requirements.txt": 1,
+    "scripts": 71,
+    "tests": 24
+  },
+  "immutable_baseline_checksums": [
+    {
+      "path": "docs/baseline/phase_1_accepted_baseline.md",
+      "matches": true
+    },
+    {
+      "path": "docs/baseline/phase_1_baseline_manifest.json",
+      "matches": true
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+Part E stages: sample, analyse, spectrum, spatial-figures
+Worker budget: 1; deterministic single-process execution is used by current stages
+RUN sample: /tmp/heat-index-audit-py312-tk/bin/python /private/tmp/heat-index-baseline-audit-20260923/scripts/part_e/02_build_pixel_analysis_samples.py --config /tmp/heat-index-audit-probes/main-formal/formal/part_e_schema_0_2_config.json
+luhk: 288 sampled pixels
+surface_cover: 288 sampled pixels
+luhk_surface_cover: 288 sampled pixels
+surface_cover_shadow: 0 sampled pixels
+image_comparison: 288 sampled pixels
+RUN analyse: /tmp/heat-index-audit-py312-tk/bin/python /private/tmp/heat-index-baseline-audit-20260923/scripts/part_e/03_run_pixel_statistical_analysis.py --config /tmp/heat-index-audit-probes/main-formal/formal/part_e_schema_0_2_config.json --skip-supporting-figures
+Stability seeds completed for luhk: 21
+Stability seeds completed for surface_cover: 21
+Grouped tables: 5; test rows: 12; effect-size rows: 8
+RUN spectrum: /tmp/heat-index-audit-py312-tk/bin/python /private/tmp/heat-index-baseline-audit-20260923/scripts/part_e/04_generate_pixel_delta_t_spectra.py --config /tmp/heat-index-audit-probes/main-formal/formal/part_e_schema_0_2_config.json
+/private/tmp/heat-index-baseline-audit-20260923/scripts/part_e/04_generate_pixel_delta_t_spectra.py:391: UserWarning: Tight layout not applied. tight_layout cannot make Axes height small enough to accommodate all Axes decorations.
+  fig.tight_layout(rect=[0, 0.055, 1, 0.955])
+/private/tmp/heat-index-baseline-audit-20260923/scripts/part_e/04_generate_pixel_delta_t_spectra.py:548: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all Axes decorations.
+  fig.tight_layout(rect=[0, 0.055, 1, 1])
+/private/tmp/heat-index-baseline-audit-20260923/scripts/part_e/04_generate_pixel_delta_t_spectra.py:607: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all Axes decorations.
+  fig.tight_layout(rect=[0, 0.055, 1, 1])
+Formal spectrum figures written: 8 PNG/PDF pairs
+Shadow spectrum status: not estimable; no shadow comparison figure written
+RUN spatial-figures: /tmp/heat-index-audit-py312-tk/bin/python /private/tmp/heat-index-baseline-audit-20260923/scripts/part_e/05_generate_pixel_spatial_figures.py --config /tmp/heat-index-audit-probes/main-formal/formal/part_e_schema_0_2_config.json
+Spatial figures complete: units=4; exclusions=0; status=complete

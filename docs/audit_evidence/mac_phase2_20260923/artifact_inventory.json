@@ -1,0 +1,429 @@
+{
+  "shared_data_output_config_files": 289,
+  "identical": 289,
+  "changed": [],
+  "mask_arrays": [
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143259_0005/DJI_20260107143259_0005_physical_surface_cover_class_id_thermal_grid.npy",
+      "shape": [
+        512,
+        640
+      ],
+      "dtype": "uint8",
+      "sha256": "a705740d6a79e86b1eb91af4bb71212580b5292296f1f5d25870bb17fb1e0e06",
+      "value_counts": {
+        "1": 30014,
+        "2": 20871,
+        "4": 262255,
+        "5": 14540
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143259_0005/DJI_20260107143259_0005_physical_surface_cover_class_id_visible_roi.npy",
+      "shape": [
+        1438,
+        1797
+      ],
+      "dtype": "uint8",
+      "sha256": "833281b3b22ba232017d8e225aa298baad55cd498dc003628d6d3b0bc0f121ec",
+      "value_counts": {
+        "1": 236847,
+        "2": 164516,
+        "4": 2068092,
+        "5": 114631
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143259_0005/DJI_20260107143259_0005_shadow_flag_thermal_grid.npy",
+      "shape": [
+        512,
+        640
+      ],
+      "dtype": "uint8",
+      "sha256": "eeac1bf5c14ecb9b82477a35d7a22dcc05e5a99ad588bc4bd6879f236b4decf5",
+      "value_counts": {
+        "0": 327680
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143259_0005/DJI_20260107143259_0005_shadow_flag_visible_roi.npy",
+      "shape": [
+        1438,
+        1797
+      ],
+      "dtype": "uint8",
+      "sha256": "bb97a0ee0e2dd27b490fb079920b758273f47dfdedb88656010ca660c3ea6e55",
+      "value_counts": {
+        "0": 2584086
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143320_0007/DJI_20260107143320_0007_physical_surface_cover_class_id_thermal_grid.npy",
+      "shape": [
+        512,
+        640
+      ],
+      "dtype": "uint8",
+      "sha256": "cb5643443fb5c098e0d510b7852f92b9cfb5205d7ee89b4d786dafa2eea3eeb1",
+      "value_counts": {
+        "1": 91251,
+        "2": 67562,
+        "4": 145962,
+        "5": 14241,
+        "6": 8664
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143320_0007/DJI_20260107143320_0007_physical_surface_cover_class_id_visible_roi.npy",
+      "shape": [
+        1439,
+        1798
+      ],
+      "dtype": "uint8",
+      "sha256": "fdcb2a6a2052893cfd11257ef60b5bd8f14ec336773846a38759854f3d0506e6",
+      "value_counts": {
+        "1": 720776,
+        "2": 533409,
+        "4": 1152307,
+        "5": 112521,
+        "6": 68309
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143320_0007/DJI_20260107143320_0007_shadow_flag_thermal_grid.npy",
+      "shape": [
+        512,
+        640
+      ],
+      "dtype": "uint8",
+      "sha256": "eeac1bf5c14ecb9b82477a35d7a22dcc05e5a99ad588bc4bd6879f236b4decf5",
+      "value_counts": {
+        "0": 327680
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143320_0007/DJI_20260107143320_0007_shadow_flag_visible_roi.npy",
+      "shape": [
+        1439,
+        1798
+      ],
+      "dtype": "uint8",
+      "sha256": "3176ab32c8ae648c3ee99a020a88da0a121630bc415db279cbe80007a224ce8c",
+      "value_counts": {
+        "0": 2587322
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143328_0008/DJI_20260107143328_0008_physical_surface_cover_class_id_thermal_grid.npy",
+      "shape": [
+        512,
+        640
+      ],
+      "dtype": "uint8",
+      "sha256": "31d01ba27f6393aafda5895a92f83d9c63059ce6d03730e4705ddab6b6f59b0f",
+      "value_counts": {
+        "1": 124088,
+        "2": 64721,
+        "4": 130564,
+        "5": 6749,
+        "6": 1558
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143328_0008/DJI_20260107143328_0008_physical_surface_cover_class_id_visible_roi.npy",
+      "shape": [
+        1439,
+        1798
+      ],
+      "dtype": "uint8",
+      "sha256": "453fab2b154cfa2a2cc42210b49621215d93295e7a7a3c2d4caa0ebceaeeef26",
+      "value_counts": {
+        "1": 979507,
+        "2": 510935,
+        "4": 1031291,
+        "5": 53313,
+        "6": 12276
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143328_0008/DJI_20260107143328_0008_shadow_flag_thermal_grid.npy",
+      "shape": [
+        512,
+        640
+      ],
+      "dtype": "uint8",
+      "sha256": "eeac1bf5c14ecb9b82477a35d7a22dcc05e5a99ad588bc4bd6879f236b4decf5",
+      "value_counts": {
+        "0": 327680
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143328_0008/DJI_20260107143328_0008_shadow_flag_visible_roi.npy",
+      "shape": [
+        1439,
+        1798
+      ],
+      "dtype": "uint8",
+      "sha256": "3176ab32c8ae648c3ee99a020a88da0a121630bc415db279cbe80007a224ce8c",
+      "value_counts": {
+        "0": 2587322
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143344_0009/DJI_20260107143344_0009_physical_surface_cover_class_id_thermal_grid.npy",
+      "shape": [
+        512,
+        640
+      ],
+      "dtype": "uint8",
+      "sha256": "e67e6a5f1b2a1055e4f85c1ba50bdcc8274ec5fd59c6af9f9e3fa95e54593759",
+      "value_counts": {
+        "1": 163090,
+        "2": 75342,
+        "4": 86417,
+        "5": 2831
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143344_0009/DJI_20260107143344_0009_physical_surface_cover_class_id_visible_roi.npy",
+      "shape": [
+        1439,
+        1798
+      ],
+      "dtype": "uint8",
+      "sha256": "8ec1674593024f67f0b1446ad36025fd636f0a4e8a2ecc2eb35da6967ff611f7",
+      "value_counts": {
+        "1": 1287550,
+        "2": 594874,
+        "4": 682511,
+        "5": 22387
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143344_0009/DJI_20260107143344_0009_shadow_flag_thermal_grid.npy",
+      "shape": [
+        512,
+        640
+      ],
+      "dtype": "uint8",
+      "sha256": "eeac1bf5c14ecb9b82477a35d7a22dcc05e5a99ad588bc4bd6879f236b4decf5",
+      "value_counts": {
+        "0": 327680
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143344_0009/DJI_20260107143344_0009_shadow_flag_visible_roi.npy",
+      "shape": [
+        1439,
+        1798
+      ],
+      "dtype": "uint8",
+      "sha256": "3176ab32c8ae648c3ee99a020a88da0a121630bc415db279cbe80007a224ce8c",
+      "value_counts": {
+        "0": 2587322
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143401_0011/DJI_20260107143401_0011_physical_surface_cover_class_id_thermal_grid.npy",
+      "shape": [
+        512,
+        640
+      ],
+      "dtype": "uint8",
+      "sha256": "17f5a62bcbb3dd4f370a633541b793b8ef2b62ffff9dd3289a70533ea193c49c",
+      "value_counts": {
+        "1": 161158,
+        "2": 94360,
+        "4": 71131,
+        "5": 1031
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143401_0011/DJI_20260107143401_0011_physical_surface_cover_class_id_visible_roi.npy",
+      "shape": [
+        1438,
+        1798
+      ],
+      "dtype": "uint8",
+      "sha256": "5336fa8d1bc2c997a7c55b83d525007a8115c29bc0ed4eea313464e850f72e05",
+      "value_counts": {
+        "1": 1271392,
+        "2": 744719,
+        "4": 561242,
+        "5": 8171
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143401_0011/DJI_20260107143401_0011_shadow_flag_thermal_grid.npy",
+      "shape": [
+        512,
+        640
+      ],
+      "dtype": "uint8",
+      "sha256": "eeac1bf5c14ecb9b82477a35d7a22dcc05e5a99ad588bc4bd6879f236b4decf5",
+      "value_counts": {
+        "0": 327680
+      }
+    },
+    {
+      "path": "outputs/part_c/masks/DJI_20260107143401_0011/DJI_20260107143401_0011_shadow_flag_visible_roi.npy",
+      "shape": [
+        1438,
+        1798
+      ],
+      "dtype": "uint8",
+      "sha256": "4a8b95190741854e9268f88ab1bc01e9ec0bb1c77d87ac37700d04b08873d88a",
+      "value_counts": {
+        "0": 2585524
+      }
+    }
+  ],
+  "baseline_artifact_presence": [
+    {
+      "path": "outputs/presentations/",
+      "exists": false,
+      "recorded_sha256": null
+    },
+    {
+      "path": "config/workflow_v0_3.json",
+      "exists": true,
+      "recorded_sha256": "0cd65800b608db15133e1bc8081cb2f9c845a019fa7e0b2c2260a2ec4b53bef8"
+    },
+    {
+      "path": "config/workflow_v0_3_acceptance.json",
+      "exists": true,
+      "recorded_sha256": "fda847841a91646d6be99a3fef8e4c44a9e70f8976231a1b6c0e5439d4ea293f"
+    },
+    {
+      "path": "config/part_d_sdk.template.json",
+      "exists": true,
+      "recorded_sha256": "457ad5c621b20c247e8248cd62c69d5b24f664924e087184b60ce51db250aa30"
+    },
+    {
+      "path": "config/part_e_delta_t_analysis.json",
+      "exists": true,
+      "recorded_sha256": "a5d597f151515e2c6f89fd66a34521a22c51a7da5c64fe3b3b9aba23b7ca48e3"
+    },
+    {
+      "path": "config/part_e_delta_t_analysis.template.json",
+      "exists": true,
+      "recorded_sha256": "dc78dea2e6242abd302a594cd6d97cc5295b2cfe48096399d87135bbd9cd58c9"
+    },
+    {
+      "path": "config/acceptance/v0_3_soccer_ambient_template.json",
+      "exists": true,
+      "recorded_sha256": "019f805f1b0b09a28acf6eba5d6e0ae3dda56c29faba135b697639c715e17803"
+    },
+    {
+      "path": "config/acceptance/v0_3_soccer_polygon_template.json",
+      "exists": true,
+      "recorded_sha256": "4b52509c42946604e08e6bf46340caad51fd37a4a061fcca64f6da02e7dd3e0a"
+    },
+    {
+      "path": "data/LUHK2024_SC.xlsx",
+      "exists": true,
+      "recorded_sha256": "876030ccf100efd2f945064d6568145729444ac4f553b9fbfc75ce9fadc91983"
+    },
+    {
+      "path": "data/annotations/part_c/surface_cover_class_mapping.xlsx",
+      "exists": true,
+      "recorded_sha256": "e77902bafc2ef0a8bb680ae0245941bf4c111f4186db85ef6bcd3e8b008edcec"
+    },
+    {
+      "path": "data/annotations/part_c/shadow_flag_mapping.xlsx",
+      "exists": true,
+      "recorded_sha256": "ae4f95333f10bf28d7d59cfcb896555639208797991a5b486c1e9c9b2236d23c"
+    },
+    {
+      "path": "data/metadata/visible_camera_profiles.xlsx",
+      "exists": true,
+      "recorded_sha256": "4cbb839639373fdc5f35b1ab4e2bfaa43325244b850adfaa796bf3823b899aba"
+    },
+    {
+      "path": "data/metadata/part_e_ambient_temperature_manifest.csv",
+      "exists": true,
+      "recorded_sha256": "aa052600e7f9e373c1776125c90836e777626e062adcf5744e7f97f710de5313"
+    },
+    {
+      "path": "data/metadata/part_b_pilot_pairs.xlsx",
+      "exists": true,
+      "recorded_sha256": "36abdfd9ed9c616dcffb2aec77d21ce85031033902e86eae7526336cf7a2ba9f"
+    },
+    {
+      "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/run_summary.json",
+      "exists": false,
+      "recorded_sha256": "8ce23b2d91fb75b773fc40b394e56af93e5092e0967dc9ff8ff1659d6b750ccd"
+    },
+    {
+      "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/groups/DJI_20260107143259_0005/part_a.json",
+      "exists": false,
+      "recorded_sha256": "0c188842d060deb3a0cc885ea8f8798cdf170e3bee585ea369729c6e3c258f37"
+    },
+    {
+      "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/groups/DJI_20260107143259_0005/part_b0/part_b0.json",
+      "exists": false,
+      "recorded_sha256": "8f65811293314af69119aa28d727a0a92c0ce8a6de20309dd2cbdf6838a62140"
+    },
+    {
+      "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/groups/DJI_20260107143259_0005/part_b/part_b.json",
+      "exists": false,
+      "recorded_sha256": "dcc7e70c17ef04b77c5b48692f859897054e709b5addbaa35e7c68c83999880e"
+    },
+    {
+      "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/groups/DJI_20260202091128_0058/part_a.json",
+      "exists": false,
+      "recorded_sha256": "1015b0f47d86afd7400d780cff51c090fcc4062895939c64183fc20f235ee779"
+    },
+    {
+      "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/groups/DJI_20260202091128_0058/part_b0/part_b0.json",
+      "exists": false,
+      "recorded_sha256": "dac4a6663fa34ec5c487f381328434eb77cb676a0031207ac1e5dd4d7ff7c583"
+    },
+    {
+      "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/run_20260722T055625Z/groups/DJI_20260202091128_0058/part_c_star/polygon_gui_result.json",
+      "exists": false,
+      "recorded_sha256": "32e07914f357adc7a08596fe04bf0ae6197f19f8ad40b6bf708e0f28d20a7ee7"
+    },
+    {
+      "path": "outputs/runs/v0_3_user_acceptance/part_e/schema_0_2/run_20260722T055625Z/qa/part_e_stage_state.json",
+      "exists": false,
+      "recorded_sha256": "1ed7ab5d3323b621c2a1d0e17e5d479f15bbf8e56b6a0f82a8c2341ad295f906"
+    },
+    {
+      "path": "outputs/runs/v0_3_user_acceptance/canonical/images/DJI_20260107143259_0005/manifest.json",
+      "exists": false,
+      "recorded_sha256": "157b516560bf33afa47948fc3d9de7bc2594640dbf6cbc5f4904610cd88efc11"
+    },
+    {
+      "path": "outputs/runs/v0_3_user_acceptance/canonical/images/DJI_20260107143259_0005/pixels.parquet",
+      "exists": false,
+      "recorded_sha256": "7203abd414d7371630dee4c99f1fa4b9c66a549072e010f2cde6e1030212710a"
+    },
+    {
+      "path": "outputs/runs/v0_3_user_acceptance/part_e/schema_0_2/run_20260722T055625Z/part_e_schema_0_2_pixels.parquet",
+      "exists": false,
+      "recorded_sha256": "aa2c3fefa1dd64620d43d2180af05958b35cefdfd93fe59957260cfe76f79a1b"
+    },
+    {
+      "path": "outputs/runs/v0_3_user_acceptance/part_e/schema_0_2/run_20260722T055625Z/figures/spatial/DJI_20260202091128_0058_temperature_map.png",
+      "exists": false,
+      "recorded_sha256": "cd957b54b79c494a3296426a848f5b067986b7f23816d027d0a7c766c0d7cec5"
+    },
+    {
+      "path": "outputs/runs/v0_3_user_acceptance/part_e/schema_0_2/run_20260722T053855Z/temporal/temporal_run_manifest.json",
+      "exists": false,
+      "recorded_sha256": "a9530244e0a28a39a50299ab562dcfec47ed776bc1da7ed740b818e4499c7d94"
+    },
+    {
+      "path": "outputs/runs/v0_3_user_acceptance/part_e/schema_0_2/run_20260722T064301Z/temporal/temporal_run_manifest.json",
+      "exists": false,
+      "recorded_sha256": "a5fb060851d5f8a502fcfc190ecf6e2c364cb4a864657df026ee0eb374bc9ab2"
+    },
+    {
+      "path": "outputs/runs/v0_3_user_acceptance/part_e/schema_0_2/run_20260722T055625Z/temporal/temporal_run_manifest.json",
+      "exists": false,
+      "recorded_sha256": "1b211f956503ae01f8a7f1eefe6678e6500e965e1d115d0363e844375bc820ef"
+    }
+  ],
+  "path_case_collisions": []
+}
