@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "reference_branch": "main",
+  "reference_commit": "06c61b499e9c3e2f30daaeddc29fa4e98d61066e",
+  "reference_run_id": "REPLACE_WITH_ACCEPTED_WINDOWS_RUN_ID",
+  "cases": [
+    {
+      "image_id": "DJI_20260107143259_0005",
+      "expected_shape": [512, 640],
+      "accepted_dir": "DJI_20260107143259_0005/accepted",
+      "protected_temperature_metadata": [
+        "temperature_definition",
+        "temperature_unit",
+        "extraction_method",
+        "ambient_temperature_c"
+      ],
+      "protected_ambient_metadata": [
+        "ambient_temperature_c",
+        "source",
+        "definition",
+        "source_record",
+        "validation_status"
+      ],
+      "accepted_sha256": {
+        "manifest.json": "REPLACE_WITH_SHA256",
+        "temperature.npy": "REPLACE_WITH_SHA256",
+        "surface_cover_labels.npy": "REPLACE_WITH_SHA256",
+        "surface_cover_known_mask.npy": "REPLACE_WITH_SHA256",
+        "target_mask.npy": "REPLACE_WITH_SHA256",
+        "luhk_labels.npy": "REPLACE_WITH_SHA256",
+        "luhk_known_mask.npy": "REPLACE_WITH_SHA256",
+        "pixels.parquet": "REPLACE_WITH_SHA256"
+      }
+    }
+  ]
+}

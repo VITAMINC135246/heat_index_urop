@@ -44,6 +44,7 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+@pytest.mark.scientific_regression
 class PilotNumericBaselineTests(unittest.TestCase):
     def test_reviewed_part_c_mask_bytes_are_frozen(self) -> None:
         for image_id, expected in EXPECTED_MASK_HASHES.items():

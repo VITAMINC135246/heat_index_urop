@@ -13,6 +13,7 @@ from scripts.workflow.pilot_adapter import adapt_pilot_image
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
+@pytest.mark.regression
 class PilotRegressionTests(unittest.TestCase):
     def test_five_pilot_artifact_contracts_remain_compatible(self) -> None:
         pairs = pd.read_excel(PROJECT_ROOT / "data" / "metadata" / "part_b_pilot_pairs.xlsx")

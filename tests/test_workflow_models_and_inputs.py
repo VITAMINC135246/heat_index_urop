@@ -5,11 +5,13 @@ import unittest
 from pathlib import Path
 
 from PIL import Image
+import pytest
 
 from scripts.workflow.input_validation import discover_dataset_groups, validate_group
 from scripts.workflow.models import GroupInput, ProcessingStatus, ValidationStatus
 
 
+@pytest.mark.integration
 class InputValidationTests(unittest.TestCase):
     def make_image(self, path: Path, size: tuple[int, int] = (8, 6)) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -74,8 +76,8 @@ class InputValidationTests(unittest.TestCase):
             self.make_image(thermal)
             groups = discover_dataset_groups(root, "real-pattern")
             self.assertEqual(len(groups), 1)
-            self.assertEqual(Path(groups[0].visible_path), visible)
-            self.assertEqual(Path(groups[0].thermal_path), thermal)
+            self.assertEqual(Path(groups[0].visible_path).resolve(), visible.resolve())
+            self.assertEqual(Path(groups[0].thermal_path).resolve(), thermal.resolve())
             self.assertEqual(
                 groups[0].metadata_record["discovery_pairing_method"],
                 "session_sample_unique_timestamp_tolerance",

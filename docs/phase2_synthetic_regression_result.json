@@ -1,0 +1,15 @@
+{
+  "reference_branch": "main",
+  "reference_commit": "06c61b499e9c3e2f30daaeddc29fa4e98d61066e",
+  "candidate_branch": "stabilize/phase2-final",
+  "comparison": "exact array values, pandas table values, and PNG pixel arrays; synthetic fixture only",
+  "counts": {
+    ".npy": 24,
+    ".csv": 22,
+    ".parquet": 10,
+    ".png": 41
+  },
+  "total": 97,
+  "all_equal": true,
+  "nonidentical": []
+}

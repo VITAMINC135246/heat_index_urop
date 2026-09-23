@@ -11,6 +11,7 @@ from unittest.mock import patch
 from PIL import Image
 
 import pandas as pd
+import pytest
 
 from scripts.run_analysis import temporal_user_summary_lines
 from scripts.run_user_workflow import build_command, workflow_python
@@ -22,15 +23,19 @@ from scripts.workflow.temporal_interactive import _capture_cards, collect_tempor
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
+@pytest.mark.integration
 class UserWorkflowTests(unittest.TestCase):
     def test_gui_pythonw_launcher_uses_console_python_for_child_logs(self) -> None:
-        with patch("scripts.run_user_workflow.os.name", "nt"), patch(
-            "scripts.run_user_workflow.sys.executable", str(PROJECT_ROOT / ".venv" / "Scripts" / "pythonw.exe")
-        ):
-            self.assertEqual(
-                workflow_python(),
-                str(PROJECT_ROOT / ".venv" / "Scripts" / "python.exe"),
-            )
+        with tempfile.TemporaryDirectory() as directory:
+            scripts = Path(directory) / "Scripts"
+            scripts.mkdir()
+            console = scripts / "python.exe"
+            console.touch()
+            launcher = scripts / "pythonw.exe"
+            with patch("heat_index.pipeline.user_cli.os", SimpleNamespace(name="nt")), patch(
+                "heat_index.pipeline.user_cli.sys.executable", str(launcher)
+            ):
+                self.assertEqual(workflow_python(), str(console))
 
     @staticmethod
     def _temporal_card(
