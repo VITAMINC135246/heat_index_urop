@@ -1,110 +1,34 @@
-# Phase 2 Environment and CI Safety Net
+# Phase 2 environment and CI boundary
 
-## Scope
+This page describes the stabilized Phase 2 code, which moved reusable implementation into responsibility-based `heat_index/` modules and kept `scripts/` as compatibility entry points. The package map and data flow are in [architecture.md](architecture.md); owner-run checks are in [phase2_owner_acceptance.md](phase2_owner_acceptance.md). `main` remains the scientific reference until real accepted artifacts are recovered and owner acceptance is complete.
 
-Phase 2 adds a reproducible automated-test environment and one minimum CI
-check. It does not change production code, scientific behavior, schemas,
-versions, command-line interfaces, configuration meanings, or accepted
-artifacts.
+`requirements.txt` is the human-maintained dependency declaration. `constraints/windows-py312-reference.txt` pins the observed Python 3.12 reference environment; the Phase 1 Windows machine used CPython 3.12.13 and pip 26.1.2. The constraints do not package external DJI/TAT3, ExifTool, or Excel tools. Matching package versions across operating systems do not establish identical native GIS/vision binaries or real scientific equivalence.
 
-The accepted Phase 1 environment remains the scientific reference. The
-environment described here reproduces the automated test boundary; it is not a
-universal cross-platform support promise.
-
-## Reference environment specification
-
-The human-maintained dependency declaration remains `requirements.txt`.
-Install it with the exact Windows CPython 3.12 reference constraints:
+On Windows, the local setup is:
 
 ```powershell
-py -3.12 -m venv <isolated-environment>
-<isolated-environment>\Scripts\python.exe -m pip install "pip==26.1.2"
-<isolated-environment>\Scripts\python.exe -m pip install -r requirements.txt -c constraints/windows-py312-reference.txt
-<isolated-environment>\Scripts\python.exe -m pip check
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install "pip==26.1.2"
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt -c constraints/windows-py312-reference.txt
+.\.venv\Scripts\python.exe -m pip check
 ```
 
-The intended interpreter line is CPython 3.12. The accepted Phase 1 reference
-used CPython 3.12.13 on 64-bit Windows, and CI selects that exact patch. The
-constraints pin every Python package in the accepted Phase 1 inventory except
-`pip`. Installer tooling is bootstrapped separately so the constraints describe
-the environment installed from `requirements.txt`.
+On macOS, use a CPython 3.12 interpreter with Tk support for the full portable suite and the review UI, create `.venv`, and install the same requirements with the constraints. The tests import the desktop workflow module without opening a window. Portable headless work consumes a complete precomputed thermal artifact; genuine DJI extraction remains a controlled Windows operation. `HEAT_INDEX_DATA_ROOT` or ignored `config/paths.local.json` selects a machine's physical data directory while the logical default remains `<repository>/data`.
 
-The exact pins preserve the accepted dependency set without upgrades. They
-include runtime, test, optional GIS, and transitive packages because omitting
-transitive versions would not reproduce the observed environment. External
-tools are not Python dependencies and are intentionally absent: DJI Thermal
-SDK, TAT3, ExifTool, and Microsoft Excel.
+## GitHub Actions
 
-The GIS and image stack includes native wheels, notably Rasterio, PyProj,
-Pyogrio, Shapely, OpenCV, SciPy, and PyArrow. The reference specification is
-validated for 64-bit Windows and does not promise that identical wheels or
-native-library builds exist on other operating systems. Exact versions without
-artifact hashes also leave package-index and supply-chain identity outside this
-minimum lock.
+[scientific-regression.yml](../.github/workflows/scientific-regression.yml) is triggered for pull requests, pushes to `main`, `phase-2-safety-net`, and `stabilize/**`, and manual dispatch. It has separate macOS and Windows Python 3.12 jobs, read-only repository permissions, a 40-minute job limit, headless Matplotlib, isolated temporary plot/pytest directories, and no pytest cache. The previous job-level `runner.temp` expression was invalid before runner allocation; the current workflow sets `MPLCONFIGDIR` in a runner step using `RUNNER_TEMP` and `GITHUB_ENV`. A valid workflow file is necessary but is not itself proof that a remote job has run successfully; inspect the actual Actions run for the final commit.
 
-## Automated CI boundary
+Both generic runners use:
 
-GitHub Actions is used because `origin` is a GitHub repository and no existing
-CI configuration is authoritative. The workflow is
-`.github/workflows/scientific-regression.yml`.
-
-The check runs on pull requests, pushes to `main`, and manual dispatch. It uses
-a Windows runner, CPython 3.12.13, read-only repository contents permission, a
-30-minute timeout, a headless Matplotlib backend, disabled Python bytecode, a
-temporary Matplotlib directory, a temporary pytest base directory, and no
-pytest cache.
-
-The blocking command is:
-
-```powershell
-python -m pytest -ra -p no:cacheprovider --basetemp "$env:RUNNER_TEMP\pytest" -m "not local_integration"
+```text
+python -m pytest -ra -p no:cacheprovider --basetemp <runner-temp>/pytest -m "not local_integration and not windows_dji"
 ```
 
-Tracked or synthetic scientific and workflow tests remain blocking, including
-numeric mask and summary baselines, routing, review gates, controller behavior
-that does not open an interactive GUI, subprocess entry-point tests, canonical
-schema and eligibility, Part E, spatial, and temporal behavior.
+The Mac job uses a conda-forge Python/Tk environment; the Windows job uses `actions/setup-python`. Neither generic runner needs a local DJI installation or private source data. The workflow includes portable unit, integration, ordinary regression, synthetic scientific regression, tracked masks/summaries, routing/review, canonical/Part E and temporal checks. The test markers are declared in `pytest.ini`: `unit`, `integration`, `regression`, `scientific_regression`, `windows_dji`, and `local_integration`.
 
-## Controlled local acceptance
+The latest local Mac CI-equivalent run (Python 3.12.13, pytest 9.1.1) reported **123 passed, 2 skipped, 6 deselected in 57.48 s**. The skips were the absent accepted-real fixture and a Windows Tcl bootstrap; the six deselections require ignored controlled-local assets. The workflow YAML parses with two jobs and without the invalid job-level expression. Hosted GitHub jobs remain unrun while the branch is local and unpushed.
 
-The `local_integration` marker excludes only six checks that require ignored
-controlled-local inputs:
+`local_integration` covers checks needing ignored TAT3 reports, five real pilot matrices, a real Part E Parquet file, or related local records. Those tests are retained for the original Windows machine and for a Mac with the needed precomputed files. A selected accepted-real test reads `tests/fixtures/accepted_real/manifest.json` and case payloads when they have been recovered; the tracked [manifest.template.json](../tests/fixtures/accepted_real/manifest.template.json) does not count as a fixture. The test skips when the active manifest is absent and fails when an active fixture is incomplete. A CI run with that skip demonstrates only the portable safety net; the accepted-real scientific gate remains blocked.
 
-- `test_named_local_ambient_reports_have_185_entries_and_no_manual_measurements`
-  requires three named ignored TAT3 reports;
-- `test_existing_part_e_row_count_when_local_parquet_is_available` requires the
-  ignored real Part E Parquet container and preserves its physical row-count
-  assertion for controlled local acceptance;
-- `test_part_d_temperature_numeric_baseline` requires five ignored Part D
-  temperature matrices produced by the licensed DJI SDK extraction workflow;
-- `test_normal_part_c_pilot_adapter_builds_versioned_manifest` requires one of
-  those ignored Part D temperature matrices;
-- the two methods in `V032PilotLUHKWiringTests` require the same ignored matrix
-  during their shared pilot-adapter setup.
-
-These tests keep their original scientific assertions and remain runnable in
-the accepted reference environment:
-
-```powershell
-$env:PYTHONDONTWRITEBYTECODE = "1"
-$env:MPLBACKEND = "Agg"
-$env:MPLCONFIGDIR = "<unique-os-temporary-directory>\mpl"
-.\.venv\Scripts\python.exe -m pytest -ra -p no:cacheprovider --basetemp "<unique-os-temporary-directory>\pytest"
-```
-
-Real DJI SDK extraction, TAT3 operation, interactive GUI acceptance, Excel
-automation and rendered-workbook review, licensed or private real-data
-execution, the full Part A through Part E production workflow, manual alignment
-and surface-cover review, and comparison against the Phase 1 run-scoped
-accepted artifacts remain controlled local acceptance. CI does not invoke or
-upload any of those tools, inputs, reports, binaries, or outputs.
-
-The Phase 1 record reports the controlled-local full suite as 117 passed. CI
-does not replace that acceptance procedure; it provides the clean-clone safety
-net that can run without private or proprietary inputs.
-
-CI protects the same Part E row-count baseline through the tracked summary test
-`test_pilot_part_e_row_counts_and_selected_numeric_summaries`. It verifies five
-pilot images, 512 by 640 pixels per image, 1,638,400 total rows, and the
-existing numerical summaries. Controlled local acceptance separately verifies
-that the physical real Part E Parquet container has the same row count.
+`windows_dji` is for genuine TAT3/DJI work in the original Windows environment. A generic Windows GitHub runner does not certify licensed extraction. The owner must recover original parameter reports and accepted run snapshots, execute a controlled extraction, compare it with TAT3 and the accepted `main` result, then verify the complete artifact transfers unchanged to Mac. See [windows_artifact_recovery.md](windows_artifact_recovery.md) and [phase2_owner_acceptance.md](phase2_owner_acceptance.md).
