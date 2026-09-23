@@ -1,5 +1,5 @@
 {
-  "sdk_root": "D:\\DJI_Thermal_SDK",
+  "sdk_root": "",
   "dji_irp_exe": "",
   "measure_format": "float32",
   "write_matrix_csv": false,
