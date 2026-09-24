@@ -231,3 +231,53 @@ Run `tests/test_accepted_real_regression.py` on both machines as well, using the
 **Success looks like:** unchanged artifact bytes load on Mac, yield the same downstream pixel-table and ΔT results as Windows, and agree with the original accepted `main` reference. **Failure means:** identify whether the divergence starts at byte transfer, sidecar identity, path resolution, native-grid mapping, dependency numeric behavior, or downstream calculation. This is a required owner gate; a green synthetic test alone does not satisfy it.
 
 Keep the command logs and hashes with the acceptance record. Only the owner can mark Mac and Windows acceptance complete after these checks; if the real payloads are still unavailable, full scientific certification remains blocked.
+
+## Windows execution record — 2026-09-24
+
+This section records the actual Windows execution of the procedure above. The detailed closure narrative is in [phase2_stabilization_report.md](phase2_stabilization_report.md), and the compact evidence is in [phase2_windows_acceptance_20260924.json](phase2_windows_acceptance_20260924.json).
+
+### Source, isolation, environment and data root
+
+- Fetched branch: `stabilize/phase2-final`; source commit `4c3af875c83cbda70f027a3d9619a2e617d8027f`.
+- Execution used an isolated Windows worktree. The old validated checkout and accepted run were retained as read-only scientific references.
+- CPython 3.12.10, pip 26.2.1, pytest 9.1.1, and Tk 8.6 were available; `pip check` passed.
+- Ignored `config/paths.local.json` and `config/part_d_sdk.local.json` selected the preserved external data tree and DJI executable. `HEAT_INDEX_DATA_ROOT` correctly overrode the file setting without moving repository configuration outside the checkout.
+- `dji_irp.exe` reported `APP version : V1.7` and had SHA-256 `58e693879f8cf504738ed9f9ced8769dd0d1c81a532b0e6683f2c4f2d8654372`. The installed TAT3 executable had file version `0.2.6`; the accepted DOCX does not independently bind itself to that installed file version.
+
+### Test execution
+
+| Selection | Final result | Acceptance interpretation |
+|---|---|---|
+| `python -m pytest -ra -p no:cacheprovider --basetemp <scratch> -m "not local_integration and not windows_dji"` | **123 passed, 2 skipped, 6 deselected** | Pass. The accepted-real case executed. The two skips were documented platform-boundary checks. |
+| `python -m pytest -ra -p no:cacheprovider --basetemp <scratch> tests/test_v02_part_e_formal.py` | **1 passed** | Pass; the preserved synthetic comparison is 97/97 exact outputs. |
+| `python -m pytest -ra -p no:cacheprovider --basetemp <scratch> -m local_integration` | **6 passed, 125 deselected** | Pass after placing the required verified payload in the isolated worktree's ignored local data paths. The first failure/skip set was classified as fixture placement, not science. |
+| `python -m pytest -ra -p no:cacheprovider --basetemp <scratch> tests/test_accepted_real_regression.py` | **1 passed** | Pass; no missing-fixture skip. |
+| `python -m pytest -ra -p no:cacheprovider --basetemp <scratch> -m windows_dji` | **0 selected, 131 deselected** | Not evidence and not counted as a pass. The real controlled SDK extraction below supplied the DJI acceptance evidence. |
+
+### Real extraction, TAT3 and downstream evidence
+
+The recovered manifest identified the accepted normal pilots as `DJI_20260107143259_0005`, `DJI_20260107143320_0007`, `DJI_20260107143328_0008`, `DJI_20260107143344_0009`, and `DJI_20260107143401_0011`. New Phase 2 SDK outputs were written to a separate acceptance directory. All five 512×640 float32 NPY files were byte-identical to their old accepted matrices; the maximum absolute temperature difference was 0.0 °C and zero pixels exceeded `rtol=0`, `atol=2e-6 °C`.
+
+All 25 recovered TAT3 parameter comparisons were exact: distance 5 m, exported humidity 50%, emissivity 0.95, and the per-image ambient/reflected values. Accepted TAT3 report SHA-256: `50fa623f2650e37fea5ccf992abb40532b00ceea37ed36d3959fffb4c2a86023`. The report contains no manual point or region values, so none were invented; validation combined the complete parameter record with full accepted-matrix equality. Exported humidity remains explicitly non-meteorological.
+
+Each normal route reproduced 327,680 rows and its accepted pixel coordinates, masks, surface-cover classes, ambient stratum, temperatures, ΔT, cover counts, and grouped summaries, with 0.0 °C maximum numeric difference. The immutable accepted six-image aggregate had SHA-256 `aa2c3fefa1dd64620d43d2180af05958b35cefdfd93fe59957260cfe76f79a1b`, 1,966,080 rows, and exactly 21,047 accepted polygon pixels. Aggregate replay produced 17 exact scientific tables/samples and 56/56 pixel-exact PNGs. A float32-versus-float64 reduction difference of `1.4511962440622028e-6 °C` in the common source-summary fields remained below the existing `2e-6 °C` tolerance.
+
+Two deliberate cache-integrity attacks were rejected: a matrix paired with a different sidecar, and ambient metadata changed without recomputing its parameter fingerprint. This verifies that the accepted result was not obtained through silent stale-cache reuse.
+
+### Cross-machine package and hosted CI
+
+Windows replay of the new v1 pair for `DJI_20260107143259_0005` produced 327,680 native/eligible rows, the accepted cover counts, ambient 11.0 °C, `provenance_binding=verified`, and mean ΔT `3.280268430709839 °C`. Its difference from the accepted float64-reduction mean `3.2802686942042785 °C` is below the existing `1e-6 °C` grouped-mean limit.
+
+The exact pair was packaged as `phase2_windows_to_mac_cross_machine_20260924.zip` with SHA-256 `8267448505297939bfc9a7af72a18f71121f76aac4f8da78a8d9872bb0c94a35`. Matrix SHA-256 is `814ef8337c79ab6646c7ccc3be6c1fd14b3323079a3c984bcba647d87627b80a`; sidecar SHA-256 is `f45e95f28f33fa8af66bce6370cc254c2124f0f99760b65c82ea360364a4f57a`. The package contains a manifest, internal checksums, Windows metrics, instructions, and a Mac replay script. No Mac execution host was available to this Windows task, so the required result from the same new pair remains **BLOCKED** pending transfer and execution. Do not substitute the earlier Mac fixture result for this gate.
+
+GitHub Actions run [35965519283](https://github.com/VITAMINC135246/heat_index_urop/actions/runs/35965519283) actually created and completed both configured jobs: [Windows](https://github.com/VITAMINC135246/heat_index_urop/actions/runs/35965519283/job/107523116757) and [macOS](https://github.com/VITAMINC135246/heat_index_urop/actions/runs/35965519283/job/107523116923) both succeeded. Proprietary SDK extraction remained a local Windows owner check as intended.
+
+### Owner gate outcome
+
+- Windows acceptance: **PASS**.
+- Real scientific regression: **PASS**.
+- Hosted CI: **PASS**.
+- Cross-machine replay of the new Windows-produced pair: **BLOCKED** because no Mac host was accessible.
+- Full scientific certification and Phase 2 closure: **BLOCKED / NOT COMPLETE** until that replay succeeds and its Mac hashes, metrics, and accepted-real test output are appended here.
+
+The missing standalone polygon canonical bundle limits independent polygon-route regeneration, but it does not block the completed immutable-aggregate comparison. It is not the reason the final certification is blocked.

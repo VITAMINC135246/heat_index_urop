@@ -1,0 +1,84 @@
+{
+  "schema": "heat-index-phase2-windows-acceptance-v1",
+  "date": "2026-09-24",
+  "fetched_stabilization_commit": "4c3af875c83cbda70f027a3d9619a2e617d8027f",
+  "accepted_run_id": "run_20260722T055625Z",
+  "accepted_aggregate_sha256": "aa2c3fefa1dd64620d43d2180af05958b35cefdfd93fe59957260cfe76f79a1b",
+  "environment": {
+    "python": "3.12.10",
+    "pip": "26.2.1",
+    "pytest": "9.1.1",
+    "tk": "8.6",
+    "dji_cli_reported_version": "V1.7",
+    "dji_cli_sha256": "58e693879f8cf504738ed9f9ced8769dd0d1c81a532b0e6683f2c4f2d8654372",
+    "tat3_installed_executable_file_version": "0.2.6"
+  },
+  "tests": {
+    "portable": "123 passed, 2 skipped, 6 deselected",
+    "formal_synthetic": "1 passed; 97/97 preserved outputs exact",
+    "local_integration_final": "6 passed, 125 deselected",
+    "accepted_real": "1 passed",
+    "windows_dji_marker": "0 selected; real controlled extraction recorded separately"
+  },
+  "real_thermal": {
+    "status": "pass",
+    "matrix_atol_c": 0.000002,
+    "observed_max_abs_difference_c": 0.0,
+    "images": {
+      "DJI_20260107143259_0005": "814ef8337c79ab6646c7ccc3be6c1fd14b3323079a3c984bcba647d87627b80a",
+      "DJI_20260107143320_0007": "290fa171ebc43b65e4c67170cc5cf85a1ea8993192efc5542146bdce0f6dd126",
+      "DJI_20260107143328_0008": "bbb9e0501ace98872ae797542a95e08c0abe3d1029e5775356982dc1aa8c6790",
+      "DJI_20260107143344_0009": "afec29c5aa82911c0052d638935b4b23b9e15666aa9f89fb2bb874906da243fb",
+      "DJI_20260107143401_0011": "7d4799b4688159d7fad5c9fc282d20db9d144c93aa2ec1350a9d931ee97cd88d"
+    }
+  },
+  "tat3": {
+    "status": "pass",
+    "report_sha256": "50fa623f2650e37fea5ccf992abb40532b00ceea37ed36d3959fffb4c2a86023",
+    "parameter_comparisons": 25,
+    "maximum_parameter_difference": 0.0,
+    "manual_point_or_region_records_available": false,
+    "humidity_use_status": "not_used_unreliable_tat3_export"
+  },
+  "real_downstream": {
+    "status": "pass",
+    "normal_image_rows": 1638400,
+    "accepted_aggregate_rows": 1966080,
+    "accepted_polygon_target_pixels": 21047,
+    "exact_scientific_tables_and_samples": 17,
+    "pixel_exact_pngs": 56,
+    "source_summary_max_abs_difference_c": 0.0000014511962440622028,
+    "source_summary_atol_c": 0.000002
+  },
+  "cross_machine": {
+    "status": "blocked",
+    "reason": "No Mac execution host was accessible for replay of the new Windows-produced v1 pair.",
+    "matrix_sha256": "814ef8337c79ab6646c7ccc3be6c1fd14b3323079a3c984bcba647d87627b80a",
+    "sidecar_sha256": "f45e95f28f33fa8af66bce6370cc254c2124f0f99760b65c82ea360364a4f57a",
+    "transfer_archive": "phase2_windows_to_mac_cross_machine_20260924.zip",
+    "transfer_archive_sha256": "8267448505297939bfc9a7af72a18f71121f76aac4f8da78a8d9872bb0c94a35"
+  },
+  "hosted_ci": {
+    "status": "pass",
+    "run_id": 35965519283,
+    "head_sha": "4c3af875c83cbda70f027a3d9619a2e617d8027f",
+    "windows_job": "success",
+    "macos_job": "success"
+  },
+  "gates": {
+    "architecture": "pass",
+    "mac_acceptance": "pass",
+    "windows_tests": "pass",
+    "synthetic_regression": "pass",
+    "real_thermal_regression": "pass",
+    "tat3_validation": "pass",
+    "real_downstream_regression": "pass",
+    "thermal_provenance": "pass",
+    "cross_machine_replay": "blocked",
+    "hosted_ci": "pass",
+    "data_root_portability": "pass",
+    "git_data_boundary": "pass"
+  },
+  "phase2": "not_complete",
+  "full_scientific_certification": "blocked"
+}
