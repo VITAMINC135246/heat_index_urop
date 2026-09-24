@@ -70,10 +70,10 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      - name: Set up CPython 3.12.13
+      - name: Set up CPython 3.12.10
         uses: actions/setup-python@v6
         with:
-          python-version: "3.12.13"
+          python-version: "3.12.10"
           architecture: x64
 
       - name: Install reference dependencies and check Tk
