@@ -98,6 +98,8 @@ def adapt_pilot_image(
     source_file_hashes_value: dict[str, str] | None = None,
     dependency_fingerprints_value: dict[str, str] | None = None,
     part_a: dict[str, Any] | None = None,
+    part_b0: dict[str, Any] | None = None,
+    part_b: dict[str, Any] | None = None,
     temperature_result: TemperatureResult | None = None,
 ) -> tuple[object, Path]:
     pairs = pd.read_excel(data_root(project_root) / "metadata" / "part_b_pilot_pairs.xlsx")
@@ -218,6 +220,8 @@ def adapt_pilot_image(
         ),
         validation_status="verified_pilot_adapter",
         part_a=part_a_payload,
+        part_b0=part_b0,
+        part_b=part_b,
         scene_correspondence=SceneCorrespondence.ACCEPTED.value,
         coverage_class=CoverageClass.THERMAL_FULLY_SUPPORTED_BY_VISIBLE.value,
         notes=(

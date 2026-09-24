@@ -8,6 +8,20 @@
       "image_id": "DJI_20260107143259_0005",
       "expected_shape": [512, 640],
       "accepted_dir": "DJI_20260107143259_0005/accepted",
+      "review_records": {
+        "part_a": {
+          "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/REPLACE_WITH_ACCEPTED_WINDOWS_RUN_ID/groups/DJI_20260107143259_0005/part_a.json",
+          "sha256": "REPLACE_WITH_SHA256"
+        },
+        "part_b0": {
+          "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/REPLACE_WITH_ACCEPTED_WINDOWS_RUN_ID/groups/DJI_20260107143259_0005/part_b0/part_b0.json",
+          "sha256": "REPLACE_WITH_SHA256"
+        },
+        "part_b": {
+          "path": "outputs/runs/v0_3_user_acceptance/workflow_runs/REPLACE_WITH_ACCEPTED_WINDOWS_RUN_ID/groups/DJI_20260107143259_0005/part_b/part_b.json",
+          "sha256": "REPLACE_WITH_SHA256"
+        }
+      },
       "protected_temperature_metadata": [
         "temperature_definition",
         "temperature_unit",

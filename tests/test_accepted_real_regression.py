@@ -79,6 +79,24 @@ def _check_snapshot_hashes(case: dict, accepted_dir: Path) -> None:
         assert len(digest) == 64 and _sha256(path) == digest, f"Accepted artifact hash changed: {path}"
 
 
+def _read_review_records(case: dict, image_id: str) -> dict[str, dict]:
+    records = case.get("review_records") or {}
+    required = {"part_a", "part_b0", "part_b"}
+    assert required <= records.keys(), f"Missing accepted review records: {sorted(required - records.keys())}"
+    result = {}
+    for role in sorted(required):
+        item = records[role]
+        path = (PROJECT_ROOT / str(item["path"])).resolve()
+        assert path.is_relative_to(PROJECT_ROOT.resolve()), f"Review path leaves checkout: {path}"
+        assert path.is_file(), f"Accepted review record missing: {path}"
+        assert _sha256(path) == item["sha256"], f"Accepted review record hash changed: {path}"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        assert isinstance(payload, dict), f"Invalid accepted review record: {path}"
+        assert image_id in str(path), f"Review record does not identify {image_id}: {path}"
+        result[role] = payload
+    return result
+
+
 def _compare_array(accepted_dir: Path, actual_dir: Path, name: str) -> None:
     accepted = np.load(accepted_dir / name, allow_pickle=False)
     actual = np.load(actual_dir / name, allow_pickle=False)
@@ -146,9 +164,13 @@ def test_main_accepted_pilot_snapshot_replays_on_phase2(tmp_path: Path) -> None:
         assert accepted_manifest["image_id"] == image_id
         expected_shape = tuple(case["expected_shape"])
         assert expected_shape == (accepted_manifest["image_height"], accepted_manifest["image_width"])
+        reviews = _read_review_records(case, image_id)
+        for role, payload in reviews.items():
+            assert payload == accepted_manifest[role], f"{image_id}: accepted {role} source mismatch"
 
         _actual, actual_manifest_path = adapt_pilot_image(
-            PROJECT_ROOT, image_id, output_root=tmp_path, write_pixels_parquet=True
+            PROJECT_ROOT, image_id, output_root=tmp_path, write_pixels_parquet=True,
+            part_a=reviews["part_a"], part_b0=reviews["part_b0"], part_b=reviews["part_b"],
         )
         actual_dir = actual_manifest_path.parent
         actual_manifest = json.loads(actual_manifest_path.read_text(encoding="utf-8"))
@@ -178,7 +200,8 @@ def test_main_accepted_pilot_snapshot_replays_on_phase2(tmp_path: Path) -> None:
                 assert actual_manifest[section].get(key) == accepted_manifest[section][key], (
                     f"{image_id}: {section}.{key}"
                 )
-        assert actual_manifest["part_b"] == accepted_manifest["part_b"], f"{image_id}: Part B alignment"
+        for role in ("part_a", "part_b0", "part_b"):
+            assert actual_manifest[role] == accepted_manifest[role], f"{image_id}: {role} review"
 
         for name in (
             "temperature.npy", "surface_cover_labels.npy", "surface_cover_known_mask.npy",
