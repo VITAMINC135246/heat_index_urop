@@ -1,6 +1,6 @@
 # Phase 2 stabilization and acceptance report
 
-Date: 2026-09-24 (Asia/Shanghai). This report supersedes the pre-acceptance status recorded on 2026-09-23 and incorporates the completed Mac owner acceptance, Windows owner acceptance, real scientific regression, and hosted CI evidence. It does not claim that the required Windows-to-Mac replay has occurred.
+Date: 2026-09-24 (Asia/Shanghai). This report supersedes the pre-acceptance status recorded on 2026-09-23 and incorporates the completed Mac owner acceptance, Windows owner acceptance, real scientific regression, cross-machine replay, and hosted CI evidence. The earlier Windows-time cross-machine blockage is retained below as history and resolved by the later Mac execution.
 
 ## Decision summary
 
@@ -8,9 +8,9 @@ Date: 2026-09-24 (Asia/Shanghai). This report supersedes the pre-acceptance stat
 - **Mac owner acceptance: PASS.** The accepted normal fixture executed on Mac with 1 pass and no fixture skip; see [the Mac record](phase2_mac_acceptance_20260924.md).
 - **Windows owner acceptance: PASS.** All available local automated checks passed after a local fixture-path correction, the real five-pilot DJI extraction was byte-identical to the accepted matrices, and real downstream results reproduced the accepted run.
 - **Real scientific regression: PASS.** Five normal-route images and the immutable six-image aggregate, including the accepted 21,047-pixel polygon result, agree within existing repository tolerances.
-- **Hosted CI: PASS.** GitHub Actions run [35965519283](https://github.com/VITAMINC135246/heat_index_urop/actions/runs/35965519283) created and completed both the macOS and Windows jobs successfully.
-- **Cross-machine replay: BLOCKED.** A verified Windows-produced transfer pair and replay package exist, but no Mac execution host was accessible during this Windows acceptance. The required Mac result for this new artifact is therefore not inferred from the earlier accepted-fixture test.
-- **Full scientific certification: BLOCKED.** Cross-machine replay is a mandatory owner gate. Shadow implementation must not begin until the packaged artifact has been replayed on Mac and its result recorded.
+- **Hosted CI: PASS on the stabilization source commit.** GitHub Actions run [35970592160](https://github.com/VITAMINC135246/heat_index_urop/actions/runs/35970592160) completed both the macOS and Windows jobs successfully at `9bb41a1`. Final-branch CI is checked separately after push.
+- **Cross-machine replay: PASS.** The unchanged Windows-produced v1 pair was installed under the Mac data root and replayed through the Phase 2 adapter. Its defined downstream metrics match Windows exactly; the original Mac source image and radiometric parameters also match the sidecar.
+- **Full scientific certification: PASS.** The owner accepted the frozen aggregate for historical polygon coverage, and the last required Windows-to-Mac scientific gate passed. The permanent branch and final hosted CI are recorded separately in the completion record after branch closure.
 
 The compact machine-readable Windows record is [phase2_windows_acceptance_20260924.json](phase2_windows_acceptance_20260924.json).
 
@@ -69,6 +69,10 @@ The immutable six-image aggregate contained 1,966,080 rows and included polygon 
 
 The separate accepted polygon canonical array bundle was not recovered, so the polygon route cannot be regenerated independently from raw/canonical arrays. This does not invalidate the comparison that was possible against the frozen accepted aggregate, but it remains a documented evidence limitation rather than a fabricated golden input.
 
+### Owner polygon acceptance decision — 2026-09-24
+
+The original owner acceptance procedure required a route-specific Part C* polygon replay for full scientific certification. The owner has now accepted the frozen six-image aggregate regression above as sufficient Phase 2 polygon-path evidence. **Route-specific polygon replay was waived by owner acceptance decision because the accepted frozen aggregate regression is considered sufficient for Phase 2 closure.** No route-specific replay occurred or is claimed. The standalone historical polygon canonical array bundle remains unrecovered and is a documented non-blocking limitation. This decision resolves the polygon criterion; it does not waive the separate Windows-to-Mac replay gate.
+
 ## Cross-machine replay
 
 Windows produced a complete v1 pair for `DJI_20260107143259_0005`:
@@ -80,7 +84,23 @@ Windows produced a complete v1 pair for `DJI_20260107143259_0005`:
 
 The transfer archive is `phase2_windows_to_mac_cross_machine_20260924.zip`, SHA-256 `8267448505297939bfc9a7af72a18f71121f76aac4f8da78a8d9872bb0c94a35`. It contains both artifact files, internal checksums, Windows metrics, a manifest, exact instructions, and a replay script that verifies hashes and comparison rules before writing `cross_machine_mac_metrics.json`.
 
-No Mac host was connected to this Windows task, so the archive has not been executed there. Earlier Mac accepted-fixture success proves the historical normal route, but it does not prove consumption of this new Windows sidecar. Cross-machine acceptance therefore remains **BLOCKED**, not failed and not inferred.
+At the time of the Windows task, no Mac host was connected, so the archive had not yet been executed there. Earlier Mac accepted-fixture success proved the historical normal route but could not substitute for consuming this new Windows sidecar. That historical **BLOCKED** state is now superseded by the actual Mac replay below.
+
+### Mac replay and comparison — 2026-09-24
+
+The Mac received the archive at `/Users/vitaminc-macbook/Downloads/phase2_windows_to_mac_cross_machine_20260924.zip`; its SHA-256 and all six internal payload checksums matched. The complete pair was copied unchanged to the ignored configured data root at `data/local_external/phase2_cross_machine_20260924/`. The selected original `_T.JPG` matched sidecar source SHA-256 `f879183623281c77df24d773bb5d7ebf64569661c89b25284ea3a7001cadcdb9`. The matrix and sidecar hashes remained `814ef8337c79ab6646c7ccc3be6c1fd14b3323079a3c984bcba647d87627b80a` and `f45e95f28f33fa8af66bce6370cc254c2124f0f99760b65c82ea360364a4f57a`. The source and all five radiometric parameters also passed the v1 loader's binding checks.
+
+With the project Python 3.12.5 environment active, the exact successful command from the checkout root was:
+
+```sh
+PYTHONPATH="$PWD" python data/local_external/phase2_cross_machine_20260924/run_mac_replay.py
+```
+
+The first launch without `PYTHONPATH` stopped at import because the script resided in the ignored data directory. Adding the checkout to the import path was an infrastructure-only correction. The script then returned **PASS** with zero Windows-to-Mac difference in ambient and mean ΔT, and exact image ID, 327,680 native/eligible rows, four cover counts, temperature definition, and verified provenance. Both machines produced mean ΔT `3.280268430709839 °C`; its difference from the accepted float64 reference was `2.6349443960071994e-7 °C`, below the existing `1e-6 °C` bound. The Mac metrics SHA-256 is `3c4b16c3649db80dd8c17e216bea5a875e3171d11df009e2fd7ca032d12cec69`.
+
+An additional Mac comparison to the fixed accepted fixture found all seven arrays element-exact, all 327,680 pixel rows' temperature, ambient, and ΔT exact, and 50 of 51 accepted pixel-table columns exact. The only difference was the new v1 unit token `degC` versus the historical phrase `Celsius interpreted from SDK measure output`; both identify Celsius, and no numerical or other provenance field changed. The transfer package provides Windows downstream metrics rather than a full Windows pixel-table hash, so the defined cross-machine comparison is to those Windows metrics and the extra full-table check is to the immutable accepted fixture. No golden value or tolerance was changed.
+
+Mac accepted-real Step 6 passed with one executed test and no skip; the formal synthetic test passed; the full portable Mac selection finished with 124 passed, one documented Windows Tcl skip, and six deselected. See [the machine-readable Mac replay record](phase2_cross_machine_mac_acceptance_20260924.json). **Cross-machine replay: PASS.**
 
 ## Hosted CI
 
@@ -89,7 +109,7 @@ GitHub Actions run [35965519283](https://github.com/VITAMINC135246/heat_index_ur
 - [Windows Python 3.12 portable and platform regression](https://github.com/VITAMINC135246/heat_index_urop/actions/runs/35965519283/job/107523116757): all setup and test steps succeeded.
 - [macOS Python 3.12 portable and scientific regression](https://github.com/VITAMINC135246/heat_index_urop/actions/runs/35965519283/job/107523116923): all setup and test steps succeeded.
 
-The jobs were actually created and executed; this is not the former `No jobs were run` condition. Proprietary DJI/TAT3 extraction remains correctly outside generic hosted runners and was performed on the real Windows host.
+The jobs were actually created and executed; this is not the former `No jobs were run` condition. A later run [35970592160](https://github.com/VITAMINC135246/heat_index_urop/actions/runs/35970592160) at the Windows-evidence commit `9bb41a1` also passed both jobs. Proprietary DJI/TAT3 extraction remains correctly outside generic hosted runners and was performed on the real Windows host.
 
 ## Final definition-of-done gates
 
@@ -101,15 +121,15 @@ The jobs were actually created and executed; this is not the former `No jobs wer
 | Synthetic regression | **PASS** | Formal test passed and preserved 97/97 cross-branch outputs are exact. |
 | Real thermal regression | **PASS** | Five real DJI matrices are byte-identical to accepted references; 0.0 °C maximum difference. |
 | TAT3 validation | **PASS** | All five recorded parameters per image match exactly; full accepted matrices match; no nonexistent manual point was invented. |
-| Real downstream regression | **PASS** | Five normal routes exact; accepted six-image/21,047-pixel polygon aggregate replayed with 17 exact tables/samples and 56 exact PNGs. |
+| Real downstream regression | **PASS — polygon aggregate accepted by owner** | Five normal routes exact; accepted six-image/21,047-pixel polygon aggregate replayed with 17 exact tables/samples and 56 exact PNGs. No route-specific polygon replay is claimed. |
 | Thermal provenance | **PASS** | Source/report/tool hashes and v1 parameter fingerprints verified; tampered pairs rejected; humidity limitation preserved. |
-| Cross-machine replay | **BLOCKED** | Verified package prepared, but the same new Windows-produced pair has not yet run on a Mac host. |
-| Hosted CI | **PASS** | Both macOS and Windows jobs ran and succeeded in Actions run 35965519283. |
+| Cross-machine replay | **PASS** | Unchanged Windows v1 pair replayed on Mac; defined metrics exact; source and parameter binding verified. |
+| Hosted CI | **PASS on source commit** | Both macOS and Windows jobs ran and succeeded in Actions run 35970592160 at `9bb41a1`; the permanent-branch run is a final Git closure check. |
 | Data-root portability | **PASS** | Default and environment override behavior passed against the full preserved Windows data tree. |
 | Git/data boundary | **PASS** | Historical data remained intact; recovered and generated payloads stayed ignored or outside Git; no Shadow code was added. |
 
 ## Closure decision and next action
 
-The code baseline, independent Mac acceptance, Windows acceptance, hosted CI, and all scientifically available real regressions are complete. The missing polygon canonical bundle does not block the immutable-aggregate comparison and is not the reason certification remains open. The sole mandatory unresolved gate is execution of the packaged new Windows artifact on Mac.
+The code baseline, independent Mac acceptance, Windows acceptance, real regressions, thermal provenance, hosted CI on the source commit, and the required replay of the new Windows artifact on Mac are complete. The owner accepted the frozen aggregate as sufficient polygon evidence. The missing standalone polygon canonical bundle and unknown historical TAT3 application version remain documented non-blocking limitations.
 
-**Overall Phase 2 status: NOT COMPLETE. Full scientific certification: BLOCKED.** Transfer the archive to the already accepted Mac checkout, run its replay script and `tests/test_accepted_real_regression.py`, verify the two file hashes and returned metrics, and append the Mac result. If that gate passes, freeze/tag the Phase 2 baseline and create a separate Shadow research branch from that certified commit. Do not implement Shadow on the stabilization branch.
+**Overall Phase 2 scientific status: COMPLETE. Full scientific certification: PASS.** The final permanent branch, branch cleanup, and hosted CI on that branch are recorded in [phase2_completion_record.md](phase2_completion_record.md) when the Git closure is finished. Shadow algorithm work has not been implemented.

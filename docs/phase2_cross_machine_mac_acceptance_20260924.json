@@ -1,0 +1,68 @@
+{
+  "schema": "heat-index-phase2-cross-machine-mac-acceptance-v1",
+  "date": "2026-09-24",
+  "mac_checkout_commit_before_closure": "9bb41a1ad88a839a8f8291bf44020a7024f72221",
+  "windows_artifact_source_commit": "4c3af875c83cbda70f027a3d9619a2e617d8027f",
+  "python": "3.12.5",
+  "pytest": "9.1.1",
+  "image_id": "DJI_20260107143259_0005",
+  "accepted_run_id": "run_20260722T055625Z",
+  "transfer_archive": "phase2_windows_to_mac_cross_machine_20260924.zip",
+  "transfer_archive_sha256": "8267448505297939bfc9a7af72a18f71121f76aac4f8da78a8d9872bb0c94a35",
+  "installed_package_directory": "data/local_external/phase2_cross_machine_20260924",
+  "matrix_sha256": "814ef8337c79ab6646c7ccc3be6c1fd14b3323079a3c984bcba647d87627b80a",
+  "sidecar_sha256": "f45e95f28f33fa8af66bce6370cc254c2124f0f99760b65c82ea360364a4f57a",
+  "source_image_sha256": "f879183623281c77df24d773bb5d7ebf64569661c89b25284ea3a7001cadcdb9",
+  "windows_metrics_sha256": "a469a76eda0fa96e534d31dfca5e3029bc596e012c0596b4ecc515e03970054f",
+  "mac_metrics_sha256": "3c4b16c3649db80dd8c17e216bea5a875e3171d11df009e2fd7ca032d12cec69",
+  "replay_command": "PYTHONPATH=\"$PWD\" python data/local_external/phase2_cross_machine_20260924/run_mac_replay.py",
+  "replay_status": "pass",
+  "windows_to_mac_comparison": {
+    "exact_fields": [
+      "image_id",
+      "native_rows",
+      "accepted_rows",
+      "cover_counts",
+      "temperature_definition",
+      "provenance_binding"
+    ],
+    "native_rows": 327680,
+    "accepted_rows": 327680,
+    "cover_counts": {
+      "concrete_pavement": 20871,
+      "grass_low_vegetation": 14540,
+      "roof": 30014,
+      "vegetation_tree": 262255
+    },
+    "ambient_c": 11.0,
+    "ambient_absolute_difference_c": 0.0,
+    "mean_delta_t_c": 3.280268430709839,
+    "mean_delta_t_absolute_difference_c": 0.0,
+    "accepted_reference_mean_delta_t_c": 3.2802686942042785,
+    "accepted_reference_mean_absolute_difference_c": 0.00000026349443960071994,
+    "float_tolerance_c": 0.000001
+  },
+  "accepted_fixture_full_pixel_check": {
+    "native_rows": 327680,
+    "accepted_columns": 51,
+    "exact_columns": 50,
+    "provenance_wording_difference": {
+      "column": "temperature_unit",
+      "new_v1_value": "degC",
+      "historical_value": "Celsius interpreted from SDK measure output",
+      "interpretation": "Both denote Celsius; the v1 artifact uses the standardized unit token."
+    },
+    "arrays_exact": 7,
+    "temperature_max_absolute_difference_c": 0.0,
+    "ambient_max_absolute_difference_c": 0.0,
+    "delta_t_max_absolute_difference_c": 0.0,
+    "all_other_categorical_and_provenance_columns_exact": true
+  },
+  "tests": {
+    "mac_portable_suite": "124 passed, 1 skipped, 6 deselected",
+    "accepted_real": "1 passed, 0 skipped",
+    "formal_synthetic": "1 passed"
+  },
+  "source_and_parameter_binding": "pass",
+  "scientific_mismatch": false
+}

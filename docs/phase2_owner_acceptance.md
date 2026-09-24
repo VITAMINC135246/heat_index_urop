@@ -87,7 +87,7 @@ MPLBACKEND=Agg MPLCONFIGDIR="$(mktemp -d)" python -m pytest -ra -p no:cacheprovi
 
 Do not create expected values with Phase 2. If only the tracked template exists, pytest skips this case; record the gate as **BLOCKED: accepted fixture absent**, never as a pass. An active but incomplete `manifest.json` must fail so missing inputs are visible.
 
-**Success looks like:** the real test executes without a missing-fixture skip and checks image IDs, native dimensions, masks/eligibility, matrix identity, radiometric and ambient provenance, pixel rows, ΔT, counts, and grouped summaries for the **normal pilot route**. Its current adapter cannot replay the accepted Part C* polygon route or certify the full six-image run. Those remain Windows owner checks and a full-scientific-certification blocker until a route-specific replay is recorded. **Failure means:** investigate the first differing input or definition; an incomplete fixture is a recovery task, while a completed fixture with different scientific values is a regression requiring review.
+**Success looks like:** the real test executes without a missing-fixture skip and checks image IDs, native dimensions, masks/eligibility, matrix identity, radiometric and ambient provenance, pixel rows, ΔT, counts, and grouped summaries for the **normal pilot route**. Its current adapter cannot replay the accepted Part C* polygon route or certify the full six-image run. The original procedure required a separate route-specific polygon replay for full certification; the owner acceptance decision below supersedes that requirement after the accepted frozen six-image aggregate regression passed. **Failure means:** investigate the first differing input or definition; an incomplete fixture is a recovery task, while a completed fixture with different scientific values is a regression requiring review.
 
 ## Windows acceptance
 
@@ -281,3 +281,25 @@ GitHub Actions run [35965519283](https://github.com/VITAMINC135246/heat_index_ur
 - Full scientific certification and Phase 2 closure: **BLOCKED / NOT COMPLETE** until that replay succeeds and its Mac hashes, metrics, and accepted-real test output are appended here.
 
 The missing standalone polygon canonical bundle limits independent polygon-route regeneration, but it does not block the completed immutable-aggregate comparison. It is not the reason the final certification is blocked.
+
+## Owner polygon acceptance decision — 2026-09-24
+
+The owner explicitly accepts the frozen six-image aggregate regression as sufficient Phase 2 polygon-path evidence. The earlier Step 6 requirement for a separate route-specific polygon replay is superseded for Phase 2 closure. **Route-specific polygon replay was waived by owner acceptance decision because the accepted frozen aggregate regression is considered sufficient for Phase 2 closure.** No route-specific replay is claimed to have occurred. The standalone historical polygon canonical array bundle remains unrecovered and is a documented non-blocking limitation. The required Windows-to-Mac replay of the new v1 thermal artifact was a separate gate and is closed by the Mac execution below.
+
+## Mac cross-machine execution record — 2026-09-24
+
+The Windows outcome above describes the state when the Windows record was written. The later Mac execution closed its remaining cross-machine gate. The transferred `phase2_windows_to_mac_cross_machine_20260924.zip` was found in Mac Downloads and had the expected SHA-256 `8267448505297939bfc9a7af72a18f71121f76aac4f8da78a8d9872bb0c94a35`. All six internal file hashes passed after removing carriage returns from the Windows-format checksum list for the check; the package files themselves were not changed. Its complete v1 pair was installed under the ignored configured data root at `data/local_external/phase2_cross_machine_20260924/`, separate from the historical accepted fixture. The matrix and sidecar SHA-256 values remained `814ef8337c79ab6646c7ccc3be6c1fd14b3323079a3c984bcba647d87627b80a` and `f45e95f28f33fa8af66bce6370cc254c2124f0f99760b65c82ea360364a4f57a`. The original Mac `_T.JPG` matched the sidecar's source SHA-256 `f879183623281c77df24d773bb5d7ebf64569661c89b25284ea3a7001cadcdb9`.
+
+Mac ran CPython 3.12.5 and pytest 9.1.1. The exact successful replay command, from the checkout root with the project virtual environment active, was:
+
+```sh
+PYTHONPATH="$PWD" python data/local_external/phase2_cross_machine_20260924/run_mac_replay.py
+```
+
+Launching the same script without `PYTHONPATH` first failed at import, before any scientific processing, because Python added the script's ignored data directory rather than the checkout to its import path. The successful command changed only that launch path. It did not change the matrix, sidecar, expected result, or tolerance.
+
+The replay returned **PASS**. Windows and Mac matched exactly for image identity, `327,680` native and eligible rows, four cover counts (`20,871` concrete pavement, `14,540` low vegetation, `30,014` roof, `262,255` tree), temperature definition, verified provenance, ambient `11.0 °C`, and mean ΔT `3.280268430709839 °C`. Observed Windows-to-Mac numeric difference was `0.0 °C`. The mean differed from the accepted float64 reference `3.2802686942042785 °C` by `2.6349443960071994e-7 °C`, under the existing `1e-6 °C` grouped-mean tolerance. Mac metrics SHA-256 was `3c4b16c3649db80dd8c17e216bea5a875e3171d11df009e2fd7ca032d12cec69`.
+
+An additional comparison against the fixed accepted fixture found all seven arrays element-exact and all `327,680` rows' temperature, ambient, and ΔT values exact. Fifty of 51 accepted pixel-table columns matched exactly. The sole wording difference was the v1 unit token `degC` versus the historical description `Celsius interpreted from SDK measure output`; both denote Celsius. No numeric, mask, identity, count, or other provenance field differed. The Windows package did not contain a full Windows pixel-table hash, so this extra full-table comparison is to the immutable accepted fixture, while the package's defined Windows-to-Mac metrics comparison is exact. No golden value was edited.
+
+The explicit accepted-real command from Mac Step 6 above executed with **1 passed, 0 skipped**. The formal synthetic Part E command from Mac Step 4 passed. The portable Mac selection from Mac Step 4 finished with **124 passed, 1 skipped, 6 deselected**; the skip was the documented Windows Tcl bootstrap. The complete machine-readable Mac replay record is [phase2_cross_machine_mac_acceptance_20260924.json](phase2_cross_machine_mac_acceptance_20260924.json). **Cross-machine replay: PASS.** The historical polygon bundle and unknown standalone accepted TAT3 application version remain documented non-blocking limitations.

@@ -159,3 +159,6 @@ outputs/part_e/tables/part_e_v0_1_source_summary.csv
 data/processed/part_e_v0_2/
 outputs/part_e/source_dashboard/
 outputs/part_e/schema_0_2/
+
+# Later directory unignore rules must not expose Finder metadata.
+.DS_Store
