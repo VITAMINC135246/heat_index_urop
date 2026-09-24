@@ -4,6 +4,8 @@ Use this after the stabilization branch has been committed. Run the Mac and Wind
 
 An **automated test** checks code behavior; a **scientific regression test** compares measured outputs with an accepted reference result. A **fixture** is the fixed input and expected result used for that comparison. **CI** (continuous integration) is the GitHub Actions test run on a code change. `local_integration` tests need files in the original local project; a `windows_dji` test needs a real Windows DJI environment. A skipped test is not a pass for the real scientific gate.
 
+**Final branch note (2026-09-24):** the `stabilize/phase2-final` and `phase-2-safety-net` branch names in the historical commands below describe how acceptance was executed. They were deleted after their commits became reachable from `phase2-Completed`. For future work, use `phase2-Completed` and read the [completion record](phase2_completion_record.md).
+
 ## Mac acceptance
 
 Run these commands from a fresh checkout of the repository, in a Terminal at its root. The commands use a local `.venv` and a temporary Matplotlib cache so they do not alter accepted outputs.

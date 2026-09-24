@@ -5,8 +5,6 @@ on:
   push:
     branches:
       - main
-      - phase-2-safety-net
-      - "stabilize/**"
       - phase2-Completed
   workflow_dispatch:
 

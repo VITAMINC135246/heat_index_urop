@@ -10,7 +10,7 @@ Date: 2026-09-24 (Asia/Shanghai). This report supersedes the pre-acceptance stat
 - **Real scientific regression: PASS.** Five normal-route images and the immutable six-image aggregate, including the accepted 21,047-pixel polygon result, agree within existing repository tolerances.
 - **Hosted CI: PASS on the stabilization source commit.** GitHub Actions run [35970592160](https://github.com/VITAMINC135246/heat_index_urop/actions/runs/35970592160) completed both the macOS and Windows jobs successfully at `9bb41a1`. Final-branch CI is checked separately after push.
 - **Cross-machine replay: PASS.** The unchanged Windows-produced v1 pair was installed under the Mac data root and replayed through the Phase 2 adapter. Its defined downstream metrics match Windows exactly; the original Mac source image and radiometric parameters also match the sidecar.
-- **Full scientific certification: PASS.** The owner accepted the frozen aggregate for historical polygon coverage, and the last required Windows-to-Mac scientific gate passed. The permanent branch and final hosted CI are recorded separately in the completion record after branch closure.
+- **Full scientific certification: PASS.** The owner accepted the frozen aggregate for historical polygon coverage, and the last required Windows-to-Mac scientific gate passed. The permanent branch and Git closure are recorded in the [completion record](phase2_completion_record.md).
 
 The compact machine-readable Windows record is [phase2_windows_acceptance_20260924.json](phase2_windows_acceptance_20260924.json).
 
@@ -21,6 +21,8 @@ The compact machine-readable Windows record is [phase2_windows_acceptance_202609
 - Windows fetched stabilization commit: `4c3af875c83cbda70f027a3d9619a2e617d8027f` on `stabilize/phase2-final`.
 - Windows work used a separate managed worktree. The old validated checkout, its accepted output tree, `main`, and `phase-2-safety-net` were not overwritten, reset, merged, or rebased.
 - Local configuration, recovered fixtures, source data, generated matrices, replay outputs, and transfer artifacts remained ignored or outside the repository. Only documentation evidence is intended for the final commit.
+
+These branch statements describe the Windows execution boundary. After certification, the candidate and stabilization branches were safely removed; their commits remain reachable from permanent `phase2-Completed`, as recorded in [phase2_completion_record.md](phase2_completion_record.md).
 
 ## Implemented stabilization
 
@@ -132,4 +134,4 @@ The jobs were actually created and executed; this is not the former `No jobs wer
 
 The code baseline, independent Mac acceptance, Windows acceptance, real regressions, thermal provenance, hosted CI on the source commit, and the required replay of the new Windows artifact on Mac are complete. The owner accepted the frozen aggregate as sufficient polygon evidence. The missing standalone polygon canonical bundle and unknown historical TAT3 application version remain documented non-blocking limitations.
 
-**Overall Phase 2 scientific status: COMPLETE. Full scientific certification: PASS.** The final permanent branch, branch cleanup, and hosted CI on that branch are recorded in [phase2_completion_record.md](phase2_completion_record.md) when the Git closure is finished. Shadow algorithm work has not been implemented.
+**Overall Phase 2 scientific status: COMPLETE. Full scientific certification: PASS.** The final permanent branch, branch cleanup, and hosted CI on that branch are recorded in [phase2_completion_record.md](phase2_completion_record.md). Shadow algorithm work has not been implemented.
